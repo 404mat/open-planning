@@ -5,6 +5,7 @@ import { CardSelector } from '@/app/components/CardSelector';
 import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
 import { Link } from '@/app/components/icons/Link';
 import { useRouter } from 'next/navigation';
+import { InviteModal } from '@/app/components/InviteModal';
 
 const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
 
@@ -23,11 +24,12 @@ export default function RoomPage({
   const router = useRouter();
   const [players] = useState<Player[]>([
     { id: '1', name: 'Player 1', selectedCard: null },
-    { id: '2', name: 'Player 2', selectedCard: '5' },
-    { id: '3', name: 'Player 3', selectedCard: '3' },
+    // { id: '2', name: 'Player 2', selectedCard: '5' },
+    // { id: '3', name: 'Player 3', selectedCard: '3' },
   ]);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(true);
 
   const getPlayerPosition = (index: number, totalPlayers: number) => {
     const angleStep = (2 * Math.PI) / totalPlayers;
@@ -52,6 +54,13 @@ export default function RoomPage({
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      {players.length === 1 && showInviteModal && (
+        <InviteModal
+          roomId={roomId}
+          onClose={() => setShowInviteModal(false)}
+        />
+      )}
+
       <div className="flex justify-between items-center p-8">
         <button
           onClick={() => router.push('/')}
