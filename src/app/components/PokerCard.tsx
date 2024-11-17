@@ -1,8 +1,16 @@
 interface PokerCardProps {
   value: string | null;
+  isSelected?: boolean;
+  onClick?: () => void;
+  showPattern?: boolean;
 }
 
-export function PokerCard({ value }: PokerCardProps) {
+export function PokerCard({
+  value,
+  isSelected = false,
+  onClick,
+  showPattern = true,
+}: PokerCardProps) {
   if (!value) {
     return (
       <div className="w-[60px] h-[84px] rounded-lg bg-gradient-to-br from-gray-400 to-gray-600 shadow-md flex items-center justify-center">
@@ -12,7 +20,16 @@ export function PokerCard({ value }: PokerCardProps) {
   }
 
   return (
-    <div className="w-[60px] h-[84px] bg-white rounded-lg shadow-md relative overflow-hidden">
+    <div
+      onClick={onClick}
+      className={`w-[60px] h-[84px] bg-white rounded-lg shadow-md relative overflow-hidden 
+        ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} 
+        ${
+          isSelected
+            ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110'
+            : ''
+        }`}
+    >
       {/* Card inner border */}
       <div className="absolute inset-[3px] border border-gray-200 rounded-md" />
 
@@ -26,7 +43,11 @@ export function PokerCard({ value }: PokerCardProps) {
 
       {/* Center value */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold">{value}</span>
+        <span
+          className={`text-2xl font-bold ${isSelected ? 'text-blue-600' : ''}`}
+        >
+          {value}
+        </span>
       </div>
 
       {/* Card texture */}
