@@ -33,6 +33,7 @@ export default function RoomPage({
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [cardsRevealed, setCardsRevealed] = useState(false);
 
   useEffect(() => {
     if (players.length === 1) {
@@ -50,6 +51,10 @@ export default function RoomPage({
     const y = 50 + radius * Math.sin(angle);
 
     return { x, y };
+  };
+
+  const handleToggleCards = () => {
+    setCardsRevealed((prev) => !prev);
   };
 
   return (
@@ -79,7 +84,15 @@ export default function RoomPage({
                 zIndex: 10,
               }}
             >
-              <PokerCard value={player.selectedCard} />
+              <div className="flex flex-col items-center gap-2">
+                <PokerCard
+                  value={player.selectedCard ?? '-'}
+                  isRevealed={cardsRevealed}
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {player.name}
+                </span>
+              </div>
             </div>
           );
         })}
@@ -88,6 +101,21 @@ export default function RoomPage({
         <div className="absolute w-full max-w-lg h-[180px] bg-gray-200 rounded-lg shadow-xl">
           {/* Table pattern */}
           <div className="absolute inset-4 border-2 border-gray-300 rounded-lg" />
+
+          {/* Toggle button */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button
+              onClick={handleToggleCards}
+              className={`px-6 py-2 rounded-full font-medium shadow-md transition-all
+                ${
+                  cardsRevealed
+                    ? 'bg-gray-800 text-white hover:bg-gray-700'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                } active:scale-95`}
+            >
+              {cardsRevealed ? 'Hide Cards' : 'Reveal Cards'}
+            </button>
+          </div>
         </div>
       </div>
 

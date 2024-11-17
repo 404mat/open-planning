@@ -27,6 +27,7 @@ export function CardSelector({
             key={card}
             value={card}
             isSelected={selectedCard === card}
+            isRevealed={true}
             onClick={() => handleCardClick(card)}
             showPattern={false}
           />
