@@ -5,8 +5,7 @@ import { CardSelector } from '@/app/components/CardSelector';
 import { useRouter } from 'next/navigation';
 import { InviteModal } from '@/app/components/InviteModal';
 import { RoomHeader } from './RoomHeader';
-
-const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
+import { POKER_CARDS } from '@/constants';
 
 interface Player {
   id: string;
@@ -22,13 +21,13 @@ export default function RoomPage({
   const { roomId } = use(params);
   const router = useRouter();
   const [players] = useState<Player[]>([
-    { id: '1', name: 'Player 1', selectedCard: null },
-    { id: '2', name: 'Player 2', selectedCard: '2' },
-    { id: '3', name: 'Player 3', selectedCard: '3' },
-    { id: '4', name: 'Player 4', selectedCard: '5' },
-    { id: '5', name: 'Player 5', selectedCard: '8' },
-    { id: '6', name: 'Player 6', selectedCard: null },
-    { id: '7', name: 'Player 7', selectedCard: '21' },
+    { id: '1', name: 'Emma Thompson', selectedCard: null },
+    { id: '2', name: 'James Chen', selectedCard: '2' },
+    { id: '3', name: 'Sofia Rodriguez', selectedCard: '3' },
+    { id: '4', name: 'Lucas Williams', selectedCard: '5' },
+    { id: '5', name: 'Olivia Parker', selectedCard: '8' },
+    { id: '6', name: 'Alexander Kim', selectedCard: null },
+    { id: '7', name: 'Isabella Martinez', selectedCard: '21' },
   ]);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);

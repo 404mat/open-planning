@@ -5,7 +5,7 @@ import {
   validateMaxUsers,
   validateIdleTimeout,
   ValidationResult,
-} from '../utils/inputValidation';
+} from '../../utils/inputValidation';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
