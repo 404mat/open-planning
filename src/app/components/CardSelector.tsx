@@ -3,7 +3,7 @@ import { PokerCard } from './PokerCard';
 interface CardSelectorProps {
   cards: string[];
   selectedCard: string | null;
-  onSelectCard: (card: string) => void;
+  onSelectCard: (card: string | null) => void;
 }
 
 export function CardSelector({
@@ -11,6 +11,14 @@ export function CardSelector({
   selectedCard,
   onSelectCard,
 }: CardSelectorProps) {
+  const handleCardClick = (card: string) => {
+    if (selectedCard === card) {
+      onSelectCard(null);
+    } else {
+      onSelectCard(card);
+    }
+  };
+
   return (
     <div className="w-full flex justify-center p-8">
       <div className="flex gap-4">
@@ -19,7 +27,7 @@ export function CardSelector({
             key={card}
             value={card}
             isSelected={selectedCard === card}
-            onClick={() => onSelectCard(card)}
+            onClick={() => handleCardClick(card)}
             showPattern={false}
           />
         ))}
