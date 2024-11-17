@@ -34,8 +34,8 @@ export function PokerCard({
       className={`w-16 h-24 rounded-lg shadow-lg flex items-center justify-center text-xl font-bold transition-transform hover:scale-110
         ${
           isSelected
-            ? "bg-gray-800 text-white transform scale-110"
-            : "bg-white text-gray-800 hover:bg-gray-50"
+            ? 'bg-gray-800 text-white transform scale-110'
+            : 'bg-white text-gray-800 hover:bg-gray-50'
         }`}
     >
       {value}

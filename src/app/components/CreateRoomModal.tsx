@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { RoomOptions } from "@/app/types";
+import { useState } from 'react';
+import { RoomOptions } from '@/app/types';
 import {
   validateRoomName,
   validateMaxUsers,
   validateIdleTimeout,
   ValidationResult,
-} from "../utils/inputValidation";
+} from '../utils/inputValidation';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -33,17 +33,17 @@ export default function CreateRoomModal({
     let result: ValidationResult;
 
     switch (key) {
-      case "roomName":
+      case 'roomName':
         result = validateRoomName(value as string);
         return result.error;
-      case "maxUsers":
+      case 'maxUsers':
         result = validateMaxUsers(value as number);
         return result.error;
-      case "idleTimeout":
+      case 'idleTimeout':
         result = validateIdleTimeout(value as number);
         return result.error;
       default:
-        return "";
+        return '';
     }
   };
 
@@ -56,7 +56,7 @@ export default function CreateRoomModal({
       [key]: value,
     }));
 
-    if (key !== "userCanFlip") {
+    if (key !== 'userCanFlip') {
       // Skip validation for boolean fields
       const error = validateField(key, value);
       setErrors((prev) => ({
@@ -71,7 +71,7 @@ export default function CreateRoomModal({
     let hasErrors = false;
 
     (Object.keys(options) as Array<keyof RoomOptions>).forEach((key) => {
-      if (key !== "userCanFlip") {
+      if (key !== 'userCanFlip') {
         const error = validateField(key, options[key]);
         if (error) {
           newErrors[key] = error;
@@ -118,12 +118,12 @@ export default function CreateRoomModal({
             <input
               type="text"
               value={options.roomName}
-              onChange={(e) => handleOptionChange("roomName", e.target.value)}
+              onChange={(e) => handleOptionChange('roomName', e.target.value)}
               className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
                 bg-gray-50 p-2 text-gray-900
                 placeholder:text-gray-400
-                ${errors.roomName ? "border-red-300" : "border-gray-300"}`}
+                ${errors.roomName ? 'border-red-300' : 'border-gray-300'}`}
               placeholder="Enter room name..."
             />
             {errors.roomName && (
@@ -141,12 +141,12 @@ export default function CreateRoomModal({
               max="50"
               value={options.maxUsers}
               onChange={(e) =>
-                handleOptionChange("maxUsers", parseInt(e.target.value))
+                handleOptionChange('maxUsers', parseInt(e.target.value))
               }
               className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
                 bg-gray-50 p-2 text-gray-900
-                ${errors.maxUsers ? "border-red-300" : "border-gray-300"}`}
+                ${errors.maxUsers ? 'border-red-300' : 'border-gray-300'}`}
             />
             {errors.maxUsers && (
               <p className="mt-1 text-sm text-red-600">{errors.maxUsers}</p>
@@ -163,12 +163,12 @@ export default function CreateRoomModal({
               max="120"
               value={options.idleTimeout}
               onChange={(e) =>
-                handleOptionChange("idleTimeout", parseInt(e.target.value))
+                handleOptionChange('idleTimeout', parseInt(e.target.value))
               }
               className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
                 bg-gray-50 p-2 text-gray-900
-                ${errors.idleTimeout ? "border-red-300" : "border-gray-300"}`}
+                ${errors.idleTimeout ? 'border-red-300' : 'border-gray-300'}`}
             />
             {errors.idleTimeout && (
               <p className="mt-1 text-sm text-red-600">{errors.idleTimeout}</p>
@@ -181,7 +181,7 @@ export default function CreateRoomModal({
               id="userCanFlip"
               checked={options.userCanFlip}
               onChange={(e) =>
-                handleOptionChange("userCanFlip", e.target.checked)
+                handleOptionChange('userCanFlip', e.target.checked)
               }
               className="rounded border-gray-300 text-gray-600 
                 focus:ring-gray-500"
@@ -210,8 +210,8 @@ export default function CreateRoomModal({
                 Object.keys(errors).some(
                   (key) => !!errors[key as keyof RoomOptions]
                 )
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-600 text-white hover:bg-gray-500"
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-600 text-white hover:bg-gray-500'
               }`}
           >
             Create Room

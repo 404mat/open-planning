@@ -4,13 +4,13 @@ import {
   adjectives,
   animals,
   colors,
-} from "unique-names-generator";
+} from 'unique-names-generator';
 
 const customConfig: Config = {
   dictionaries: [adjectives, colors, animals],
-  separator: "-",
+  separator: '-',
   length: 3,
-  style: "lowerCase",
+  style: 'lowerCase',
 };
 
 export function generateRoomId(): string {
@@ -24,7 +24,7 @@ export function isValidRoomId(roomId: string): boolean {
   // Cannot have consecutive hyphens or underscores
   return (
     /^[a-zA-Z0-9][a-zA-Z0-9-_]{1,28}[a-zA-Z0-9]$/.test(roomId) &&
-    !roomId.includes("--") &&
-    !roomId.includes("__")
+    !roomId.includes('--') &&
+    !roomId.includes('__')
   );
 }

@@ -1,22 +1,22 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import CreateRoomModal from "./components/CreateRoomModal";
-import { RoomOptions } from "./types";
-import { generateRoomId, isValidRoomId } from "./utils/roomIdGenerator";
-import { validateRoomId } from "./utils/inputValidation";
-import UserNameInput from "./components/user/UserNameInput";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import CreateRoomModal from './components/CreateRoomModal';
+import { RoomOptions } from './types';
+import { generateRoomId, isValidRoomId } from './utils/roomIdGenerator';
+import { validateRoomId } from './utils/inputValidation';
+import UserNameInput from './components/user/UserNameInput';
 
 export default function Home() {
-  const [roomId, setRoomId] = useState("");
+  const [roomId, setRoomId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [roomOptions, setRoomOptions] = useState<RoomOptions>({
-    roomName: "",
+    roomName: '',
     maxUsers: 10,
     userCanFlip: true,
     idleTimeout: 30,
   });
-  const [inputError, setInputError] = useState("");
+  const [inputError, setInputError] = useState('');
   const router = useRouter();
 
   const handleJoinRoom = (e: React.FormEvent) => {
@@ -42,18 +42,18 @@ export default function Home() {
     const queryParams = new URLSearchParams();
 
     if (options.roomName) {
-      queryParams.append("name", options.roomName);
+      queryParams.append('name', options.roomName);
     }
-    queryParams.append("maxUsers", options.maxUsers.toString());
-    queryParams.append("userCanFlip", options.userCanFlip.toString());
-    queryParams.append("idleTimeout", options.idleTimeout.toString());
+    queryParams.append('maxUsers', options.maxUsers.toString());
+    queryParams.append('userCanFlip', options.userCanFlip.toString());
+    queryParams.append('idleTimeout', options.idleTimeout.toString());
 
     const queryString = queryParams.toString();
-    router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ""}`);
+    router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ''}`);
   };
 
   const validateInput = (value: string): string => {
-    if (!value.trim()) return "";
+    if (!value.trim()) return '';
     const validation = validateRoomId(value);
     return validation.error;
   };
@@ -94,7 +94,7 @@ export default function Home() {
                   focus:border-gray-500 focus:ring-gray-500 
                   bg-gray-50 p-2.5 text-gray-900
                   placeholder:text-gray-400
-                  ${inputError ? "border-red-300" : "border-gray-300"}`}
+                  ${inputError ? 'border-red-300' : 'border-gray-300'}`}
                 placeholder="e.g., happy-blue-dolphin"
               />
               {inputError && (
@@ -109,8 +109,8 @@ export default function Home() {
                 transition-colors text-base sm:text-lg
                 ${
                   inputError || !roomId.trim()
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-800 text-white hover:bg-gray-700"
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-800 text-white hover:bg-gray-700'
                 }`}
             >
               Join Room

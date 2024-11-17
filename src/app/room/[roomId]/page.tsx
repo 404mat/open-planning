@@ -1,11 +1,11 @@
-"use client";
-import { useState, use } from "react";
-import { PokerCard } from "@/app/components/PokerCard";
-import { CardSelector } from "@/app/components/CardSelector";
-import { ArrowLeft } from "@/app/components/icons/ArrowLeft";
-import { useRouter } from "next/navigation";
+'use client';
+import { useState, use } from 'react';
+import { PokerCard } from '@/app/components/PokerCard';
+import { CardSelector } from '@/app/components/CardSelector';
+import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
+import { useRouter } from 'next/navigation';
 
-const POKER_CARDS = ["1", "2", "3", "5", "8", "13", "21", "?", "☕"];
+const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
 
 interface Player {
   id: string;
@@ -21,9 +21,9 @@ export default function RoomPage({
   const { roomId } = use(params);
   const router = useRouter();
   const [players] = useState<Player[]>([
-    { id: "1", name: "Player 1", selectedCard: null },
-    { id: "2", name: "Player 2", selectedCard: "5" },
-    { id: "3", name: "Player 3", selectedCard: "3" },
+    { id: '1', name: 'Player 1', selectedCard: null },
+    { id: '2', name: 'Player 2', selectedCard: '5' },
+    { id: '3', name: 'Player 3', selectedCard: '3' },
   ]);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -36,8 +36,8 @@ export default function RoomPage({
     const y = Math.sin(angle) * radius;
 
     return {
-      left: "50%",
-      top: "50%",
+      left: '50%',
+      top: '50%',
       transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
     };
   };
@@ -46,7 +46,7 @@ export default function RoomPage({
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <div className="flex justify-between items-center p-8">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push('/')}
           className="text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
         >
           <ArrowLeft />

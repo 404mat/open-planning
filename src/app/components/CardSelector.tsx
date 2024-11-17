@@ -1,4 +1,4 @@
-import { PokerCard } from "./PokerCard";
+import { PokerCard } from './PokerCard';
 
 interface CardSelectorProps {
   cards: string[];

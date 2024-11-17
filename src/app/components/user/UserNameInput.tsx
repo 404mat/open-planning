@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { validateUserName } from "../../utils/inputValidation";
-import Modal from "./Modal";
+import { useState, useEffect } from 'react';
+import { validateUserName } from '../../utils/inputValidation';
+import Modal from './Modal';
 
 export default function UserNameInput() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [tempUserName, setTempUserName] = useState("");
-  const [error, setError] = useState("");
+  const [userName, setUserName] = useState('');
+  const [tempUserName, setTempUserName] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const savedName = localStorage.getItem("userName");
+    const savedName = localStorage.getItem('userName');
     if (savedName) {
       setUserName(savedName);
       setTempUserName(savedName);
@@ -23,22 +23,22 @@ export default function UserNameInput() {
       return;
     }
 
-    localStorage.setItem("userName", tempUserName);
+    localStorage.setItem('userName', tempUserName);
     setUserName(tempUserName);
     setIsModalOpen(false);
-    setError("");
+    setError('');
   };
 
   const handleCancel = () => {
     setTempUserName(userName);
-    setError("");
+    setError('');
     setIsModalOpen(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       handleSubmit();
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       handleCancel();
     }
   };
@@ -58,8 +58,8 @@ export default function UserNameInput() {
         className={`flex-1 px-4 py-2 rounded-md transition-colors
           ${
             !tempUserName.trim()
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-600 text-white hover:bg-gray-500"
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-600 text-white hover:bg-gray-500'
           }`}
       >
         Save
@@ -75,7 +75,7 @@ export default function UserNameInput() {
           rounded-md hover:bg-gray-200 transition-colors"
       >
         <span className="text-gray-600">
-          {userName ? `Hello, ${userName}` : "Set your name"}
+          {userName ? `Hello, ${userName}` : 'Set your name'}
         </span>
         <span className="text-gray-500">✎</span>
       </button>
@@ -99,7 +99,7 @@ export default function UserNameInput() {
             value={tempUserName}
             onChange={(e) => {
               setTempUserName(e.target.value);
-              setError("");
+              setError('');
             }}
             onKeyDown={handleKeyDown}
             autoFocus
@@ -107,7 +107,7 @@ export default function UserNameInput() {
             className={`block w-full rounded-md shadow-sm 
               focus:border-gray-500 focus:ring-gray-500 
               bg-gray-50 p-2 text-gray-900
-              ${error ? "border-red-300" : "border-gray-300"}`}
+              ${error ? 'border-red-300' : 'border-gray-300'}`}
           />
           {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
         </div>
