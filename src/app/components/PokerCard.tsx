@@ -11,44 +11,44 @@ export function PokerCard({
   isRevealed = false,
   onClick,
 }: PokerCardProps) {
-  if (!value) {
-    return (
-      <div className="w-[60px] h-[84px] rounded-lg bg-gradient-to-br from-gray-400 to-gray-600 shadow-md flex items-center justify-center">
-        <div className="w-[54px] h-[78px] rounded-lg border-2 border-gray-300/30 m-[3px]" />
-      </div>
-    );
-  }
-
   return (
-    <>
-      {isRevealed ? (
+    <div className="relative w-[60px] h-[84px] [perspective:1000px]">
+      {/* card transition when flipped */}
+      <div
+        className={`w-full h-full transition-transform duration-700 [transform-style:preserve-3d] relative
+          ${isRevealed ? '[transform:rotateY(0deg)]' : '[transform:rotateY(180deg)]'}
+        `}
+      >
+        {/* Front of card (revealed) */}
         <div
           onClick={onClick}
-          className={`w-[60px] h-[84px] bg-white rounded-lg shadow-md relative overflow-hidden
-        ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}
-        ${
-          isSelected
-            ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110'
-            : ''
-        }`}
+          className={`w-full h-full bg-white rounded-lg shadow-md absolute backface-hidden
+            ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}
+            ${
+              isSelected
+                ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110'
+                : ''
+            }`}
         >
           {/* Card inner border */}
           <div className="absolute inset-[3px] border border-gray-200 rounded-md"></div>
 
           {/* Card corners */}
           <div className="absolute top-1 left-2 text-red-400/20 font-bold text-sm">
-            {value}
+            {value ?? '-'}
           </div>
           <div className="absolute bottom-1 right-2 text-red-400/20 font-bold text-sm rotate-180">
-            {value}
+            {value ?? '-'}
           </div>
 
           {/* Center value */}
           <div className="absolute inset-0 flex items-center justify-center">
             <span
-              className={`text-2xl font-bold ${isSelected ? 'text-blue-600' : ''}`}
+              className={`text-2xl font-bold ${
+                isSelected ? 'text-blue-600' : 'text-gray-800'
+              }`}
             >
-              {value}
+              {value ?? '-'}
             </span>
           </div>
 
@@ -56,11 +56,30 @@ export function PokerCard({
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent)] pointer-events-none" />
         </div>
-      ) : (
-        <div className="w-[60px] h-[84px] rounded-lg bg-gradient-to-br from-gray-400 to-gray-600 shadow-md flex items-center justify-center">
-          <div className="w-[54px] h-[78px] rounded-lg border-2 border-gray-300/30 m-[3px]" />
+
+        {/* Back of card */}
+        <div
+          className={`w-full h-full rounded-lg shadow-md absolute backface-hidden [transform:rotateY(180deg)] flex items-center justify-center ${
+            value
+              ? 'bg-gradient-to-br from-blue-500 to-blue-700'
+              : 'bg-gradient-to-br from-gray-300 to-gray-500'
+          }`}
+        >
+          <div
+            className={`w-[54px] h-[78px] rounded-lg border-2 m-[3px] ${
+              value ? 'border-blue-400/30' : 'border-gray-300/30'
+            }`}
+          >
+            {/* Card back texture */}
+            <div
+              className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${
+                value ? 'from-blue-400/10' : 'from-gray-300/10'
+              } to-transparent`}
+            />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent)] pointer-events-none" />
+          </div>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
