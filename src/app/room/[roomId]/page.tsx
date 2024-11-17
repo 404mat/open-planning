@@ -1,9 +1,9 @@
 'use client';
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import { PokerCard } from '@/app/components/PokerCard';
 import { CardSelector } from '@/app/components/CardSelector';
 import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
-import { Link } from '@/app/components/icons/Link';
+import { Avatar } from '@/app/components/icons/Avatar';
 import { useRouter } from 'next/navigation';
 import { InviteModal } from '@/app/components/InviteModal';
 
@@ -24,12 +24,18 @@ export default function RoomPage({
   const router = useRouter();
   const [players] = useState<Player[]>([
     { id: '1', name: 'Player 1', selectedCard: null },
-    // { id: '2', name: 'Player 2', selectedCard: '5' },
-    // { id: '3', name: 'Player 3', selectedCard: '3' },
+    { id: '2', name: 'Player 2', selectedCard: '5' },
+    { id: '3', name: 'Player 3', selectedCard: '3' },
   ]);
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  const [showInviteModal, setShowInviteModal] = useState(true);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+
+  useEffect(() => {
+    if (players.length === 1) {
+      setShowInviteModal(true);
+    }
+  }, []);
 
   const getPlayerPosition = (index: number, totalPlayers: number) => {
     const angleStep = (2 * Math.PI) / totalPlayers;
@@ -45,16 +51,9 @@ export default function RoomPage({
     };
   };
 
-  const copyInviteLink = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      alert('Invite link copied!');
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {players.length === 1 && showInviteModal && (
+      {showInviteModal && (
         <InviteModal
           roomId={roomId}
           onClose={() => setShowInviteModal(false)}
@@ -72,11 +71,11 @@ export default function RoomPage({
         <div className="flex flex-col items-center">
           <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
           <button
-            onClick={copyInviteLink}
+            onClick={() => setShowInviteModal(true)}
             className="mt-2 text-sm text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-1"
           >
-            <Link />
-            Copy invite link
+            <Avatar />
+            Invite players
           </button>
         </div>
         <div className="w-[140px]" /> {/* Spacer for centering */}
