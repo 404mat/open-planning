@@ -1,44 +1,37 @@
 interface PokerCardProps {
   value: string | null;
-  isSelected?: boolean;
-  onClick?: () => void;
-  showPattern?: boolean;
 }
 
-export function PokerCard({
-  value,
-  isSelected,
-  onClick,
-  showPattern = true,
-}: PokerCardProps) {
+export function PokerCard({ value }: PokerCardProps) {
   if (!value) {
     return (
-      <div className="w-16 h-24 rounded-lg shadow-lg bg-white relative overflow-hidden">
-        {showPattern && (
-          <div className="absolute inset-0 bg-gray-100">
-            <div className="absolute inset-1 border border-gray-300 rounded-md"></div>
-            <div className="absolute inset-2 grid grid-cols-3 grid-rows-3 gap-0.5">
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="bg-gray-200 rounded-sm"></div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="w-[60px] h-[84px] rounded-lg bg-gradient-to-br from-gray-400 to-gray-600 shadow-md flex items-center justify-center">
+        <div className="w-[54px] h-[78px] rounded-lg border-2 border-gray-300/30 m-[3px]" />
       </div>
     );
   }
 
   return (
-    <button
-      onClick={onClick}
-      className={`w-16 h-24 rounded-lg shadow-lg flex items-center justify-center text-xl font-bold transition-transform hover:scale-110
-        ${
-          isSelected
-            ? 'bg-gray-800 text-white transform scale-110'
-            : 'bg-white text-gray-800 hover:bg-gray-50'
-        }`}
-    >
-      {value}
-    </button>
+    <div className="w-[60px] h-[84px] bg-white rounded-lg shadow-md relative overflow-hidden">
+      {/* Card inner border */}
+      <div className="absolute inset-[3px] border border-gray-200 rounded-md" />
+
+      {/* Card corners */}
+      <div className="absolute top-1 left-2 text-red-400/20 font-bold text-sm">
+        {value}
+      </div>
+      <div className="absolute bottom-1 right-2 text-red-400/20 font-bold text-sm rotate-180">
+        {value}
+      </div>
+
+      {/* Center value */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-2xl font-bold">{value}</span>
+      </div>
+
+      {/* Card texture */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent)] pointer-events-none" />
+    </div>
   );
 }
