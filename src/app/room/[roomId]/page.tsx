@@ -2,6 +2,8 @@
 import { useState, use } from "react";
 import { PokerCard } from "@/app/components/PokerCard";
 import { CardSelector } from "@/app/components/CardSelector";
+import { ArrowLeft } from "@/app/components/icons/ArrowLeft";
+import { useRouter } from "next/navigation";
 
 const POKER_CARDS = ["1", "2", "3", "5", "8", "13", "21", "?", "☕"];
 
@@ -17,6 +19,7 @@ export default function RoomPage({
   params: Promise<{ roomId: string }>;
 }) {
   const { roomId } = use(params);
+  const router = useRouter();
   const [players] = useState<Player[]>([
     { id: "1", name: "Player 1", selectedCard: null },
     { id: "2", name: "Player 2", selectedCard: "5" },
@@ -41,7 +44,17 @@ export default function RoomPage({
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      <h1 className="text-2xl font-bold p-8 text-gray-800">Room: {roomId}</h1>
+      <div className="flex justify-between items-center p-8">
+        <button
+          onClick={() => router.push("/")}
+          className="text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
+        >
+          <ArrowLeft />
+          Change room
+        </button>
+        <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
+        <div className="w-[140px]" /> {/* Spacer for centering */}
+      </div>
 
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="relative w-full max-w-xl h-[200px] mx-auto">
