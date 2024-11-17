@@ -6,8 +6,15 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Scrum Poker',
-  description: 'A real-time scrum poker application',
+  title: 'Planning Poker',
+  description: 'Collaborative planning poker for agile teams',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: { url: '/apple-touch-icon.png' },
+  },
 };
 
 export default function RootLayout({
