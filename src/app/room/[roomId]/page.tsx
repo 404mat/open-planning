@@ -3,6 +3,7 @@ import { useState, use } from 'react';
 import { PokerCard } from '@/app/components/PokerCard';
 import { CardSelector } from '@/app/components/CardSelector';
 import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
+import { Link } from '@/app/components/icons/Link';
 import { useRouter } from 'next/navigation';
 
 const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
@@ -42,6 +43,13 @@ export default function RoomPage({
     };
   };
 
+  const copyInviteLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Invite link copied!');
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <div className="flex justify-between items-center p-8">
@@ -52,7 +60,16 @@ export default function RoomPage({
           <ArrowLeft />
           Change room
         </button>
-        <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
+          <button
+            onClick={copyInviteLink}
+            className="mt-2 text-sm text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-1"
+          >
+            <Link />
+            Copy invite link
+          </button>
+        </div>
         <div className="w-[140px]" /> {/* Spacer for centering */}
       </div>
 
