@@ -1,4 +1,4 @@
-import { PokerCard } from './PokerCard';
+import { PokerCard } from '@/app/components/PokerCard';
 
 interface CardSelectorProps {
   cards: string[];
@@ -29,7 +29,6 @@ export function CardSelector({
             isSelected={selectedCard === card}
             isRevealed={true}
             onClick={() => handleCardClick(card)}
-            showPattern={false}
           />
         ))}
       </div>

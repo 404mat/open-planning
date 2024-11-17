@@ -1,6 +1,6 @@
+import { useRouter } from 'next/navigation';
 import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
 import { Avatar } from '@/app/components/icons/Avatar';
-import { useRouter } from 'next/navigation';
 
 interface RoomHeaderProps {
   roomId: string;

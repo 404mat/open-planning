@@ -1,11 +1,13 @@
 import { useState } from 'react';
+
 import { RoomOptions } from '@/app/types';
 import {
   validateRoomName,
   validateMaxUsers,
   validateIdleTimeout,
   ValidationResult,
-} from '../../utils/inputValidation';
+} from '@/utils/inputValidation';
+import { Cross } from '@/app/components/icons/Cross';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -106,7 +108,7 @@ export default function CreateRoomModal({
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
           >
-            ✕
+            <Cross />
           </button>
         </div>
 

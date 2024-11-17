@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { validateUserName } from '../../../utils/inputValidation';
+
+import { validateUserName } from '@/utils/inputValidation';
 import Modal from './Modal';
 
 export default function UserNameInput() {

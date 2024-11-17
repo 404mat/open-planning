@@ -3,7 +3,6 @@ interface PokerCardProps {
   isSelected?: boolean;
   isRevealed?: boolean;
   onClick?: () => void;
-  showPattern?: boolean;
 }
 
 export function PokerCard({
@@ -11,7 +10,6 @@ export function PokerCard({
   isSelected = false,
   isRevealed = false,
   onClick,
-  showPattern = true,
 }: PokerCardProps) {
   if (!value) {
     return (

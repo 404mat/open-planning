@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import CreateRoomModal from './components/CreateRoomModal';
-import { RoomOptions } from './types';
-import { generateRoomId, isValidRoomId } from '../utils/roomIdGenerator';
-import { validateRoomId } from '../utils/inputValidation';
-import UserNameInput from './components/user/UserNameInput';
+
+import CreateRoomModal from '@/app/components/CreateRoomModal';
+import { RoomOptions } from '@/app/types';
+import { generateRoomId, isValidRoomId } from '@/utils/roomIdGenerator';
+import { validateRoomId } from '@/utils/inputValidation';
+import UserNameInput from '@/app/components/user/UserNameInput';
 
 export default function Home() {
   const [roomId, setRoomId] = useState('');
