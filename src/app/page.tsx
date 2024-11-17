@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CreateRoomModal from "./components/CreateRoomModal";
 import { RoomOptions } from "./types";
+import { generateRoomId, isValidRoomId } from "./utils/roomIdGenerator";
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
@@ -13,22 +14,33 @@ export default function Home() {
     userCanFlip: true,
     idleTimeout: 30,
   });
+  const [inputError, setInputError] = useState("");
   const router = useRouter();
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
-    if (roomId.trim()) {
-      router.push(`/room/${roomId}`);
+    setInputError("");
+
+    if (!roomId.trim()) {
+      setInputError("Room ID is required");
+      return;
     }
+
+    if (!isValidRoomId(roomId)) {
+      setInputError("Invalid room ID format");
+      return;
+    }
+
+    router.push(`/room/${roomId}`);
   };
 
   const handleQuickCreate = () => {
-    const newRoomId = Math.random().toString(36).substring(2, 8);
+    const newRoomId = generateRoomId();
     router.push(`/room/${newRoomId}`);
   };
 
   const handleCreateWithOptions = (options: RoomOptions) => {
-    const newRoomId = Math.random().toString(36).substring(2, 8);
+    const newRoomId = generateRoomId();
     const queryParams = new URLSearchParams();
 
     if (options.roomName) {
@@ -42,10 +54,18 @@ export default function Home() {
     router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ""}`);
   };
 
+  const validateRoomId = (value: string): string => {
+    if (!value.trim()) return "";
+    if (!isValidRoomId(value)) {
+      return "Room ID must be 3-30 characters and can contain letters, numbers, hyphens, and underscores";
+    }
+    return "";
+  };
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-8">
       <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
-        Scrum Poker
+        Scrum Poker Planning
       </h1>
 
       <div className="flex flex-col md:flex-row gap-4 sm:gap-8 w-full max-w-3xl">
@@ -67,19 +87,33 @@ export default function Home() {
                 type="text"
                 id="roomId"
                 value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm 
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setRoomId(newValue);
+                  setInputError(validateRoomId(newValue));
+                }}
+                className={`block w-full rounded-md shadow-sm 
                   focus:border-gray-500 focus:ring-gray-500 
                   bg-gray-50 p-2.5 text-gray-900
-                  placeholder:text-gray-400"
-                placeholder="Enter room ID..."
+                  placeholder:text-gray-400
+                  ${inputError ? "border-red-300" : "border-gray-300"}`}
+                placeholder="e.g., happy-blue-dolphin"
               />
+              {inputError && (
+                <p className="mt-1 text-sm text-red-600">{inputError}</p>
+              )}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gray-800 text-white py-2.5 px-4 rounded-md 
-                hover:bg-gray-700 transition-colors text-base sm:text-lg"
+              disabled={!!inputError || !roomId.trim()}
+              className={`w-full py-2.5 px-4 rounded-md 
+                transition-colors text-base sm:text-lg
+                ${
+                  inputError || !roomId.trim()
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-800 text-white hover:bg-gray-700"
+                }`}
             >
               Join Room
             </button>

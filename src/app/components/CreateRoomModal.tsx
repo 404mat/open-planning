@@ -15,21 +15,92 @@ export default function CreateRoomModal({
   initialOptions,
 }: CreateRoomModalProps) {
   const [options, setOptions] = useState<RoomOptions>(initialOptions);
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RoomOptions, string>>
+  >({});
+
+  if (!isOpen) {
+    return null;
+  }
+
+  const validateField = (key: keyof RoomOptions, value: any): string => {
+    switch (key) {
+      case "roomName":
+        if (!value) return ""; // Optional field
+        if (value.length < 3) return "Room name must be at least 3 characters";
+        if (value.length > 50) return "Room name cannot exceed 50 characters";
+        if (!/^[a-zA-Z0-9\s-_]+$/.test(value)) {
+          return "Room name can only contain letters, numbers, spaces, hyphens, and underscores";
+        }
+        return "";
+
+      case "maxUsers":
+        if (value < 2) return "Room must allow at least 2 users";
+        if (value > 50) return "Room cannot have more than 50 users";
+        return "";
+
+      case "idleTimeout":
+        if (value < 5) return "Timeout must be at least 5 minutes";
+        if (value > 120) return "Timeout cannot exceed 120 minutes";
+        return "";
+
+      default:
+        return "";
+    }
+  };
 
   const handleOptionChange = (
     key: keyof RoomOptions,
     value: string | number | boolean
   ) => {
-    setOptions((prev: any) => ({
+    setOptions((prev) => ({
       ...prev,
       [key]: value,
     }));
+
+    if (key !== "userCanFlip") {
+      // Skip validation for boolean fields
+      const error = validateField(key, value);
+      setErrors((prev) => ({
+        ...prev,
+        [key]: error,
+      }));
+    }
   };
 
-  if (!isOpen) return null;
+  const isValid = () => {
+    const newErrors: Partial<Record<keyof RoomOptions, string>> = {};
+    let hasErrors = false;
+
+    (Object.keys(options) as Array<keyof RoomOptions>).forEach((key) => {
+      if (key !== "userCanFlip") {
+        const error = validateField(key, options[key]);
+        if (error) {
+          newErrors[key] = error;
+          hasErrors = true;
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    return !hasErrors;
+  };
+
+  const handleSubmit = () => {
+    if (isValid()) {
+      onSubmit(options);
+    }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">Room Settings</h2>
@@ -44,18 +115,22 @@ export default function CreateRoomModal({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Room Name
+              Room Name (Optional)
             </label>
             <input
               type="text"
               value={options.roomName}
               onChange={(e) => handleOptionChange("roomName", e.target.value)}
-              className="block w-full rounded-md border-gray-300 shadow-sm 
+              className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
                 bg-gray-50 p-2 text-gray-900
-                placeholder:text-gray-400"
-              placeholder="Optional room name..."
+                placeholder:text-gray-400
+                ${errors.roomName ? "border-red-300" : "border-gray-300"}`}
+              placeholder="Enter room name..."
             />
+            {errors.roomName && (
+              <p className="mt-1 text-sm text-red-600">{errors.roomName}</p>
+            )}
           </div>
 
           <div>
@@ -70,10 +145,14 @@ export default function CreateRoomModal({
               onChange={(e) =>
                 handleOptionChange("maxUsers", parseInt(e.target.value))
               }
-              className="block w-full rounded-md border-gray-300 shadow-sm 
+              className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
-                bg-gray-50 p-2 text-gray-900"
+                bg-gray-50 p-2 text-gray-900
+                ${errors.maxUsers ? "border-red-300" : "border-gray-300"}`}
             />
+            {errors.maxUsers && (
+              <p className="mt-1 text-sm text-red-600">{errors.maxUsers}</p>
+            )}
           </div>
 
           <div>
@@ -88,10 +167,14 @@ export default function CreateRoomModal({
               onChange={(e) =>
                 handleOptionChange("idleTimeout", parseInt(e.target.value))
               }
-              className="block w-full rounded-md border-gray-300 shadow-sm 
+              className={`block w-full rounded-md shadow-sm 
                 focus:border-gray-500 focus:ring-gray-500 
-                bg-gray-50 p-2 text-gray-900"
+                bg-gray-50 p-2 text-gray-900
+                ${errors.idleTimeout ? "border-red-300" : "border-gray-300"}`}
             />
+            {errors.idleTimeout && (
+              <p className="mt-1 text-sm text-red-600">{errors.idleTimeout}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -120,9 +203,18 @@ export default function CreateRoomModal({
             Cancel
           </button>
           <button
-            onClick={() => onSubmit(options)}
-            className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-md
-              hover:bg-gray-500 transition-colors"
+            onClick={handleSubmit}
+            disabled={Object.keys(errors).some(
+              (key) => !!errors[key as keyof RoomOptions]
+            )}
+            className={`flex-1 px-4 py-2 rounded-md transition-colors
+              ${
+                Object.keys(errors).some(
+                  (key) => !!errors[key as keyof RoomOptions]
+                )
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-600 text-white hover:bg-gray-500"
+              }`}
           >
             Create Room
           </button>
