@@ -15,6 +15,7 @@ export default function Home() {
     maxUsers: 10,
     userCanFlip: true,
     idleTimeout: 30,
+    allowCardChange: false,
   });
   const [inputError, setInputError] = useState('');
   const router = useRouter();

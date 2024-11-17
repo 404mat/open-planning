@@ -3,4 +3,5 @@ export interface RoomOptions {
   maxUsers: number;
   userCanFlip: boolean;
   idleTimeout: number;
+  allowCardChange: boolean;
 }

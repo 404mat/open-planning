@@ -56,7 +56,7 @@ export default function CreateRoomModal({
       [key]: value,
     }));
 
-    if (key !== 'userCanFlip') {
+    if (key !== 'userCanFlip' && key !== 'allowCardChange') {
       // Skip validation for boolean fields
       const error = validateField(key, value);
       setErrors((prev) => ({
@@ -188,6 +188,22 @@ export default function CreateRoomModal({
             />
             <label htmlFor="userCanFlip" className="text-sm text-gray-700">
               Allow users to flip cards
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allowCardChange"
+              checked={options.allowCardChange}
+              onChange={(e) =>
+                handleOptionChange('allowCardChange', e.target.checked)
+              }
+              className="rounded border-gray-300 text-gray-600 
+                focus:ring-gray-500"
+            />
+            <label htmlFor="allowCardChange" className="text-sm text-gray-700">
+              Allow card change after vote reveal
             </label>
           </div>
         </div>
