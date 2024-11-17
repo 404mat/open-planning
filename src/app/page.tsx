@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import CreateRoomModal from "./components/CreateRoomModal";
 import { RoomOptions } from "./types";
 import { generateRoomId, isValidRoomId } from "./utils/roomIdGenerator";
+import { validateRoomId } from "./utils/inputValidation";
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
@@ -19,15 +20,10 @@ export default function Home() {
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
-    setInputError("");
+    const validation = validateRoomId(roomId);
 
-    if (!roomId.trim()) {
-      setInputError("Room ID is required");
-      return;
-    }
-
-    if (!isValidRoomId(roomId)) {
-      setInputError("Invalid room ID format");
+    if (!validation.isValid) {
+      setInputError(validation.error);
       return;
     }
 
@@ -40,6 +36,7 @@ export default function Home() {
   };
 
   const handleCreateWithOptions = (options: RoomOptions) => {
+    // TODO: options should not be in the URL, but sent to the server
     const newRoomId = generateRoomId();
     const queryParams = new URLSearchParams();
 
@@ -54,12 +51,10 @@ export default function Home() {
     router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ""}`);
   };
 
-  const validateRoomId = (value: string): string => {
+  const validateInput = (value: string): string => {
     if (!value.trim()) return "";
-    if (!isValidRoomId(value)) {
-      return "Room ID must be 3-30 characters and can contain letters, numbers, hyphens, and underscores";
-    }
-    return "";
+    const validation = validateRoomId(value);
+    return validation.error;
   };
 
   return (
@@ -90,7 +85,7 @@ export default function Home() {
                 onChange={(e) => {
                   const newValue = e.target.value;
                   setRoomId(newValue);
-                  setInputError(validateRoomId(newValue));
+                  setInputError(validateInput(newValue));
                 }}
                 className={`block w-full rounded-md shadow-sm 
                   focus:border-gray-500 focus:ring-gray-500 

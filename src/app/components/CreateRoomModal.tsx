@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { RoomOptions } from "@/app/types";
+import {
+  validateRoomName,
+  validateMaxUsers,
+  validateIdleTimeout,
+  ValidationResult,
+} from "../utils/inputValidation";
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -24,26 +30,18 @@ export default function CreateRoomModal({
   }
 
   const validateField = (key: keyof RoomOptions, value: any): string => {
+    let result: ValidationResult;
+
     switch (key) {
       case "roomName":
-        if (!value) return ""; // Optional field
-        if (value.length < 3) return "Room name must be at least 3 characters";
-        if (value.length > 50) return "Room name cannot exceed 50 characters";
-        if (!/^[a-zA-Z0-9\s-_]+$/.test(value)) {
-          return "Room name can only contain letters, numbers, spaces, hyphens, and underscores";
-        }
-        return "";
-
+        result = validateRoomName(value as string);
+        return result.error;
       case "maxUsers":
-        if (value < 2) return "Room must allow at least 2 users";
-        if (value > 50) return "Room cannot have more than 50 users";
-        return "";
-
+        result = validateMaxUsers(value as number);
+        return result.error;
       case "idleTimeout":
-        if (value < 5) return "Timeout must be at least 5 minutes";
-        if (value > 120) return "Timeout cannot exceed 120 minutes";
-        return "";
-
+        result = validateIdleTimeout(value as number);
+        return result.error;
       default:
         return "";
     }
