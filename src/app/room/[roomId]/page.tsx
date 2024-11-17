@@ -21,6 +21,7 @@ export default function RoomPage({
 }) {
   const { roomId } = use(params);
   const router = useRouter();
+
   const [players] = useState<Player[]>([
     { id: '1', name: 'Emma Thompson', selectedCard: null },
     { id: '2', name: 'James Chen', selectedCard: '2' },
