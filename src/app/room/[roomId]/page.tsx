@@ -46,6 +46,13 @@ export default function RoomPage({
     setCardsRevealed((prev) => !prev);
   };
 
+  const handleClearCards = () => {
+    setCardsRevealed(false);
+    setSelectedCard(null);
+    // TODO: In a real app, you'd want to clear all players' cards here
+    // For now, we'll just hide them
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {showInviteModal && (
@@ -61,6 +68,7 @@ export default function RoomPage({
         players={players}
         cardsRevealed={cardsRevealed}
         onToggleCards={handleToggleCards}
+        onClearCards={handleClearCards}
       />
 
       <CardSelector

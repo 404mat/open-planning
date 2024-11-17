@@ -11,17 +11,19 @@ interface PlayAreaProps {
   players: Player[];
   cardsRevealed: boolean;
   onToggleCards: () => void;
+  onClearCards?: () => void;
 }
 
 export function PlayArea({
   players,
   cardsRevealed,
   onToggleCards,
+  onClearCards,
 }: PlayAreaProps) {
   const getPlayerPosition = (index: number) => {
-    const radius = 20; // reduced radius to bring players closer
+    const radius = 20;
     const angleStep = (2 * Math.PI) / players.length;
-    const angleOffset = -Math.PI / 2; // Start from top
+    const angleOffset = -Math.PI / 2;
 
     const angle = angleStep * index + angleOffset;
     const x = 50 + radius * Math.cos(angle);
@@ -99,21 +101,45 @@ export function PlayArea({
           {/* Table pattern */}
           <div className="absolute inset-4 border-2 border-gray-300 rounded-lg" />
 
-          {/* Toggle button */}
-          <div className="absolute inset-0 flex items-center justify-center gap-8">
-            <button
-              onClick={onToggleCards}
-              className={`px-6 py-2 rounded-full font-medium shadow-md transition-all
-                ${
-                  cardsRevealed
-                    ? 'bg-gray-800 text-white hover:bg-gray-700'
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                } active:scale-95`}
-            >
-              {cardsRevealed ? 'Hide Cards' : 'Reveal Cards'}
-            </button>
+          {/* Toggle button and Clear button */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={onToggleCards}
+                className={`px-6 py-2 rounded-full font-medium shadow-md transition-all
+                  ${
+                    cardsRevealed
+                      ? 'bg-gray-800 text-white hover:bg-gray-700'
+                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                  } active:scale-95`}
+              >
+                {cardsRevealed ? 'Hide Cards' : 'Reveal Cards'}
+              </button>
 
-            <Statistics players={players} isRevealed={cardsRevealed} />
+              <button
+                onClick={onClearCards}
+                disabled={!cardsRevealed}
+                title={!cardsRevealed ? 'Reveal cards first to clear them' : ''}
+                className={`px-6 py-2 rounded-full font-medium text-sm transition-all group relative
+                  ${
+                    cardsRevealed
+                      ? 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 active:scale-95'
+                      : 'text-gray-400 cursor-not-allowed bg-gray-100/50'
+                  }
+                `}
+              >
+                Clear Cards
+                {!cardsRevealed && (
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Reveal cards first to clear them
+                  </div>
+                )}
+              </button>
+            </div>
+
+            <div className="ml-8">
+              <Statistics players={players} isRevealed={cardsRevealed} />
+            </div>
           </div>
 
           {/* Suggestion text positioned under table */}
