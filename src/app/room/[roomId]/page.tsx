@@ -2,10 +2,9 @@
 import { useState, use, useEffect } from 'react';
 import { PokerCard } from '@/app/components/PokerCard';
 import { CardSelector } from '@/app/components/CardSelector';
-import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
-import { Avatar } from '@/app/components/icons/Avatar';
 import { useRouter } from 'next/navigation';
 import { InviteModal } from '@/app/components/InviteModal';
+import { RoomHeader } from './RoomHeader';
 
 const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
 
@@ -40,7 +39,7 @@ export default function RoomPage({
   const getPlayerPosition = (index: number, totalPlayers: number) => {
     const angleStep = (2 * Math.PI) / totalPlayers;
     const angle = index * angleStep - Math.PI / 2;
-    const radius = 160;
+    const radius = 140;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
 
@@ -60,31 +59,13 @@ export default function RoomPage({
         />
       )}
 
-      <div className="flex justify-between items-center p-8">
-        <button
-          onClick={() => router.push('/')}
-          className="text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
-        >
-          <ArrowLeft />
-          Change room
-        </button>
-        <div className="flex flex-col items-center">
-          <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
-          <button
-            onClick={() => setShowInviteModal(true)}
-            className="mt-2 text-sm text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-1"
-          >
-            <Avatar />
-            Invite players
-          </button>
-        </div>
-        <div className="w-[140px]" /> {/* Spacer for centering */}
-      </div>
+      <RoomHeader roomId={roomId} onInvite={() => setShowInviteModal(true)} />
 
+      {/* table */}
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="relative w-full max-w-xl h-[200px] mx-auto">
-          <div className="absolute inset-0 bg-gray-700 rounded-lg shadow-lg">
-            <div className="absolute inset-4 border-2 border-gray-600 rounded-lg"></div>
+        <div className="relative w-full max-w-lg h-[180px] mx-auto">
+          <div className="absolute inset-0 bg-gray-200 rounded-lg shadow-lg">
+            <div className="absolute inset-4 border-2 border-gray-300 rounded-lg"></div>
           </div>
 
           {players.map((player, index) => (
