@@ -5,6 +5,7 @@ import CreateRoomModal from "./components/CreateRoomModal";
 import { RoomOptions } from "./types";
 import { generateRoomId, isValidRoomId } from "./utils/roomIdGenerator";
 import { validateRoomId } from "./utils/inputValidation";
+import UserNameInput from "./components/user/UserNameInput";
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
@@ -58,7 +59,9 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-8">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-8 relative">
+      <UserNameInput />
+
       <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
         Scrum Poker Planning
       </h1>

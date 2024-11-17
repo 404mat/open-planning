@@ -32,6 +32,39 @@ export const validateRoomId = (value: string): ValidationResult => {
   return { isValid: true, error: "" };
 };
 
+export const validateUserName = (value: string): ValidationResult => {
+  if (!value.trim()) {
+    return {
+      isValid: false,
+      error: "Name is required",
+    };
+  }
+
+  if (value.length < 2) {
+    return {
+      isValid: false,
+      error: "Name must be at least 2 characters",
+    };
+  }
+
+  if (value.length > 30) {
+    return {
+      isValid: false,
+      error: "Name cannot exceed 30 characters",
+    };
+  }
+
+  if (!/^[a-zA-Z0-9\s-_]+$/.test(value)) {
+    return {
+      isValid: false,
+      error:
+        "Name can only contain letters, numbers, spaces, hyphens, and underscores",
+    };
+  }
+
+  return { isValid: true, error: "" };
+};
+
 export const validateRoomName = (value: string): ValidationResult => {
   if (!value) {
     return { isValid: true, error: "" }; // Optional field
