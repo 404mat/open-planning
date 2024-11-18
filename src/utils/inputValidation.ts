@@ -1,3 +1,10 @@
+import {
+  MAX_IDLE_TIMEOUT,
+  MAX_MAX_USERS,
+  MIN_IDLE_TIMEOUT,
+  MIN_MAX_USERS,
+} from '@/constants';
+
 export interface ValidationResult {
   isValid: boolean;
   error: string;
@@ -96,14 +103,14 @@ export const validateRoomName = (value: string): ValidationResult => {
 };
 
 export const validateMaxUsers = (value: number): ValidationResult => {
-  if (value < 2) {
+  if (value < MIN_MAX_USERS) {
     return {
       isValid: false,
       error: 'Room must allow at least 2 users',
     };
   }
 
-  if (value > 50) {
+  if (value > MAX_MAX_USERS) {
     return {
       isValid: false,
       error: 'Room cannot have more than 50 users',
@@ -114,14 +121,14 @@ export const validateMaxUsers = (value: number): ValidationResult => {
 };
 
 export const validateIdleTimeout = (value: number): ValidationResult => {
-  if (value < 5) {
+  if (value < MIN_IDLE_TIMEOUT) {
     return {
       isValid: false,
       error: 'Timeout must be at least 5 minutes',
     };
   }
 
-  if (value > 120) {
+  if (value > MAX_IDLE_TIMEOUT) {
     return {
       isValid: false,
       error: 'Timeout cannot exceed 120 minutes',

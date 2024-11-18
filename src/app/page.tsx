@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import CreateRoomModal from '@/app/components/CreateRoomModal';
@@ -7,7 +7,9 @@ import { RoomOptions } from '@/app/types';
 import { generateRoomId, isValidRoomId } from '@/utils/roomIdGenerator';
 import { validateRoomId } from '@/utils/inputValidation';
 import UserNameInput from '@/app/components/user/UserNameInput';
-
+import TextInput from '@/app/components/elements/TextInput';
+import ButtonGo from '@/app/components/elements/ButtonGo';
+import ButtonAction from '@/app/components/elements/ButtonAction';
 export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,6 +66,16 @@ export default function Home() {
     return validation.error;
   };
 
+  useEffect(() => {
+    setRoomOptions({
+      roomName: '',
+      maxUsers: 8,
+      userCanFlip: false,
+      idleTimeout: 30,
+      allowCardChange: false,
+    });
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-8 relative">
       <UserNameInput />
@@ -81,46 +93,25 @@ export default function Home() {
 
           <form onSubmit={handleJoinRoom} className="space-y-4 sm:space-y-6">
             <div>
-              <label
-                htmlFor="roomId"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Room ID
-              </label>
-              <input
-                type="text"
+              <TextInput
+                label="Room ID"
                 id="roomId"
-                value={roomId}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  setRoomId(newValue);
-                  setInputError(validateInput(newValue));
+                placeholder="Room ID"
+                error={inputError}
+                onChange={(value) => {
+                  setRoomId(value);
+                  setInputError(validateInput(value));
                 }}
-                className={`block w-full rounded-md shadow-sm 
-                  focus:border-gray-500 focus:ring-gray-500 
-                  bg-gray-50 p-2.5 text-gray-900
-                  placeholder:text-gray-400
-                  ${inputError ? 'border-red-300' : 'border-gray-300'}`}
-                placeholder="e.g., happy-blue-dolphin"
               />
-              {inputError && (
-                <p className="mt-1 text-sm text-red-600">{inputError}</p>
-              )}
             </div>
 
-            <button
-              type="submit"
-              disabled={!!inputError || !roomId.trim()}
-              className={`w-full py-2.5 px-4 rounded-md 
-                transition-colors text-base sm:text-lg
-                ${
-                  inputError || !roomId.trim()
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-800 text-white hover:bg-gray-700'
-                }`}
-            >
-              Join Room
-            </button>
+            <div className="flex justify-end">
+              <ButtonGo
+                text="Join Room"
+                size="lg"
+                disabled={!!inputError || !roomId.trim()}
+              />
+            </div>
           </form>
         </div>
 
@@ -135,21 +126,19 @@ export default function Home() {
           </p>
 
           <div className="space-y-3">
-            <button
+            <ButtonAction
+              text="Quick Create"
               onClick={handleQuickCreate}
-              className="w-full bg-gray-600 text-white py-2.5 px-4 rounded-md 
-                hover:bg-gray-500 transition-colors text-base sm:text-lg"
-            >
-              Quick Create
-            </button>
+              size="full"
+              variant="default"
+            />
 
-            <button
+            <ButtonAction
+              text="Customize Room"
               onClick={() => setIsModalOpen(true)}
-              className="w-full border-2 border-gray-600 text-gray-600 py-2.5 px-4 rounded-md 
-                hover:bg-gray-50 transition-colors text-base sm:text-lg"
-            >
-              Customize Room
-            </button>
+              size="full"
+              variant="secondary"
+            />
           </div>
         </div>
       </div>

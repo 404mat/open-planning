@@ -1,6 +1,6 @@
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from '@/app/components/icons/ArrowLeft';
 import { Avatar } from '@/app/components/icons/Avatar';
+import TextButton from '@/app/components/elements/TextButton';
 
 interface RoomHeaderProps {
   roomId: string;
@@ -12,13 +12,7 @@ export function RoomHeader({ roomId, onInvite }: RoomHeaderProps) {
 
   return (
     <div className="flex justify-between items-start p-8">
-      <button
-        onClick={() => router.push('/')}
-        className="text-gray-600 hover:text-gray-800 flex items-center gap-2 transition-colors"
-      >
-        <ArrowLeft />
-        Change room
-      </button>
+      <TextButton text="Change room" onClick={() => router.push('/')} />
       <div className="flex flex-col items-center">
         <h1 className="text-2xl font-bold text-gray-800">{roomId}</h1>
         <button

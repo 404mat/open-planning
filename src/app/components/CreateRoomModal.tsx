@@ -8,6 +8,12 @@ import {
   ValidationResult,
 } from '@/utils/inputValidation';
 import { Cross } from '@/app/components/icons/Cross';
+import TextInput from '@/app/components/elements/TextInput';
+import NumberSelector from '@/app/components/elements/NumberSelector';
+import ButtonAction from '@/app/components/elements/ButtonAction';
+import CardCheckbox from '@/app/components/elements/CardCheckbox';
+import { MAX_IDLE_TIMEOUT, MAX_MAX_USERS, MIN_IDLE_TIMEOUT } from '@/constants';
+import { MIN_MAX_USERS } from '@/constants';
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -73,7 +79,7 @@ export default function CreateRoomModal({
     let hasErrors = false;
 
     (Object.keys(options) as Array<keyof RoomOptions>).forEach((key) => {
-      if (key !== 'userCanFlip') {
+      if (key !== 'userCanFlip' && key !== 'allowCardChange') {
         const error = validateField(key, options[key]);
         if (error) {
           newErrors[key] = error;
@@ -113,127 +119,70 @@ export default function CreateRoomModal({
         </div>
 
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Room Name (Optional)
-            </label>
-            <input
-              type="text"
-              value={options.roomName}
-              onChange={(e) => handleOptionChange('roomName', e.target.value)}
-              className={`block w-full rounded-md shadow-sm 
-                focus:border-gray-500 focus:ring-gray-500 
-                bg-gray-50 p-2 text-gray-900
-                placeholder:text-gray-400
-                ${errors.roomName ? 'border-red-300' : 'border-gray-300'}`}
-              placeholder="Enter room name..."
-            />
-            {errors.roomName && (
-              <p className="mt-1 text-sm text-red-600">{errors.roomName}</p>
-            )}
+          <TextInput
+            label="Room Name (optional)"
+            id="roomName"
+            required={false}
+            placeholder="Enter room name..."
+            onChange={(e) => handleOptionChange('roomName', e)}
+            error={errors.roomName}
+          />
+
+          <div className="flex gap-8">
+            <div className="flex flex-col items-start gap-2">
+              <label className="text-sm text-gray-700">Max Users</label>
+              <NumberSelector
+                value={options.maxUsers}
+                min={MIN_MAX_USERS}
+                max={MAX_MAX_USERS}
+                onChange={(e) => handleOptionChange('maxUsers', e)}
+              />
+            </div>
+
+            <div className="flex flex-col items-start gap-2">
+              <label className="text-sm text-gray-700">Idle Timeout</label>
+              <NumberSelector
+                value={options.idleTimeout}
+                min={MIN_IDLE_TIMEOUT}
+                max={MAX_IDLE_TIMEOUT}
+                onChange={(e) => handleOptionChange('idleTimeout', e)}
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Max Users
-            </label>
-            <input
-              type="number"
-              min="2"
-              max="50"
-              value={options.maxUsers}
-              onChange={(e) =>
-                handleOptionChange('maxUsers', parseInt(e.target.value))
-              }
-              className={`block w-full rounded-md shadow-sm 
-                focus:border-gray-500 focus:ring-gray-500 
-                bg-gray-50 p-2 text-gray-900
-                ${errors.maxUsers ? 'border-red-300' : 'border-gray-300'}`}
-            />
-            {errors.maxUsers && (
-              <p className="mt-1 text-sm text-red-600">{errors.maxUsers}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Idle Timeout (minutes)
-            </label>
-            <input
-              type="number"
-              min="5"
-              max="120"
-              value={options.idleTimeout}
-              onChange={(e) =>
-                handleOptionChange('idleTimeout', parseInt(e.target.value))
-              }
-              className={`block w-full rounded-md shadow-sm 
-                focus:border-gray-500 focus:ring-gray-500 
-                bg-gray-50 p-2 text-gray-900
-                ${errors.idleTimeout ? 'border-red-300' : 'border-gray-300'}`}
-            />
-            {errors.idleTimeout && (
-              <p className="mt-1 text-sm text-red-600">{errors.idleTimeout}</p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="userCanFlip"
+          <div className="flex flex-col gap-2">
+            <CardCheckbox
+              label="Allow users to flip cards"
+              description="Users can flip the cards in the room to reveal the votes."
               checked={options.userCanFlip}
-              onChange={(e) =>
-                handleOptionChange('userCanFlip', e.target.checked)
-              }
-              className="rounded border-gray-300 text-gray-600 
-                focus:ring-gray-500"
+              onChange={(e) => handleOptionChange('userCanFlip', e)}
             />
-            <label htmlFor="userCanFlip" className="text-sm text-gray-700">
-              Allow users to flip cards
-            </label>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="allowCardChange"
+            <CardCheckbox
+              label="Allow card change after vote reveal"
+              description="Users can change their cards after the vote is revealed."
               checked={options.allowCardChange}
-              onChange={(e) =>
-                handleOptionChange('allowCardChange', e.target.checked)
-              }
-              className="rounded border-gray-300 text-gray-600 
-                focus:ring-gray-500"
+              onChange={(e) => handleOptionChange('allowCardChange', e)}
             />
-            <label htmlFor="allowCardChange" className="text-sm text-gray-700">
-              Allow card change after vote reveal
-            </label>
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <button
+        <div className="mt-6 flex gap-3 justify-end">
+          <ButtonAction
+            text="Cancel"
             onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md
-              text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
+            variant="secondary"
+            size="lg"
+          />
+
+          <ButtonAction
+            text="Create room"
             onClick={handleSubmit}
+            size="lg"
             disabled={Object.keys(errors).some(
               (key) => !!errors[key as keyof RoomOptions]
             )}
-            className={`flex-1 px-4 py-2 rounded-md transition-colors
-              ${
-                Object.keys(errors).some(
-                  (key) => !!errors[key as keyof RoomOptions]
-                )
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-600 text-white hover:bg-gray-500'
-              }`}
-          >
-            Create Room
-          </button>
+          />
         </div>
       </div>
     </div>

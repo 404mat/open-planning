@@ -54,7 +54,7 @@ export default function RoomPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {showInviteModal && (
         <InviteModal
           roomId={roomId}
