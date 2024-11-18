@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 
 import { RoomOptions } from '@/app/types';
 import {
@@ -7,7 +8,6 @@ import {
   validateIdleTimeout,
   ValidationResult,
 } from '@/utils/inputValidation';
-import { Cross } from '@/app/components/icons/Cross';
 import TextInput from '@/app/components/elements/TextInput';
 import NumberSelector from '@/app/components/elements/NumberSelector';
 import ButtonAction from '@/app/components/elements/ButtonAction';
@@ -37,7 +37,7 @@ export default function CreateRoomModal({
     return null;
   }
 
-  const validateField = (key: keyof RoomOptions, value: any): string => {
+  const validateField = (key: keyof RoomOptions, value: unknown): string => {
     let result: ValidationResult;
 
     switch (key) {
@@ -110,12 +110,9 @@ export default function CreateRoomModal({
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">Room Settings</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <Cross />
-          </button>
+          <div className="transition-all duration-150 ease-in-out hover:bg-gray-100 hover:rounded p-1">
+            <X size={24} strokeWidth={2} aria-hidden="true" onClick={onClose} />
+          </div>
         </div>
 
         <div className="space-y-4">

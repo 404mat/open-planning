@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 import { validateUserName } from '@/utils/inputValidation';
 import Modal from './Modal';
+import TextInput from '@/app/components/elements/TextInput';
+import ButtonAction from '@/app/components/elements/ButtonAction';
 
 export default function UserNameInput() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,30 +46,6 @@ export default function UserNameInput() {
     }
   };
 
-  const modalFooter = (
-    <div className="flex gap-3">
-      <button
-        onClick={handleCancel}
-        className="flex-1 px-4 py-2 border border-gray-300 rounded-md
-          text-gray-700 hover:bg-gray-50 transition-colors"
-      >
-        Cancel
-      </button>
-      <button
-        onClick={handleSubmit}
-        disabled={!tempUserName.trim()}
-        className={`flex-1 px-4 py-2 rounded-md transition-colors
-          ${
-            !tempUserName.trim()
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-gray-600 text-white hover:bg-gray-500'
-          }`}
-      >
-        Save
-      </button>
-    </div>
-  );
-
   return (
     <>
       <button
@@ -81,36 +59,36 @@ export default function UserNameInput() {
         <span className="text-gray-500">✎</span>
       </button>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCancel}
-        title="Set Your Name"
-        footer={modalFooter}
-      >
+      <Modal isOpen={isModalOpen} onClose={handleCancel} title="Set Your Name">
         <div>
-          <label
-            htmlFor="userName"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Your Name
-          </label>
-          <input
+          <TextInput
             id="userName"
-            type="text"
-            value={tempUserName}
-            onChange={(e) => {
-              setTempUserName(e.target.value);
+            label="Your Name"
+            placeholder="Enter your name"
+            onKeyDown={handleKeyDown}
+            onChange={(val) => {
+              setTempUserName(val);
               setError('');
             }}
-            onKeyDown={handleKeyDown}
-            autoFocus
-            placeholder="Enter your name"
-            className={`block w-full rounded-md shadow-sm 
-              focus:border-gray-500 focus:ring-gray-500 
-              bg-gray-50 p-2 text-gray-900
-              ${error ? 'border-red-300' : 'border-gray-300'}`}
+            error={error}
           />
-          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+
+        <div className="flex gap-3">
+          <ButtonAction
+            text="Cancel"
+            size="full"
+            variant="secondary"
+            onClick={handleCancel}
+          />
+
+          <ButtonAction
+            text="Save"
+            size="full"
+            variant="default"
+            disabled={!tempUserName.trim()}
+            onClick={handleSubmit}
+          />
         </div>
       </Modal>
     </>

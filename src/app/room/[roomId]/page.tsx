@@ -1,6 +1,5 @@
 'use client';
 import { useState, use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 import { CardSelector } from '@/app/components/CardSelector';
 import { InviteModal } from '@/app/components/InviteModal';
@@ -16,11 +15,10 @@ interface Player {
 
 export default function RoomPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ roomId: string }>;
-}) {
+}>) {
   const { roomId } = use(params);
-  const router = useRouter();
 
   const [players] = useState<Player[]>([
     { id: '1', name: 'Emma Thompson', selectedCard: null },

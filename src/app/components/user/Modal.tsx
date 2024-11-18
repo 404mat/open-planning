@@ -1,3 +1,5 @@
+import { X } from 'lucide-react';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,8 +13,7 @@ export default function Modal({
   onClose,
   title,
   children,
-  footer,
-}: ModalProps) {
+}: Readonly<ModalProps>) {
   if (!isOpen) return null;
 
   return (
@@ -27,17 +28,10 @@ export default function Modal({
       <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ✕
-          </button>
+          <X size={24} strokeWidth={2} aria-hidden="true" onClick={onClose} />
         </div>
 
         <div className="space-y-4">{children}</div>
-
-        {footer && <div className="mt-6">{footer}</div>}
       </div>
     </div>
   );

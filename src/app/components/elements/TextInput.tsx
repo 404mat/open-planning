@@ -7,10 +7,11 @@ interface TextInputProps {
   placeholder?: string;
   required?: boolean;
   error?: string;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onChange: (value: string) => void;
 }
 
-export default function TextInput(props: TextInputProps) {
+export default function TextInput(props: Readonly<TextInputProps>) {
   return (
     <div className="space-y-2">
       <Label htmlFor={props.id}>
@@ -28,6 +29,7 @@ export default function TextInput(props: TextInputProps) {
             : undefined
         }
         onChange={(e) => props.onChange(e.target.value)}
+        onKeyDown={props.onKeyDown}
       />
       {props.error && (
         <p

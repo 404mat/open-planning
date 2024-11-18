@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 import CreateRoomModal from '@/app/components/CreateRoomModal';
 import { RoomOptions } from '@/app/types';
-import { generateRoomId, isValidRoomId } from '@/utils/roomIdGenerator';
+import { generateRoomId } from '@/utils/roomIdGenerator';
 import { validateRoomId } from '@/utils/inputValidation';
 import UserNameInput from '@/app/components/user/UserNameInput';
 import TextInput from '@/app/components/elements/TextInput';
@@ -46,15 +46,12 @@ export default function Home() {
       ? options.roomName.toLowerCase().replace(/\s+/g, '-')
       : generateRoomId();
 
-    // Remove roomName from options since we're using it as ID
-    const { roomName, ...otherOptions } = options;
-
     const queryParams = new URLSearchParams();
 
     // Add remaining options to query params
-    queryParams.append('maxUsers', otherOptions.maxUsers.toString());
-    queryParams.append('userCanFlip', otherOptions.userCanFlip.toString());
-    queryParams.append('idleTimeout', otherOptions.idleTimeout.toString());
+    queryParams.append('maxUsers', options.maxUsers.toString());
+    queryParams.append('userCanFlip', options.userCanFlip.toString());
+    queryParams.append('idleTimeout', options.idleTimeout.toString());
 
     const queryString = queryParams.toString();
     router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ''}`);
@@ -96,7 +93,8 @@ export default function Home() {
               <TextInput
                 label="Room ID"
                 id="roomId"
-                placeholder="Room ID"
+                placeholder="Enter provided id here"
+                required
                 error={inputError}
                 onChange={(value) => {
                   setRoomId(value);

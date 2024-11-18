@@ -3,6 +3,7 @@ import { Button } from '@/app/components/ui/button';
 interface ButtonProps {
   text: string;
   disabled?: boolean;
+  icon?: React.ReactNode;
   size?: 'default' | 'sm' | 'lg' | 'icon' | 'full';
   variant?:
     | 'default'
@@ -22,6 +23,7 @@ export default function Buttom(props: ButtonProps) {
       onClick={props.onClick}
       variant={props.variant}
     >
+      {props.icon}
       {props.text}
     </Button>
   );

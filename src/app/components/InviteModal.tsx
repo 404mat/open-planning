@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { X, Link } from 'lucide-react';
 
-import { Cross } from '@/app/components/icons/Cross';
-import { Link } from '@/app/components/icons/Link';
+import ButtonAction from '@/app/components/elements/ButtonAction';
 
 interface InviteModalProps {
   roomId: string;
@@ -26,16 +26,12 @@ export function InviteModal({ roomId, onClose }: InviteModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <Cross />
-        </button>
-
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          Invite others to join
-        </h2>
+        <div className="flex flex-row justify-between mb-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Invite others to join
+          </h2>
+          <X size={24} strokeWidth={2} aria-hidden="true" onClick={onClose} />
+        </div>
         <p className="text-gray-600 mb-6">
           Share this room with your team members to start collaborating
           together.
@@ -51,28 +47,27 @@ export function InviteModal({ roomId, onClose }: InviteModalProps) {
         </div>
 
         <div className="flex gap-2">
-          <button
+          <ButtonAction
+            text="Copy full link"
             onClick={() => copyToClipboard('link')}
-            className="flex-1 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Link />
-            Copy full link
-          </button>
-          <button
+            size="full"
+            icon={<Link size={24} strokeWidth={2} aria-hidden="true" />}
+          />
+          <ButtonAction
+            text="Copy room ID"
             onClick={() => copyToClipboard('id')}
-            className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-          >
-            Copy room ID
-          </button>
+            size="full"
+            variant="secondary"
+          />
         </div>
 
         <div className="flex justify-end mt-6">
-          <button
+          <ButtonAction
+            text="Done"
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
-          >
-            Done
-          </button>
+            variant="secondary"
+            size="lg"
+          />
         </div>
       </div>
     </div>
