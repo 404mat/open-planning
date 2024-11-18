@@ -39,16 +39,20 @@ export default function Home() {
   };
 
   const handleCreateWithOptions = (options: RoomOptions) => {
-    // TODO: options should not be in the URL, but sent to the server
-    const newRoomId = generateRoomId();
+    // Use room name as ID if provided, otherwise generate one
+    const newRoomId = options.roomName.trim()
+      ? options.roomName.toLowerCase().replace(/\s+/g, '-')
+      : generateRoomId();
+
+    // Remove roomName from options since we're using it as ID
+    const { roomName, ...otherOptions } = options;
+
     const queryParams = new URLSearchParams();
 
-    if (options.roomName) {
-      queryParams.append('name', options.roomName);
-    }
-    queryParams.append('maxUsers', options.maxUsers.toString());
-    queryParams.append('userCanFlip', options.userCanFlip.toString());
-    queryParams.append('idleTimeout', options.idleTimeout.toString());
+    // Add remaining options to query params
+    queryParams.append('maxUsers', otherOptions.maxUsers.toString());
+    queryParams.append('userCanFlip', otherOptions.userCanFlip.toString());
+    queryParams.append('idleTimeout', otherOptions.idleTimeout.toString());
 
     const queryString = queryParams.toString();
     router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ''}`);
