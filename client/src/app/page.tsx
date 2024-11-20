@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 
 import CreateRoomModal from '@/app/components/CreateRoomModal';
 import { RoomOptions } from '@/app/types';
-import { generateRoomId } from '@/utils/roomIdGenerator';
 import { validateRoomId } from '@/utils/inputValidation';
 import UserNameInput from '@/app/components/user/UserNameInput';
 import TextInput from '@/app/components/elements/TextInput';
@@ -36,15 +35,16 @@ export default function Home() {
   };
 
   const handleQuickCreate = () => {
-    const newRoomId = generateRoomId();
+    // TODO: Generate a unique room ID in backend
+    const newRoomId = '123';
     router.push(`/room/${newRoomId}`);
   };
 
   const handleCreateWithOptions = (options: RoomOptions) => {
-    // Use room name as ID if provided, otherwise generate one
+    // Use room name as ID if provided, otherwise server generates one
     const newRoomId = options.roomName.trim()
       ? options.roomName.toLowerCase().replace(/\s+/g, '-')
-      : generateRoomId();
+      : '123'; // TODO: Generate a unique room ID in backend
 
     const queryParams = new URLSearchParams();
 
@@ -54,6 +54,9 @@ export default function Home() {
     queryParams.append('idleTimeout', options.idleTimeout.toString());
 
     const queryString = queryParams.toString();
+
+    // TODO: Generate a unique room ID in backend before redirecting
+
     router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ''}`);
   };
 
