@@ -32,7 +32,9 @@ export function registerRoomSocketHandlers(socket: Socket) {
       rooms.set(roomId, room);
       socket.join(roomId);
 
-      callback({ roomId, room });
+      if (callback) {
+        callback({ roomId, room });
+      }
     }
   );
 
@@ -61,7 +63,9 @@ export function registerRoomSocketHandlers(socket: Socket) {
       socket.join(roomId);
 
       socket.to(roomId).emit('participant-joined', participant);
-      callback({ room });
+      if (callback) {
+        callback({ room });
+      }
     }
   );
 

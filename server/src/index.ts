@@ -1,35 +1,29 @@
-import fastify from 'fastify';
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import websocket from '@fastify/websocket';
+import express from 'express';
+import { createServer } from 'http';
+import cors from 'cors';
 import { registerRoutes } from './api/api';
 import { initializeSocketIO } from './socket/service';
 
-const server = fastify({
-  logger: true,
-}).withTypeProvider<TypeBoxTypeProvider>();
+const app = express();
+const httpServer = createServer(app);
 
-// Register WebSocket support
-server.register(websocket);
+// Middleware
+app.use(cors());
+app.use(express.json());
 
 // Register API routes
-server.register(registerRoutes);
+registerRoutes(app);
 
 // Health check route
-server.get('/health', async () => {
-  return { status: 'ok' };
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
 });
 
-// Initialize Socket.IO
-initializeSocketIO(server);
+// Initialize Socket.IO with the HTTP server
+initializeSocketIO(httpServer);
 
 // Start the server
-const start = async () => {
-  try {
-    await server.listen({ port: 3000 });
-  } catch (err) {
-    server.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
+const PORT = process.env.PORT || 3001;
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
