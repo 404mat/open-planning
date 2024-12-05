@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { PokerCard } from '@/app/components/PokerCard';
 import { Statistics } from './Statistics';
-import { calculateCardPositionsInRectangle } from '@/utils/cardPosition';
-import { TABLE_HEIGHT } from '@/constants';
+import {
+  calculateCardPositionsInRectangle,
+  getCardPositionV2,
+} from '@/utils/cardPosition';
+import { TABLE_HEIGHT, TABLE_WIDTH } from '@/constants';
 import ButtonAction from '@/app/components/elements/ButtonAction';
 
 interface Player {
@@ -64,6 +67,7 @@ export function PlayArea({
   };
 
   useEffect(() => {
+    // TODO: redo card placement algorithm
     setCardPositions(calculateCardPositionsInRectangle(players.length));
   }, [players.length]);
 
@@ -72,7 +76,7 @@ export function PlayArea({
       {/* Table */}
       <div
         className={`max-w-lg bg-gray-200 rounded-lg shadow-xl relative`}
-        style={{ width: '100%', height: `${TABLE_HEIGHT}px` }}
+        style={{ width: `${TABLE_WIDTH}px`, height: `${TABLE_HEIGHT}px` }}
       >
         {/* Table pattern */}
         <div className="absolute inset-4 border-2 border-gray-300 rounded-lg" />

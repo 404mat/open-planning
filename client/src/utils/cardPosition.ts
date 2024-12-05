@@ -80,3 +80,43 @@ export function calculateCardPositionsInRectangle(
   // Only return the number of positions we actually need
   return positions.slice(0, numCards);
 }
+
+type CardPosition = { x: number; y: number };
+
+export function getCardPositionV2(
+  numPlayers: number,
+  tableWidth: number,
+  tableHeight: number
+): CardPosition[] {
+  const perimeter = 2 * (tableWidth + tableHeight);
+  const segmentLength = perimeter / numPlayers;
+
+  const positions: CardPosition[] = [];
+  let currentDistance = 0;
+
+  for (let i = 0; i < numPlayers; i++) {
+    if (currentDistance < tableWidth) {
+      // Top edge
+      positions.push({ x: currentDistance, y: 0 });
+    } else if (currentDistance < tableWidth + tableHeight) {
+      // Right edge
+      positions.push({ x: tableWidth, y: currentDistance - tableWidth });
+    } else if (currentDistance < 2 * tableWidth + tableHeight) {
+      // Bottom edge
+      positions.push({
+        x: tableWidth - (currentDistance - (tableWidth + tableHeight)),
+        y: tableHeight,
+      });
+    } else {
+      // Left edge
+      positions.push({
+        x: 0,
+        y: tableHeight - (currentDistance - (2 * tableWidth + tableHeight)),
+      });
+    }
+
+    currentDistance += segmentLength;
+  }
+
+  return positions;
+}
