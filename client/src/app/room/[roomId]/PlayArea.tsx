@@ -71,7 +71,8 @@ export function PlayArea({
     <div className="flex-1 flex items-center justify-center p-16">
       {/* Table */}
       <div
-        className={`w-full max-w-lg h-[${TABLE_HEIGHT}px] bg-gray-200 rounded-lg shadow-xl relative`}
+        className={`max-w-lg bg-gray-200 rounded-lg shadow-xl relative`}
+        style={{ width: '100%', height: `${TABLE_HEIGHT}px` }}
       >
         {/* Table pattern */}
         <div className="absolute inset-4 border-2 border-gray-300 rounded-lg" />

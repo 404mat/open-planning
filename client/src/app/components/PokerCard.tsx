@@ -18,7 +18,12 @@ export function PokerCard({
   return (
     <div className="flex flex-col items-center gap-2 w-max">
       <div
-        className={`relative w-[${CARD_WIDTH}px] h-[${CARD_HEIGHT}px] [perspective:1000px]`}
+        className="relative"
+        style={{
+          width: `${CARD_WIDTH}px`,
+          height: `${CARD_HEIGHT}px`,
+          perspective: '1000px',
+        }}
       >
         {/* card transition when flipped */}
         <div
