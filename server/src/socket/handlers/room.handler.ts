@@ -1,42 +1,12 @@
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { Room, Participant, CallbackResponse } from '../types';
-import { generateRoomId } from '../../utils/roomIdGenerator';
 import { getIO } from '../service';
 import { rooms } from '../store';
+import { generateNameWithEmoji } from '../../utils/nameGenerator';
+import { handleError } from '../../utils/errorUtils';
 
 export function registerRoomSocketHandlers(socket: Socket) {
   console.log('Client connected:', socket.id);
-
-  // Handle creating a new room
-  socket.on(
-    'create-room',
-    (
-      participantName: string,
-      providedRoomId: string,
-      callback: (response: CallbackResponse) => void
-    ) => {
-      const roomId = providedRoomId ?? generateRoomId();
-      const room: Room = {
-        id: roomId,
-        participants: [
-          {
-            id: socket.id,
-            name: participantName,
-            isHost: true,
-          },
-        ],
-        votes: {},
-        revealed: false,
-      };
-
-      rooms.set(roomId, room);
-      socket.join(roomId);
-
-      if (callback) {
-        callback({ roomId, room });
-      }
-    }
-  );
 
   // Handle joining a room
   socket.on(
@@ -46,26 +16,39 @@ export function registerRoomSocketHandlers(socket: Socket) {
       participantName: string,
       callback: (response: CallbackResponse) => void
     ) => {
-      const room = rooms.get(roomId);
+      const room: Room | undefined = rooms.get(roomId);
 
       if (!room) {
-        callback({ error: 'Room not found' });
+        handleError(callback, 'Room not found');
+        return;
+      }
+      if (room.participants.find((el) => el.id === socket.id)) {
+        handleError(callback, 'User is already part of the room');
         return;
       }
 
+      const nameIsTaken = room.participants.find(
+        (el) => el.name === participantName
+      );
+
       const participant: Participant = {
         id: socket.id,
-        name: participantName,
-        isHost: false,
+        name: nameIsTaken
+          ? generateNameWithEmoji(participantName)
+          : participantName,
+        isHost: room.participants.length === 0 ? true : false,
       };
 
       room.participants.push(participant);
       socket.join(roomId);
 
-      socket.to(roomId).emit('participant-joined', participant);
-      if (callback) {
-        callback({ room });
-      }
+      console.log(room);
+
+      socket.to(roomId).emit('game-state', room);
+
+      // if (callback) {
+      //   callback({ room });
+      // }
     }
   );
 
@@ -82,7 +65,7 @@ export function registerRoomSocketHandlers(socket: Socket) {
         if (room.participants.length === 0) {
           rooms.delete(roomId);
         } else {
-          getIO().to(roomId).emit('participant-left', socket.id);
+          getIO().to(roomId).emit('game-state', room);
         }
         break;
       }
