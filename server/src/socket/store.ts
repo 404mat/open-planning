@@ -13,6 +13,7 @@ export function createRoom(roomId: string): boolean {
     participants: [],
     votes: {},
     revealed: false,
+    lastUpdate: new Date(),
   };
   rooms.set(roomId, room);
   return true;
@@ -21,4 +22,8 @@ export function createRoom(roomId: string): boolean {
 export function deleteRoom(roomId: string): boolean {
   rooms.delete(roomId);
   return true;
+}
+
+export function updateRoom(room: Room): void {
+  room.lastUpdate = new Date();
 }

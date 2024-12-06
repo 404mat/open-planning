@@ -4,6 +4,7 @@ export interface Room {
   currentStory?: string;
   votes: Record<string, string>;
   revealed: boolean;
+  lastUpdate: Date;
 }
 
 export interface Participant {

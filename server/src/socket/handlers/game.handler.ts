@@ -1,76 +1,78 @@
 import { Socket } from 'socket.io';
 import { getIO } from '../service';
-import { rooms } from '../store';
-import { CallbackResponse, Room } from '../types';
+import { rooms, updateRoom } from '../store';
+import { Room } from '../types';
 import { handleError } from '../../utils/errorUtils';
 
 export function registerGameSocketHandlers(socket: Socket) {
   // Handle submitting a vote
-  socket.on(
-    'submit-vote',
-    (
-      roomId: string,
-      vote: string,
-      callback: (response: CallbackResponse) => void
-    ) => {
-      const room: Room | undefined = rooms.get(roomId);
+  socket.on('submit-vote', (roomId: string, vote: string) => {
+    const room: Room | undefined = rooms.get(roomId);
 
-      if (!room) {
-        handleError(callback, 'Room not found');
-        return;
-      }
-
-      room.votes[socket.id] = vote;
-
-      getIO().to(roomId).emit('game-state', room);
+    if (!room) {
+      handleError(socket, `Room '${roomId}' not found`);
+      return;
     }
-  );
+
+    room.votes[socket.id] = vote ?? null;
+
+    updateRoom(room);
+
+    console.log(room);
+    getIO().to(roomId).emit('game-state', room);
+  });
 
   // Handle revealing votes (host only)
-  socket.on(
-    'reveal-votes',
-    (roomId: string, callback: (response: CallbackResponse) => void) => {
-      const room = rooms.get(roomId);
+  socket.on('reveal-votes', (roomId: string) => {
+    const room = rooms.get(roomId);
 
-      if (!room) {
-        handleError(callback, 'Room not found');
-        return;
-      }
-
-      const participant = room.participants.find((p) => p.id === socket.id);
-      if (!participant?.isHost) {
-        handleError(
-          callback,
-          'Participant is not host, and cannot reveal the votes'
-        );
-        return;
-      }
-
-      room.revealed = true;
-
-      getIO().to(roomId).emit('game-state', room);
+    if (!room) {
+      handleError(socket, `Room '${roomId}' not found`);
+      return;
     }
-  );
+
+    const participant = room.participants.find((p) => p.id === socket.id);
+    if (!participant?.isHost) {
+      handleError(
+        socket,
+        'Participant is not host, and cannot reveal the votes'
+      );
+      return;
+    }
+
+    room.revealed = true;
+    updateRoom(room);
+
+    console.log(room);
+    getIO().to(roomId).emit('game-state', room);
+  });
 
   // Handle starting a new round
-  socket.on(
-    'start-new-round',
-    (
-      roomId: string,
-      story: string,
-      callback: (response: CallbackResponse) => void
-    ) => {
-      const room = rooms.get(roomId);
-      if (!room) return;
+  socket.on('start-new-round', (roomId: string, story: string) => {
+    const room = rooms.get(roomId);
 
-      const participant = room.participants.find((p) => p.id === socket.id);
-      if (!participant?.isHost) return;
-
-      room.votes = {};
-      room.revealed = false;
-      room.currentStory = story;
-
-      getIO().to(roomId).emit('game-state', room);
+    if (!room) {
+      handleError(socket, `Room '${roomId}' not found`);
+      return;
     }
-  );
+
+    const participant = room.participants.find((p) => p.id === socket.id);
+    if (!participant?.isHost) {
+      handleError(
+        socket,
+        'Participant is not host, and cannot start a new round'
+      );
+      return;
+    }
+
+    Object.keys(room.votes).forEach((key) => {
+      delete room.votes[key];
+    });
+    room.revealed = false;
+    room.currentStory = story ?? null;
+    updateRoom(room);
+
+    console.log(room);
+    getIO().to(roomId).emit('game-state', room);
+  });
 }

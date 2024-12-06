@@ -1,6 +1,8 @@
-export function handleError(callback: any, message: string): void {
-  if (callback) {
-    callback({ error: message });
+import { Socket } from 'socket.io';
+
+export function handleError(socket: Socket, message: string): void {
+  if (socket) {
+    socket.emit('exception', { error: message });
   } else {
     throw Error(message);
   }
