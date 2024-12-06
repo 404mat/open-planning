@@ -13,6 +13,7 @@ export function initializeSocketIO(httpServer: HttpServer) {
       origin: process.env.CLIENT_URL || 'http://localhost:3000',
       methods: ['GET', 'POST'],
     },
+    serveClient: false,
   });
 
   io.on('connection', (socket) => {

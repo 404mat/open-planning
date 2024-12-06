@@ -13,6 +13,8 @@ export interface Participant {
   isHost: boolean;
 }
 
+// TODO: use this to format error to client,
+// potentially export this to shared package between client and server
 export interface CallbackResponse {
   roomId?: string;
   room?: Room;

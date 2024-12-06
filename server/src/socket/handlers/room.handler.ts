@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { Room, Participant, CallbackResponse } from '../types';
+import { Room, Participant } from '../types';
 import { getIO } from '../service';
 import { rooms, updateRoom } from '../store';
 import { generateNameWithEmoji } from '../../utils/nameGenerator';
@@ -9,7 +9,7 @@ export function registerRoomSocketHandlers(socket: Socket) {
   console.log('Client connected:', socket.id);
 
   // Handle joining a room
-  socket.on('join-room', (roomId: string, participantName: string) => {
+  socket.on('join-room', (roomId: string, data: any) => {
     const room: Room | undefined = rooms.get(roomId);
 
     if (!room) {
@@ -21,15 +21,17 @@ export function registerRoomSocketHandlers(socket: Socket) {
       return;
     }
 
+    // TODO: generate name if not provided before checking for duplicates
+
     const nameIsTaken = room.participants.find(
-      (el) => el.name === participantName
+      (el) => el.name === data?.participantName
     );
 
     const participant: Participant = {
       id: socket.id,
       name: nameIsTaken
-        ? generateNameWithEmoji(participantName)
-        : participantName,
+        ? generateNameWithEmoji(data?.participantName)
+        : data?.participantName,
       isHost: room.participants.length === 0 ? true : false,
     };
 
