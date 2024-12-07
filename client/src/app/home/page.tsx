@@ -11,7 +11,7 @@ import ButtonGo from '@/app/components/elements/ButtonGo';
 import ButtonAction from '@/app/components/elements/ButtonAction';
 import { apiService } from '@/service/api.service';
 import { socketService } from '@/service/socket.service';
-
+import CustomDialog from '../components/elements/Dialog';
 export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,11 +94,9 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-8 relative">
       <UserNameInput />
-
       <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
         Scrum Poker Planning
       </h1>
-
       <div className="flex flex-col md:flex-row gap-4 sm:gap-8 w-full max-w-3xl">
         {/* Join Room Card */}
         <div className="flex-1 bg-white p-6 sm:p-8 rounded-lg shadow-lg">
