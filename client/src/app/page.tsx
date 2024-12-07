@@ -1,9 +1,10 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { socketService } from '@/service/socket.service';
 import { apiService } from '@/service/api.service';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from './LoadingSpinner';
 
 export default function App() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function App() {
 
   return (
     <div className="flex justify-center items-center w-full h-screen">
-      <span className="text-2xl font-extrabold">Loading...</span>
+      <LoadingSpinner />
     </div>
   );
 }
