@@ -4,20 +4,21 @@ import { getIO } from '../service';
 import { rooms, updateRoom } from '../store';
 import { generateNameWithEmoji } from '../../utils/nameGenerator';
 import { handleError } from '../../utils/errorUtils';
+import { CreateRoomData } from '@poker-planning/shared/dist/models/socket/CreateRoomData';
 
 export function registerRoomSocketHandlers(socket: Socket) {
   console.log('Client connected:', socket.id);
 
   // Handle joining a room
-  socket.on('join-room', (roomId: string, data: any) => {
-    const room: Room | undefined = rooms.get(roomId);
+  socket.on('join-room', (data: CreateRoomData) => {
+    const room: Room | undefined = rooms.get(data.roomId);
 
     if (!room) {
-      handleError(socket, `Room '${roomId}' not found`);
+      handleError(socket, `Room '${data.roomId}' not found`);
       return;
     }
     if (room.participants.find((el) => el.id === socket.id)) {
-      handleError(socket, `User '${roomId}' is already part of the room`);
+      handleError(socket, `User '${data.roomId}' is already part of the room`);
       return;
     }
 
@@ -32,16 +33,16 @@ export function registerRoomSocketHandlers(socket: Socket) {
       name: nameIsTaken
         ? generateNameWithEmoji(data?.participantName)
         : data?.participantName,
-      isHost: room.participants.length === 0 ? true : false,
+      isHost: room.participants.length === 0,
     };
 
     room.participants.push(participant);
     updateRoom(room);
 
-    socket.join(roomId);
+    socket.join(data.roomId);
 
     console.log(room);
-    socket.to(roomId).emit('game-state', room);
+    socket.to(data.roomId).emit('game-state', room);
   });
 
   // Handle leaving a room

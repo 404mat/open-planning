@@ -11,7 +11,10 @@ import ButtonGo from '@/app/components/elements/ButtonGo';
 import ButtonAction from '@/app/components/elements/ButtonAction';
 import { apiService } from '@/service/api.service';
 import { socketService } from '@/service/socket.service';
-import CustomDialog from '../components/elements/Dialog';
+import { CreateRoomData } from '@poker-planning/shared/dist/models/socket/CreateRoomData';
+import { NewRoomResponse } from '@poker-planning/shared/dist/models/api/NewRoomResponse';
+import { NewRoomOptions } from '@poker-planning/shared/dist/models/api/NewRoomOptions';
+
 export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,20 +38,21 @@ export default function Home() {
     });
   }, []);
 
-  function connectToWebsocket() {
-    socketService.on('connect', () => {
-      console.log('Connected to WebSocket');
+  // function connectToWebsocket() {
+  //   socketService.on('connect', () => {
+  //     console.log('Connected to WebSocket');
 
-      socketService.emit('join-room', {
-        roomId: 'placeholder',
-        name: 'placeholder',
-      });
-    });
-  }
+  //     socketService.emit('join-room', {
+  //       roomId: 'placeholder',
+  //       name: 'placeholder',
+  //     });
+  //   });
+  // }
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
     const validation = validateRoomId(roomId);
+    // TODO: validate room exists ?
 
     if (!validation.isValid) {
       setInputError(validation.error);
@@ -59,30 +63,38 @@ export default function Home() {
   };
 
   const handleQuickCreate = () => {
-    // TODO: Generate a unique room ID in backend
-    const newRoomId = '123';
-
-    router.push(`/room/${newRoomId}`);
+    apiService.createRoom().then((data: NewRoomResponse) => {
+      router.push(`/room/${data.roomId}`);
+      socketService.emit(data.socketConnection, {
+        roomId: data.roomId,
+        participantName: 'placeholder',
+      } as CreateRoomData);
+    });
   };
 
   const handleCreateWithOptions = (options: RoomOptions) => {
-    // Use room name as ID if provided, otherwise server generates one
-    const newRoomId = options.roomName.trim()
+    // Use room name as ID if provided, otherwise server will generates one
+    const userNewRoomId = options.roomName.trim()
       ? options.roomName.toLowerCase().replace(/\s+/g, '-')
-      : '123'; // TODO: Generate a unique room ID in backend
+      : '';
 
-    const queryParams = new URLSearchParams();
+    const params = {
+      roomName: options.roomName,
+      maxUsers: options.maxUsers,
+      userCanFlip: options.userCanFlip,
+      idleTimeout: options.idleTimeout,
+      allowCardChange: options.allowCardChange,
+    } as NewRoomOptions;
 
-    // Add remaining options to query params
-    queryParams.append('maxUsers', options.maxUsers.toString());
-    queryParams.append('userCanFlip', options.userCanFlip.toString());
-    queryParams.append('idleTimeout', options.idleTimeout.toString());
-
-    const queryString = queryParams.toString();
-
-    // TODO: Generate a unique room ID in backend before redirecting
-
-    router.push(`/room/${newRoomId}${queryString ? `?${queryString}` : ''}`);
+    apiService
+      .createRoom(userNewRoomId, params)
+      .then((data: NewRoomResponse) => {
+        router.push(`/room/${data.roomId}`);
+        socketService.emit(data.socketConnection, {
+          roomId: data.roomId,
+          participantName: 'placeholder',
+        } as CreateRoomData);
+      });
   };
 
   const validateInput = (value: string): string => {

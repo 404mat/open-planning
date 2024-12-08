@@ -11,7 +11,9 @@ export default function App() {
 
   useEffect(() => {
     apiService.init();
-    socketService.init('http://localhost:3001');
+    socketService.init(
+      process.env.NEXT_PUBLIC_SOCKET_URL ?? 'http://localhost:3001'
+    );
 
     return () => {
       // Clean up the socket connection

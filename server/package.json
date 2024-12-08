@@ -16,7 +16,8 @@
     "express": "^4.21.1",
     "prettier": "^3.3.3",
     "socket.io": "^4.8.1",
-    "unique-names-generator": "^4.7.1"
+    "unique-names-generator": "^4.7.1",
+    "@poker-planning/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
