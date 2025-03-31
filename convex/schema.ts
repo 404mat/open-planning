@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
 
 export default defineSchema({
   rooms: defineTable({
@@ -10,18 +10,18 @@ export default defineSchema({
     currentStoryUrl: v.string(),
     participants: v.array(
       v.object({
-        playerId: v.string(),
+        playerId: v.id('players'),
         vote: v.string(),
         isAdmin: v.boolean(),
-        isVoting: v.boolean(),
+        isAllowedVote: v.boolean(),
       })
     ),
     updatedAt: v.number(),
-  }).index("by_roomId", ["roomId"]),
+  }).index('by_roomId', ['roomId']),
 
   players: defineTable({
     playerId: v.string(),
     name: v.string(),
     updatedAt: v.number(),
-  })
+  }).index('by_playerId', ['playerId']),
 });
