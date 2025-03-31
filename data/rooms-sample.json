@@ -1,0 +1,15 @@
+{
+  "gameId": "pkr123",
+  "name": "Sprint 34 Planning",
+  "isRevealed": false,
+  "isLocked": false,
+  "participants": ["usr1", "usr2", "usr3"],
+  "currentStory": {
+    "id": "story-789",
+    "title": "Implement auth middleware",
+    "url": "http://trello.com/123"
+  },
+  "voteOptions": "fibonacci",
+  "createdAt": "2023-11-15T09:00:00Z",
+  "updatedAt": "2023-11-15T09:12:34Z"
+}
