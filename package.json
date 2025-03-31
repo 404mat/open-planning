@@ -1,9 +1,0 @@
-{
-  "name": "poker-planning",
-  "private": true,
-  "scripts": {
-    "dev:client": "pnpm --filter client run dev",
-    "dev:server": "pnpm --filter server run dev",
-    "dev": "pnpm -r run dev"
-  }
-}
