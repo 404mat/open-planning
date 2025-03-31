@@ -9,11 +9,7 @@
       { "playerId": "usr2", "isAdmin": false, "isVoting": true, "vote": "13" },
       { "playerId": "usr3", "isAdmin": false, "isVoting": false, "vote": "☕" }
     ],
-    "currentStory": {
-      "storyId": "story-789",
-      "title": "Implement auth middleware",
-      "url": "http://trello.com/123"
-    },
+    "currentStoryUrl": "http://trello.com/456",
     "voteSystem": "fibonacci",
     "createdAt": "2023-11-15T09:00:00Z",
     "updatedAt": "2023-11-15T09:12:34Z"
