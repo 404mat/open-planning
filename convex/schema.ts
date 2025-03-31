@@ -17,7 +17,7 @@ export default defineSchema({
       })
     ),
     updatedAt: v.number(),
-  }),
+  }).index("by_roomId", ["roomId"]),
 
   players: defineTable({
     playerId: v.string(),
