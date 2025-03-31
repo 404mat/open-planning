@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand-background: #e9e8e4;
+
+  --font-caslon: 'Libre Caslon Condensed', serif;
+  --font-caslon-i: 'Libre Caslon Condensed Italic', serif;
+  --font-instrument: 'Instrument Sans', sans-serif;
+  --font-instrument-i: 'Instrument Sans Italic', sans-serif;
+}
