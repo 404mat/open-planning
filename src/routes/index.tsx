@@ -1,21 +1,17 @@
 import CookieBanner from '@/components/cookie-banner';
+import HomepageAvatar from '@/components/homepage-avatar';
+import RequiredInput from '@/components/inputs/required-input';
+import SimpleInput from '@/components/inputs/simple-Input';
+import PillComment from '@/components/pill-comment';
 import { api } from '@convex/_generated/api';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMutation } from 'convex/react';
-import { useState } from 'react';
-
-//todo remove these values
-const addButtonStyle =
-  'bg-amber-100 p-2 rounded-md hover:bg-amber-300 active:bg-amber-500';
 
 export const Route = createFileRoute('/')({
   component: Index,
 });
 
 function Index() {
-  const [nameInputValue, setNameInputValue] = useState('');
-  const [roomInputValue, setRoomInputValue] = useState('');
-
   const createRoomDb = useMutation(api.rooms.create);
   function createPlayerAndRoom() {
     createRoomDb({
@@ -25,35 +21,38 @@ function Index() {
     });
   }
   return (
-    <div className="flex flex-col gap-3 items-center justify-center p-32">
-      <h1>Welcome page</h1>
-
-      <div>
-        <form onSubmit={createPlayerAndRoom}>
-          {' '}
-          <label>
-            Name:
-            <input
-              type="text"
-              value={nameInputValue}
-              onChange={(e) => setNameInputValue(e.target.value)}
-              className="border-2"
-            />{' '}
-          </label>
-          <label>
-            Room:
-            <input
-              type="text"
-              value={roomInputValue}
-              onChange={(e) => setRoomInputValue(e.target.value)}
-              className="border-2"
-            />{' '}
-          </label>
-          <input type="submit" value="Submit" className={addButtonStyle} />
-        </form>
+    <div className="flex flex-col justify-between py-8 items-center h-screen">
+      {/* top navbar */}
+      <div className="flex justify-end w-full max-w-[1440px] px-4">
+        <HomepageAvatar />
       </div>
 
-      <CookieBanner />
+      {/* main content */}
+      <div className="flex flex-col items-center gap-4">
+        <PillComment
+          text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
+        />
+        <h1>ScrumPokr</h1>
+
+        {/* 2 main panels */}
+        <div className="flex gap-6">
+          <div className="flex flex-col gap-4 p-4 border border-input rounded-md min-w-md">
+            <h4>Create a new room</h4>
+            <SimpleInput
+              label="Room name"
+              helperText="Use a friendly and unique name"
+            />
+          </div>
+          <div className="flex flex-col gap-4 p-4 border border-input rounded-md min-w-md">
+            <h4>Join a room</h4>
+            <RequiredInput label="Room name" />
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1440px]">
+        <CookieBanner />
+      </div>
     </div>
   );
 }
