@@ -1,3 +1,4 @@
+import CookieBanner from '@/components/cookie-banner';
 import { api } from '@convex/_generated/api';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMutation } from 'convex/react';
@@ -51,6 +52,8 @@ function Index() {
           <input type="submit" value="Submit" className={addButtonStyle} />
         </form>
       </div>
+
+      <CookieBanner />
     </div>
   );
 }
