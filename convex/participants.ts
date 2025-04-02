@@ -1,8 +1,13 @@
 import { mutation } from './_generated/server';
 import { v } from 'convex/values';
 
-// Update a participant's vote in a room
-export const updateParticipantVote = mutation({
+/**
+ * Update a participant's vote in a room
+ * @param roomId - The ID of the room to retrieve.
+ * @params playerId - The ID of the player to update.
+ * @params vote - The new vote value.
+ */
+export const updateVote = mutation({
   args: {
     roomId: v.string(),
     playerId: v.id('players'),
@@ -29,8 +34,13 @@ export const updateParticipantVote = mutation({
   },
 });
 
-// Update a participant's isAllowedVote status in a room
-export const updateParticipantisAllowedVote = mutation({
+/**
+ * Update a participant's isAllowedVote status in a room
+ * @param roomId - The ID of the room to retrieve.
+ * @params playerId - The ID of the player to update.
+ * @params isAllowedVote - The new isAllowedVote status.
+ */
+export const updateIsAllowedVote = mutation({
   args: {
     roomId: v.string(),
     playerId: v.id('players'),
@@ -57,8 +67,13 @@ export const updateParticipantisAllowedVote = mutation({
   },
 });
 
-// Update a participant's isAdmin status in a room
-export const updateParticipantIsAdmin = mutation({
+/**
+ * Update a participant's isAdmin status in a room
+ * @param roomId - The ID of the room to retrieve.
+ * @params playerId - The ID of the player to update.
+ * @params isAdmin - The new isAdmin status.
+ */
+export const updateIsAdmin = mutation({
   args: {
     roomId: v.string(),
     playerId: v.id('players'),

@@ -45,7 +45,7 @@ export function CreateRoomBox() {
           {/* Content inside the collapsible area */}
           <div className="flex flex-col gap-4">
             <RadioTags
-              groupName="Voting system"
+              groupName="Voting system:"
               onChange={setVoteSystem}
               values={voteSystems}
               currentValue={voteSystem}

@@ -34,7 +34,7 @@ function Index() {
             <PillComment
               text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
             />
-            <h1 className="font-bold text-5xl">ScrumPokr</h1>
+            <h1 className="font-bold text-5xl">OpenPlanning</h1>
           </div>
 
           {/* 2 main panels */}

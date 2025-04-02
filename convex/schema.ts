@@ -21,7 +21,10 @@ export default defineSchema({
 
   players: defineTable({
     playerId: v.string(),
+    sessionId: v.string(),
     name: v.string(),
     updatedAt: v.number(),
-  }).index('by_playerId', ['playerId']),
+  })
+    .index('by_playerId', ['playerId'])
+    .index('by_sessionId', ['sessionId']),
 });
