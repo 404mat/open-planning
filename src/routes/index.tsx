@@ -21,25 +21,27 @@ function Index() {
     });
   }
   return (
-    <div className="flex flex-col justify-between py-8 items-center h-screen">
-      {/* top navbar */}
-      <div className="flex justify-end w-full max-w-[1440px] px-4">
-        <HomepageAvatar />
-      </div>
-
-      {/* main content */}
-      <div className="flex flex-col items-center gap-16">
-        <div className="flex flex-col gap-4 items-center">
-          <PillComment
-            text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
-          />
-          <h1 className="font-bold text-5xl">ScrumPokr</h1>
+    <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8">
+      <div className="flex flex-col justify-between items-center w-full gap-20">
+        {/* top navbar */}
+        <div className="flex justify-end w-full max-w-[1440px] px-4">
+          <HomepageAvatar />
         </div>
 
-        {/* 2 main panels */}
-        <div className="flex gap-6">
-          <CreateRoomBox />
-          <JoinRoomBox />
+        {/* main content */}
+        <div className="flex flex-col items-center gap-16">
+          <div className="flex flex-col gap-4 items-center">
+            <PillComment
+              text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
+            />
+            <h1 className="font-bold text-5xl">ScrumPokr</h1>
+          </div>
+
+          {/* 2 main panels */}
+          <div className="flex gap-6">
+            <CreateRoomBox />
+            <JoinRoomBox />
+          </div>
         </div>
       </div>
 
