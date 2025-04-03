@@ -65,7 +65,12 @@ function Index() {
       {/* welcome popup */}
       {!sessionId && (
         <div className="absolute top-0 left-0 h-screen w-screen flex items-center justify-center">
-          <WelcomePopup />
+          <WelcomePopup
+            onClose={() => {
+              // todo make this create the user, and store their session id in the local storage
+              setSessionId('true');
+            }}
+          />
         </div>
       )}
     </div>

@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import WelcomeImage from '@/assets/images/welcome-dialog-image.png';
 
-export default function WelcomeDialog() {
+export default function WelcomeDialog({ onClose }: { onClose: () => void }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -20,6 +20,9 @@ export default function WelcomeDialog() {
       open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
+        if (!open) {
+          onClose();
+        }
       }}
     >
       <DialogContent
