@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import WelcomeImage from '@/assets/images/welcome-dialog-image.png';
 
 export default function WelcomeDialog() {
   const [isOpen, setIsOpen] = useState(true); // Control dialog visibility
@@ -29,10 +30,10 @@ export default function WelcomeDialog() {
       >
         <div className="p-2">
           <img
-            className="w-full rounded-md"
-            src="/dialog-content.png"
-            width={382}
-            height={216}
+            className="w-full rounded-md drop-shadow-lg"
+            src={WelcomeImage}
+            width={1920}
+            height={1080}
             alt="dialog"
           />
         </div>
