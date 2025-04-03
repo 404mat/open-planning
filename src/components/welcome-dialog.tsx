@@ -13,17 +13,18 @@ import {
 import WelcomeImage from '@/assets/images/welcome-dialog-image.png';
 
 export default function WelcomeDialog() {
-  const [isOpen, setIsOpen] = useState(true); // Control dialog visibility
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => {
-        setIsOpen(open); // Update state when dialog tries to open/close
+        setIsOpen(open);
       }}
     >
       <DialogContent
-        className="gap-0 p-0 sm:max-w-lg [&>button:last-child]:text-white" // Added sm:max-w-lg
+        className="gap-0 p-0 sm:max-w-lg [&>button:last-child]:text-white"
+        showCloseButton={false}
         onInteractOutside={(e) => {
           e.preventDefault(); // Prevent closing on outside click
         }}
