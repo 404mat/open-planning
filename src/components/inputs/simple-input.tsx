@@ -8,11 +8,15 @@ export default function SimpleInput({
   helperText,
   placeholder,
   required,
+  value,
+  onChange,
 }: {
   label: string;
   helperText?: string;
   placeholder?: string;
   required?: boolean;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const id = useId();
   return (
@@ -24,6 +28,8 @@ export default function SimpleInput({
         id={id}
         placeholder={placeholder ?? ''}
         required={required ?? false}
+        value={value}
+        onChange={onChange}
       />
       <p
         className="text-muted-foreground mt-2 text-xs"

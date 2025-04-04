@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { SessionProvider } from 'convex-helpers/react/sessions';
 import './index.css';
 
 /* ------- ROUTING ------*/
@@ -26,7 +27,9 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ConvexProvider client={convex}>
-        <RouterProvider router={router} />
+        <SessionProvider>
+          <RouterProvider router={router} />
+        </SessionProvider>
       </ConvexProvider>
     </StrictMode>
   );

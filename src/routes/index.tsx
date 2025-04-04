@@ -4,10 +4,11 @@ import PillComment from '@/components/pill-comment';
 import { CreateRoomBox } from '@/features/homepage/create-room-box';
 import { JoinRoomBox } from '@/features/homepage/join-room-box';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
-import { getLocalStorageValue } from '@/lib/localStorage';
+import { SESSION_ID_KEY } from '@/lib/constants';
+import { getLocalStorageValue, setLocalStorageValue } from '@/lib/localStorage';
 import { api } from '@convex/_generated/api';
 import { createFileRoute } from '@tanstack/react-router';
-import { useMutation } from 'convex/react';
+import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { useEffect, useState } from 'react';
 
 export const Route = createFileRoute('/')({
@@ -16,22 +17,21 @@ export const Route = createFileRoute('/')({
 
 function Index() {
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [playerName, setPlayerName] = useState('');
 
-  const createRoomDb = useMutation(api.rooms.create);
-  function createPlayerAndRoom() {
-    createRoomDb({
-      roomId: 'custom-name-room',
-      playerId: '1',
-      voteSystem: 'fibonacci',
-    });
+  const createPlayer = useSessionMutation(api.players.create);
+
+  async function createNewPlayer(): Promise<string> {
+    const { sessionId } = await createPlayer({ name: playerName });
+    return sessionId;
   }
 
   useEffect(() => {
-    const result = getLocalStorageValue('sessionId');
+    const result = getLocalStorageValue(SESSION_ID_KEY);
     if (result) {
       setSessionId(result);
     }
-  });
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8 realtive">
@@ -66,9 +66,14 @@ function Index() {
       {!sessionId && (
         <div className="absolute top-0 left-0 h-screen w-screen flex items-center justify-center">
           <WelcomePopup
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
             onClose={() => {
-              // todo make this create the user, and store their session id in the local storage
-              setSessionId('true');
+              console.log('Player name entered:', playerName);
+              createNewPlayer().then((sessionId) => {
+                setSessionId(sessionId);
+                setLocalStorageValue(SESSION_ID_KEY, sessionId);
+              });
             }}
           />
         </div>

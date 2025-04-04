@@ -11,3 +11,13 @@ export function getLocalStorageValue(key: string): string | null {
   }
   return null;
 }
+
+/**
+ * Sets a value in localStorage for a given key.
+ *
+ * @param key The key to set in localStorage.
+ * @param value The string value to set.
+ */
+export function setLocalStorageValue(key: string, value: string): void {
+  localStorage.setItem(key, value);
+}

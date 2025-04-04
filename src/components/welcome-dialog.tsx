@@ -12,7 +12,17 @@ import {
 } from '@/components/ui/dialog';
 import WelcomeImage from '@/assets/images/welcome-dialog-image.png';
 
-export default function WelcomeDialog({ onClose }: { onClose: () => void }) {
+interface WelcomeDialogProps {
+  onClose: () => void;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export default function WelcomeDialog({
+  onClose,
+  value,
+  onChange,
+}: WelcomeDialogProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -48,7 +58,12 @@ export default function WelcomeDialog({ onClose }: { onClose: () => void }) {
               Please enter your name below to get started.
             </DialogDescription>
           </DialogHeader>
-          <SimpleInput label="Your Name" placeholder="e.g. John Doe" />
+          <SimpleInput
+            label="Your Name"
+            placeholder="e.g. John Doe"
+            value={value}
+            onChange={onChange}
+          />
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button">Start playing</Button>
