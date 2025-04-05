@@ -71,7 +71,7 @@ export default function WelcomeDialog({
           />
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" disabled={value.trim().length <= 3}>
+              <Button type="button" disabled={value.trim().length <= 2}>
                 Start playing
               </Button>
             </DialogClose>

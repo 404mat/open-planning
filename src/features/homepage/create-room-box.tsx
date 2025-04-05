@@ -4,6 +4,7 @@ import RightAlignedCheckbox from '@/components/checkboxes/right-aligned-checkbox
 import SimpleInput from '@/components/inputs/simple-input';
 import RadioTags from '@/components/radio/radio-tags';
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 
 const voteSystems = [
   { value: 'fibonacci', label: 'Fibonacci' },
@@ -13,19 +14,43 @@ const voteSystems = [
 
 export function CreateRoomBox() {
   const [advancedSettings, setAdvancedSettings] = useState(false);
-  const [voteSystem, setVoteSystem] = useState('fibonacci');
-  const [playerReveal, setPlayerReveal] = useState(true);
-  const [playerChangeVote, setPlayerChangeVote] = useState(false);
-  const [playerAddTicket, setPlayerAddTicket] = useState(false);
+
+  const form = useForm({
+    defaultValues: {
+      roomName: '',
+      voteSystem: 'fibonacci',
+      playerReveal: true,
+      playerChangeVote: false,
+      playerAddTicket: false,
+    },
+    onSubmit: async ({ value }) => {
+      alert(JSON.stringify(value));
+    },
+  });
 
   return (
-    <div className="flex flex-col gap-4 p-4 border border-input rounded-md min-w-md h-fit">
+    <form
+      className="flex flex-col gap-4 p-4 border border-input rounded-md min-w-md h-fit"
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+    >
       <h4 className="font-semibold text-xl">Create a new room</h4>
-      <SimpleInput
-        label="Name"
-        placeholder='e.g. "Sprint 42"'
-        helperText="If blank, a name will be generated for you."
-      />
+
+      {/* room name field */}
+      <form.Field name="roomName">
+        {(field) => (
+          <SimpleInput
+            label="Name"
+            placeholder='e.g. "Sprint 42"'
+            helperText="If blank, a name will be generated for you."
+            value={field.state.value}
+            onChange={(e) => field.handleChange(e.target.value)}
+          />
+        )}
+      </form.Field>
+
       <div>
         <RevealMoreLink
           textClosed="Advanced settings"
@@ -44,33 +69,49 @@ export function CreateRoomBox() {
         <div className="overflow-hidden py-0.5">
           {/* Content inside the collapsible area */}
           <div className="flex flex-col gap-4">
-            <RadioTags
-              groupName="Voting system:"
-              onChange={setVoteSystem}
-              values={voteSystems}
-              currentValue={voteSystem}
-            />
-            <RightAlignedCheckbox
-              text="Players can reveal"
-              checked={playerReveal}
-              onChange={setPlayerReveal}
-            />
-            <RightAlignedCheckbox
-              text="Players can change vote after reveal"
-              checked={playerChangeVote}
-              onChange={setPlayerChangeVote}
-            />
-            <RightAlignedCheckbox
-              text="Players can add a ticket"
-              checked={playerAddTicket}
-              onChange={setPlayerAddTicket}
-            />
+            <form.Field name="voteSystem">
+              {(field) => (
+                <RadioTags
+                  groupName="Voting system:"
+                  onChange={field.handleChange}
+                  values={voteSystems}
+                  currentValue={field.state.value}
+                />
+              )}
+            </form.Field>
+            <form.Field name="playerReveal">
+              {(field) => (
+                <RightAlignedCheckbox
+                  text="Players can reveal"
+                  checked={field.state.value}
+                  onChange={(checked) => field.handleChange(checked)}
+                />
+              )}
+            </form.Field>
+            <form.Field name="playerChangeVote">
+              {(field) => (
+                <RightAlignedCheckbox
+                  text="Players can change vote after reveal"
+                  checked={field.state.value}
+                  onChange={(checked) => field.handleChange(checked)}
+                />
+              )}
+            </form.Field>
+            <form.Field name="playerAddTicket">
+              {(field) => (
+                <RightAlignedCheckbox
+                  text="Players can add a ticket"
+                  checked={field.state.value}
+                  onChange={(checked) => field.handleChange(checked)}
+                />
+              )}
+            </form.Field>
           </div>
         </div>
       </div>
       <div className="self-end">
-        <ButtonArrowRight text="Create" />
+        <ButtonArrowRight text="Create" type="submit" />
       </div>
-    </div>
+    </form>
   );
 }

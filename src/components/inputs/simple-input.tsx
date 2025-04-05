@@ -10,13 +10,15 @@ export default function SimpleInput({
   required,
   value,
   onChange,
+  disabled,
 }: {
   label: string;
   helperText?: string;
   placeholder?: string;
   required?: boolean;
-  value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }) {
   const id = useId();
   return (
@@ -30,6 +32,7 @@ export default function SimpleInput({
         required={required ?? false}
         value={value}
         onChange={onChange}
+        disabled={disabled ?? false}
       />
       <p
         className="text-muted-foreground mt-2 text-xs"
