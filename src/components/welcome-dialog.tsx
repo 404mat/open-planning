@@ -16,12 +16,14 @@ interface WelcomeDialogProps {
   onClose: () => void;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  disableEscapeKey?: boolean;
 }
 
 export default function WelcomeDialog({
   onClose,
   value,
   onChange,
+  disableEscapeKey,
 }: WelcomeDialogProps) {
   const [isOpen, setIsOpen] = useState(true);
 
@@ -38,8 +40,9 @@ export default function WelcomeDialog({
       <DialogContent
         className="gap-0 p-0 sm:max-w-lg [&>button:last-child]:text-white"
         showCloseButton={false}
+        disableEscapeKey={disableEscapeKey}
         onInteractOutside={(e) => {
-          e.preventDefault(); // Prevent closing on outside click
+          e.preventDefault();
         }}
       >
         <div className="p-2">

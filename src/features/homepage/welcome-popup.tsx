@@ -7,5 +7,12 @@ interface WelcomePopupProps {
 }
 
 export function WelcomePopup({ onClose, value, onChange }: WelcomePopupProps) {
-  return <WelcomeDialog onClose={onClose} value={value} onChange={onChange} />;
+  return (
+    <WelcomeDialog
+      onClose={onClose}
+      value={value}
+      onChange={onChange}
+      disableEscapeKey
+    />
+  );
 }
