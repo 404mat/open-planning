@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { SessionProvider } from 'convex-helpers/react/sessions';
+import { ToastProvider } from '@/context/toast-provider';
 import './index.css';
 
 /* ------- ROUTING ------*/
@@ -28,7 +29,9 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <ConvexProvider client={convex}>
         <SessionProvider>
-          <RouterProvider router={router} />
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
         </SessionProvider>
       </ConvexProvider>
     </StrictMode>
