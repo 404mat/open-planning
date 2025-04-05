@@ -15,7 +15,7 @@ async function getUser(ctx: QueryCtx, sessionId: SessionId) {
   const user = await ctx.db
     .query('players')
     .withIndex('by_sessionId', (q) => q.eq('sessionId', sessionId))
-    .unique();
+    .first();
   return user;
 }
 
