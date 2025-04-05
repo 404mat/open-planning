@@ -61,15 +61,11 @@ function Index() {
       // foundPlayer can be undefined during loading state
       if (foundPlayer === null) {
         // If query ran (foundPlayer is not undefined) and returned null (player not found)
-        console.log(
-          'Local player ID existed but player not found in DB, resetting.'
-        );
-        setSessionId(null); // Clear component state
-        setInitialLocalStorageId(null); // Clear tracked initial ID
-        setLocalStorageValue(SESSION_ID_KEY, ''); // Clear local storage
+        setSessionId(null);
+        setInitialLocalStorageId(null);
+        setLocalStorageValue(SESSION_ID_KEY, '');
       } else if (foundPlayer?.sessionId === initialLocalStorageId) {
         // Player found and matches the initial ID, ensure state is correct
-        console.log('Player is in user base and matches local ID.');
         setSessionId(initialLocalStorageId);
       }
       // If foundPlayer is still undefined, the query is likely still loading, do nothing yet.
@@ -86,7 +82,7 @@ function Index() {
         <div
           className={`flex justify-end w-full max-w-[1440px] px-4 ${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
         >
-          <HomepageAvatar />
+          <HomepageAvatar userName={foundPlayer?.name} />
         </div>
 
         {/* main content */}
