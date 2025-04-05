@@ -8,7 +8,10 @@ import { SESSION_ID_KEY } from '@/lib/constants';
 import { getLocalStorageValue, setLocalStorageValue } from '@/lib/localStorage';
 import { api } from '@convex/_generated/api';
 import { createFileRoute } from '@tanstack/react-router';
-import { useSessionMutation } from 'convex-helpers/react/sessions';
+import {
+  useSessionMutation,
+  useSessionQuery,
+} from 'convex-helpers/react/sessions';
 import { useEffect, useState } from 'react';
 
 export const Route = createFileRoute('/')({
@@ -19,25 +22,70 @@ function Index() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState('');
 
-  const createPlayer = useSessionMutation(api.players.create);
+  // State to track if we've checked local storage initially
+  const [initialLocalStorageId, setInitialLocalStorageId] = useState<
+    string | null
+  >(null);
+  const [checkedInitialId, setCheckedInitialId] = useState(false);
 
+  // player creation
+  const createPlayer = useSessionMutation(api.players.create);
   async function createNewPlayer(): Promise<string> {
-    const { sessionId } = await createPlayer({ name: playerName });
-    return sessionId;
+    const { sessionId: newSessionId } = await createPlayer({
+      name: playerName,
+    });
+    return newSessionId;
   }
 
+  // player fetching
+  const foundPlayer = useSessionQuery(api.players.find, {
+    localSessionId: sessionId ?? 'skip',
+  });
+
+  // ------ INIT SEQUENCE ------ //
+
+  // 1. Read initial sessionId from localStorage on mount and set state
   useEffect(() => {
-    const result = getLocalStorageValue(SESSION_ID_KEY);
-    if (result) {
-      setSessionId(result);
+    const storedSessionId = getLocalStorageValue(SESSION_ID_KEY);
+    if (storedSessionId) {
+      setSessionId(storedSessionId); // Trigger query with the stored id
+      setInitialLocalStorageId(storedSessionId); // Keep track of original local id
     }
+    setCheckedInitialId(true);
   }, []);
+
+  // 2. Validate the session id once the query result is available or initial check is done
+  useEffect(() => {
+    // Only run validation *after* the initial check and if we initially found an ID
+    if (checkedInitialId && initialLocalStorageId) {
+      // foundPlayer can be undefined during loading state
+      if (foundPlayer === null) {
+        // If query ran (foundPlayer is not undefined) and returned null (player not found)
+        console.log(
+          'Local player ID existed but player not found in DB, resetting.'
+        );
+        setSessionId(null); // Clear component state
+        setInitialLocalStorageId(null); // Clear tracked initial ID
+        setLocalStorageValue(SESSION_ID_KEY, ''); // Clear local storage
+      } else if (foundPlayer?.sessionId === initialLocalStorageId) {
+        // Player found and matches the initial ID, ensure state is correct
+        console.log('Player is in user base and matches local ID.');
+        setSessionId(initialLocalStorageId);
+      }
+      // If foundPlayer is still undefined, the query is likely still loading, do nothing yet.
+    } else if (checkedInitialId && !initialLocalStorageId) {
+      // If we checked initially and found no ID, ensure state is null
+      setSessionId(null);
+    }
+  }, [foundPlayer, initialLocalStorageId, checkedInitialId]);
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8 realtive">
       <div className="flex flex-col justify-between items-center w-full gap-20">
         {/* top navbar */}
-        <div className="flex justify-end w-full max-w-[1440px] px-4">
+        <div
+          className={`flex justify-end w-full max-w-[1440px] px-4 ${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
+        >
           <HomepageAvatar />
         </div>
 
@@ -62,18 +110,22 @@ function Index() {
         <CookieBanner />
       </div>
 
-      {/* welcome popup */}
-      {!sessionId && (
+      {/* welcome popup - Show if checkedInitialId is true AND sessionId is null */}
+      {checkedInitialId && !sessionId && (
         <div className="absolute top-0 left-0 h-screen w-screen flex items-center justify-center">
           <WelcomePopup
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
             onClose={() => {
-              console.log('Player name entered:', playerName);
-              createNewPlayer().then((sessionId) => {
-                setSessionId(sessionId);
-                setLocalStorageValue(SESSION_ID_KEY, sessionId);
-              });
+              if (playerName.trim()) {
+                // Only create if name is not empty
+                console.log('Player name entered:', playerName);
+                createNewPlayer().then((newSessionId) => {
+                  setSessionId(newSessionId);
+                  setLocalStorageValue(SESSION_ID_KEY, newSessionId);
+                  setInitialLocalStorageId(newSessionId); // Update tracked initial id
+                });
+              }
             }}
           />
         </div>
