@@ -2,14 +2,12 @@ import { createContext } from 'react';
 
 export type Toast = {
   id: number;
-  title?: string;
-  description: string;
+  text: string;
   type?: 'success' | 'error' | 'info' | 'warning';
 };
 
 export type ToastInput = {
-  title?: string;
-  description: string;
+  text: string;
   type?: Toast['type'];
 };
 
