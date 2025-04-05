@@ -55,18 +55,22 @@ export default function WelcomeDialog({
           <DialogHeader>
             <DialogTitle>Welcome to OpenPlanning</DialogTitle>
             <DialogDescription>
-              Please enter your name below to get started.
+              <br />
+              Looks like you're new here! Please enter a display name below to
+              create your profile and get started.
             </DialogDescription>
           </DialogHeader>
           <SimpleInput
-            label="Your Name"
-            placeholder="e.g. John Doe"
+            label="Choose a display name"
+            placeholder="e.g. Jane Doe"
             value={value}
             onChange={onChange}
           />
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button">Start playing</Button>
+              <Button type="button" disabled={value.trim().length <= 3}>
+                Start playing
+              </Button>
             </DialogClose>
           </DialogFooter>
         </div>
