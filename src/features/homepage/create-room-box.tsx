@@ -30,7 +30,11 @@ export function CreateRoomBox() {
     onSubmit: async ({ value }) => {
       const validation = createRoomSchema(value);
       if (validation instanceof ArkErrors) {
-        errorToast({ text: validation[0].description! });
+        errorToast({
+          text:
+            validation[0].meta?.description ??
+            'There was an error creating the room.',
+        });
         return;
       }
       alert(JSON.stringify(value));
