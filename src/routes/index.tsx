@@ -82,11 +82,12 @@ function Index() {
         <div
           className={`flex justify-end w-full max-w-[1440px] px-4 ${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
         >
+          {/* todo add github and social informations here */}
           <HomepageAvatar userName={foundPlayer?.name} />
         </div>
 
         {/* main content */}
-        <div className="flex flex-col items-center gap-12">
+        <div className="flex flex-col justify-between items-center gap-8">
           <div className="flex flex-col gap-4 items-center">
             <PillComment
               text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
@@ -99,6 +100,10 @@ function Index() {
             <CreateRoomBox />
             <JoinRoomBox />
           </div>
+          <p className="text-center text-sm text-muted-foreground max-w-lg">
+            OpenPlanning is an open-source poker planning application designed
+            to facilitate collaborative estimation and planning sessions.
+          </p>
         </div>
       </div>
 
