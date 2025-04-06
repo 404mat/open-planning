@@ -86,12 +86,12 @@ function Index() {
         </div>
 
         {/* main content */}
-        <div className="flex flex-col items-center gap-16">
+        <div className="flex flex-col items-center gap-12">
           <div className="flex flex-col gap-4 items-center">
             <PillComment
               text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
             />
-            <h1 className="font-bold text-5xl">OpenPlanning</h1>
+            <h1 className="font-brand font-bold text-6xl">OpenPlanning</h1>
           </div>
 
           {/* 2 main panels */}
