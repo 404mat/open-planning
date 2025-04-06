@@ -3,6 +3,7 @@ import HomepageAvatar from '@/components/homepage-avatar';
 import PillComment from '@/components/pill-comment';
 import { CreateRoomBox } from '@/features/homepage/create-room-box';
 import { JoinRoomBox } from '@/features/homepage/join-room-box';
+import { SocialLinks } from '@/features/homepage/social-links';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
 import { SESSION_ID_KEY } from '@/lib/constants';
 import { getLocalStorageValue, setLocalStorageValue } from '@/lib/localStorage';
@@ -79,11 +80,14 @@ function Index() {
     <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8 realtive">
       <div className="flex flex-col justify-between items-center w-full gap-20">
         {/* top navbar */}
-        <div
-          className={`flex justify-end w-full max-w-[1440px] px-4 ${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
-        >
+        <div className="flex justify-between items-center w-full max-w-[1440px] px-4">
           {/* todo add github and social informations here */}
-          <HomepageAvatar userName={foundPlayer?.name} />
+          <SocialLinks />
+          <div
+            className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
+          >
+            <HomepageAvatar userName={foundPlayer?.name} />
+          </div>
         </div>
 
         {/* main content */}
