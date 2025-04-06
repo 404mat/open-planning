@@ -5,6 +5,9 @@ import SimpleInput from '@/components/inputs/simple-input';
 import RadioTags from '@/components/radio/radio-tags';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
+import { createRoomSchema } from '@/types/roomCreation';
+import { ArkErrors } from 'arktype';
+import { useToast } from '@/hooks/use-toast';
 
 const voteSystems = [
   { value: 'fibonacci', label: 'Fibonacci' },
@@ -14,6 +17,7 @@ const voteSystems = [
 
 export function CreateRoomBox() {
   const [advancedSettings, setAdvancedSettings] = useState(false);
+  const { errorToast } = useToast();
 
   const form = useForm({
     defaultValues: {
@@ -24,6 +28,11 @@ export function CreateRoomBox() {
       playerAddTicket: false,
     },
     onSubmit: async ({ value }) => {
+      const validation = createRoomSchema(value);
+      if (validation instanceof ArkErrors) {
+        errorToast({ text: validation[0].description! });
+        return;
+      }
       alert(JSON.stringify(value));
     },
   });
