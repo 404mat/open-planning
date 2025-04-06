@@ -8,7 +8,7 @@ export function SocialLinks() {
         <img src={blueskyIconUrl} alt="bluesky-logo" className="w-6 h-6" />
       </a>
       <a
-        href="https://github.com/404mat/poker-planning"
+        href="https://github.com/404mat/open-planning"
         target="_blank"
         rel="noopener noreferrer"
       >

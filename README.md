@@ -1,1 +1,1 @@
-### Poker Planning
+### Open Planning
