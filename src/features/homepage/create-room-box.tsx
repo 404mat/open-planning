@@ -8,6 +8,8 @@ import { useForm } from '@tanstack/react-form';
 import { createRoomSchema } from '@/types/roomCreation';
 import { ArkErrors } from 'arktype';
 import { useToast } from '@/hooks/use-toast';
+import { useSessionMutation } from 'convex-helpers/react/sessions';
+import { api } from '@convex/_generated/api';
 
 const voteSystems = [
   { value: 'fibonacci', label: 'Fibonacci' },
@@ -18,6 +20,7 @@ const voteSystems = [
 export function CreateRoomBox() {
   const [advancedSettings, setAdvancedSettings] = useState(false);
   const { errorToast } = useToast();
+  const createRoom = useSessionMutation(api.rooms.create);
 
   const form = useForm({
     defaultValues: {
@@ -37,7 +40,16 @@ export function CreateRoomBox() {
         });
         return;
       }
-      alert(JSON.stringify(value));
+
+      createRoom({
+        roomId: value.roomName,
+        voteSystem: value.voteSystem,
+        playerReveal: value.playerReveal,
+        playerChangeVote: value.playerChangeVote,
+        playerAddTicket: value.playerAddTicket,
+      });
+
+      // todo redirect to room
     },
   });
 

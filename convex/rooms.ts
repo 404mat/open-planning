@@ -1,6 +1,7 @@
 import { query } from './_generated/server';
 import { mutation } from './_generated/server';
 import { v } from 'convex/values';
+import { mutationWithSession } from './lib/sessions';
 
 /**
  * Retrieves a room by its ID.
@@ -41,22 +42,24 @@ export const remove = mutation({
  * @param voteSystem - The voting system to be used in the room.
  * @param playerId - The external ID (string) of the player creating the room, who will be set as admin.
  */
-export const create = mutation({
+export const create = mutationWithSession({
   args: {
     roomId: v.string(),
     voteSystem: v.string(),
-    playerId: v.string(),
+    playerReveal: v.boolean(),
+    playerChangeVote: v.boolean(),
+    playerAddTicket: v.boolean(),
   },
   handler: async (ctx, args) => {
     // Find the player creating the room
     const creatorPlayer = await ctx.db
       .query('players')
-      .withIndex('by_playerId', (q) => q.eq('playerId', args.playerId))
+      .withIndex('by_sessionId', (q) => q.eq('sessionId', ctx.sessionId))
       .first();
 
     if (!creatorPlayer) {
-      console.error(`Creator player not found: ${args.playerId}`);
-      throw new Error(`Creator player not found: ${args.playerId}`); // Throw error to prevent room creation without admin
+      console.error(`Creator player not found: ${ctx.sessionId}`);
+      throw new Error(`Creator player not found: ${ctx.sessionId}`); // Throw error to prevent room creation without admin
     }
 
     // Construct the initial admin participant object
