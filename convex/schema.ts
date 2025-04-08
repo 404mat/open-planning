@@ -23,7 +23,7 @@ export default defineSchema({
     playerId: v.string(),
     sessionId: v.string(),
     name: v.string(),
-    updatedAt: v.number(),
+    lastSeenAt: v.number(),
   })
     .index('by_playerId', ['playerId'])
     .index('by_sessionId', ['sessionId']),

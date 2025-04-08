@@ -15,7 +15,7 @@ export const create = mutationWithSession({
       playerId: newPlayerId, // Generate a unique ID for the player
       name,
       sessionId: ctx.sessionId,
-      updatedAt: Date.now(),
+      lastSeenAt: Date.now(),
     });
 
     return { name, playerId, sessionId: ctx.sessionId };
