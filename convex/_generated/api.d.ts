@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as lib_roomIdGenerator from "../lib/roomIdGenerator.js";
 import type * as lib_sessions from "../lib/sessions.js";
 import type * as participants from "../participants.js";
 import type * as players from "../players.js";
@@ -27,6 +28,7 @@ import type * as rooms from "../rooms.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "lib/roomIdGenerator": typeof lib_roomIdGenerator;
   "lib/sessions": typeof lib_sessions;
   participants: typeof participants;
   players: typeof players;

@@ -1,7 +1,10 @@
-import { query } from './_generated/server';
-import { mutation } from './_generated/server';
+import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
 import { mutationWithSession } from './lib/sessions';
+import {
+  formatStringToRoomId,
+  appendRandomSuffix,
+} from './lib/roomIdGenerator';
 
 /**
  * Retrieves a room by its ID.
@@ -59,30 +62,40 @@ export const create = mutationWithSession({
 
     if (!creatorPlayer) {
       console.error(`Creator player not found: ${ctx.sessionId}`);
-      throw new Error(`Creator player not found: ${ctx.sessionId}`); // Throw error to prevent room creation without admin
+      // prevent creation of a room without an admin
+      throw new Error(`Creator player not found: ${ctx.sessionId}`);
     }
+
+    const formattedRoomId = formatStringToRoomId(args.roomId);
+
+    // Check if this formatted ID already exists, and append random number if it does
+    const existingRoom = await ctx.db
+      .query('rooms')
+      .withIndex('by_roomId', (q) => q.eq('roomId', formattedRoomId))
+      .first();
+    const finalRoomId = existingRoom
+      ? appendRandomSuffix(formattedRoomId)
+      : formattedRoomId;
 
     // Construct the initial admin participant object
     const adminParticipant = {
       playerId: creatorPlayer._id, // Use internal Convex ID
       vote: '',
-      isAdmin: true, // Set as admin
+      isAdmin: true,
       isAllowedVote: true,
     };
 
-    // Insert the new room with the admin participant
     await ctx.db.insert('rooms', {
-      roomId: args.roomId,
+      roomId: finalRoomId,
       isLocked: false,
       isRevealed: false,
       voteSystem: args.voteSystem,
       currentStoryUrl: '',
-      participants: [adminParticipant], // Initialize with the admin
+      participants: [adminParticipant],
       updatedAt: Date.now(),
     });
 
-    // Return the final room name (ID)
-    return args.roomId;
+    return finalRoomId;
   },
 });
 

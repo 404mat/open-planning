@@ -30,5 +30,5 @@
       "@convex/*": ["convex/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "convex"]
 }
