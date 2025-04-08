@@ -80,6 +80,9 @@ export const create = mutationWithSession({
       participants: [adminParticipant], // Initialize with the admin
       updatedAt: Date.now(),
     });
+
+    // Return the final room name (ID)
+    return args.roomId;
   },
 });
 

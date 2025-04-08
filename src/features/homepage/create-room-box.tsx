@@ -10,6 +10,7 @@ import { ArkErrors } from 'arktype';
 import { useToast } from '@/hooks/use-toast';
 import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
+import { useRouter } from '@tanstack/react-router';
 
 const voteSystems = [
   { value: 'fibonacci', label: 'Fibonacci' },
@@ -18,10 +19,12 @@ const voteSystems = [
 ];
 
 export function CreateRoomBox() {
-  const [advancedSettings, setAdvancedSettings] = useState(false);
+  const router = useRouter();
   const { errorToast } = useToast();
-  const createRoom = useSessionMutation(api.rooms.create);
 
+  const [advancedSettings, setAdvancedSettings] = useState(false);
+
+  const createRoom = useSessionMutation(api.rooms.create);
   const form = useForm({
     defaultValues: {
       roomName: '',
@@ -41,7 +44,7 @@ export function CreateRoomBox() {
         return;
       }
 
-      createRoom({
+      const finalRoomId = await createRoom({
         roomId: value.roomName,
         voteSystem: value.voteSystem,
         playerReveal: value.playerReveal,
@@ -49,7 +52,12 @@ export function CreateRoomBox() {
         playerAddTicket: value.playerAddTicket,
       });
 
-      // todo redirect to room
+      router.navigate({
+        to: '/room/$roomId',
+        params: {
+          roomId: finalRoomId,
+        },
+      });
     },
   });
 
