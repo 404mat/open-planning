@@ -29,10 +29,10 @@ export const create = mutationWithSession({
  */
 export const find = queryWithSession({
   args: { localSessionId: v.string() },
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
     const player = await ctx.db
       .query('players')
-      .withIndex('by_sessionId', (q) => q.eq('sessionId', ctx.sessionId))
+      .withIndex('by_sessionId', (q) => q.eq('sessionId', args.localSessionId))
       .first();
     return player;
   },
