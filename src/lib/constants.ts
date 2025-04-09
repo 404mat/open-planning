@@ -15,4 +15,4 @@ export const FIBONACCI_SYSTEM = ['1', '2', '3', '5', '8', '13', '21', '❓', '�
 // prettier-ignore
 export const NUMBERS_SYSTEM = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '❓', '🗣️'];
 // prettier-ignore
-export const TSHIRT_SYSTEM = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '❓', '🗣️'];
+export const TSHIRT_SYSTEM = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '❓', '🗣️'];
