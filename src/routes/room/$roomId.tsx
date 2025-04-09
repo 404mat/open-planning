@@ -2,9 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from 'convex/react';
 import { api } from '@convex/_generated/api';
 import { CardSelector } from '@/features/room/card-selector';
-
-// todo: delete this and replace with room card system
-const POKER_CARDS = ['1', '2', '3', '5', '8', '13', '21', '?', '☕'];
+import { getVotingSystemvalues } from '@/lib/voting';
 
 export const Route = createFileRoute('/room/$roomId')({
   component: RoomComponent,
@@ -27,7 +25,7 @@ function RoomComponent() {
       {/* cards */}
       <div>
         <CardSelector
-          cards={POKER_CARDS}
+          cards={getVotingSystemvalues(data?.voteSystem ?? '')}
           selectedCard={null}
           onSelectCard={() => console.log('to be implemented')}
         />
