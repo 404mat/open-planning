@@ -1,6 +1,5 @@
-import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
-import { mutationWithSession } from './lib/sessions';
+import { mutationWithSession, queryWithSession } from './lib/sessions';
 import {
   formatStringToRoomId,
   appendRandomSuffix,
@@ -11,7 +10,7 @@ import {
  * @param roomId - The ID of the room to retrieve.
  * @returns The room object if found, otherwise null.
  */
-export const get = query({
+export const get = queryWithSession({
   args: { roomId: v.string() },
   handler: async (ctx, args) => {
     const room = await ctx.db
@@ -26,7 +25,7 @@ export const get = query({
  * Deletes a room by its ID.
  * @param roomId - The ID of the room to delete.
  */
-export const remove = mutation({
+export const remove = mutationWithSession({
   args: { roomId: v.string() },
   handler: async (ctx, args) => {
     const room = await ctx.db
@@ -105,7 +104,7 @@ export const create = mutationWithSession({
  * @param roomId - The ID of the room to add the participant to.
  * @param playerId - The external ID (string) of the participant to add.
  */
-export const addParticipant = mutation({
+export const addParticipant = mutationWithSession({
   args: { roomId: v.string(), playerId: v.string() },
   handler: async (ctx, args) => {
     // Find the room
@@ -160,7 +159,7 @@ export const addParticipant = mutation({
  * @param roomId - The ID of the room to update.
  * @param isLocked - The new lock status of the room.
  */
-export const updateLock = mutation({
+export const updateLock = mutationWithSession({
   args: { roomId: v.string(), isLocked: v.boolean() },
   handler: async (ctx, args) => {
     const room = await ctx.db
@@ -178,7 +177,7 @@ export const updateLock = mutation({
  * @param roomId - The ID of the room to update.
  * @param isRevealed - The new reveal status of the room.
  */
-export const updateReveal = mutation({
+export const updateReveal = mutationWithSession({
   args: { roomId: v.string(), isRevealed: v.boolean() },
   handler: async (ctx, args) => {
     const room = await ctx.db
@@ -196,7 +195,7 @@ export const updateReveal = mutation({
  * @param roomId - The ID of the room to update.
  * @param currentStoryUrl - The new current story URL of the room.
  */
-export const updateCurrentStoryUrl = mutation({
+export const updateCurrentStoryUrl = mutationWithSession({
   args: { roomId: v.string(), currentStoryUrl: v.string() },
   handler: async (ctx, args) => {
     const room = await ctx.db
