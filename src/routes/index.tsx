@@ -86,7 +86,7 @@ function Index() {
           <div
             className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
           >
-            <HomepageAvatar userName={foundPlayer?.name} />
+            <HomepageAvatar userName={foundPlayer?.name ?? ''} />
           </div>
         </div>
 

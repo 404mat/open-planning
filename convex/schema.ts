@@ -4,6 +4,7 @@ import { v } from 'convex/values';
 export default defineSchema({
   rooms: defineTable({
     roomId: v.string(),
+    prettyName: v.string(),
     isLocked: v.boolean(),
     isRevealed: v.boolean(),
     voteSystem: v.string(),

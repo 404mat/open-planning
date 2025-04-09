@@ -87,6 +87,7 @@ export const create = mutationWithSession({
 
     await ctx.db.insert('rooms', {
       roomId: finalRoomId,
+      prettyName: args.roomId,
       isLocked: false,
       isRevealed: false,
       voteSystem: args.voteSystem,
