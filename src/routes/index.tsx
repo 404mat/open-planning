@@ -14,7 +14,6 @@ export const Route = createFileRoute('/')({
 });
 
 function Index() {
-  // State for the welcome popup input
   const [playerName, setPlayerName] = useState('');
 
   const { sessionId, player, showWelcomePopup, createPlayer } =

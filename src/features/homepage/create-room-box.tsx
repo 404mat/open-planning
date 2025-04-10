@@ -5,12 +5,12 @@ import SimpleInput from '@/components/inputs/simple-input';
 import RadioTags from '@/components/radio/radio-tags';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
-import { createRoomSchema } from '@/types/roomCreation';
+import { createRoomSchema } from '@/types/room-creation';
 import { ArkErrors } from 'arktype';
 import { useToast } from '@/hooks/use-toast';
 import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
-import { useRouter } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 
 const voteSystems = [
   { value: 'fibonacci', label: 'Fibonacci' },
@@ -19,7 +19,7 @@ const voteSystems = [
 ];
 
 export function CreateRoomBox() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { errorToast } = useToast();
 
   const [advancedSettings, setAdvancedSettings] = useState(false);
@@ -52,7 +52,7 @@ export function CreateRoomBox() {
         playerAddTicket: value.playerAddTicket,
       });
 
-      router.navigate({
+      navigate({
         to: '/room/$roomId',
         params: {
           roomId: finalRoomId,
