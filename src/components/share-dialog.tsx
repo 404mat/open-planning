@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -75,14 +74,6 @@ export function ShareDialog({
             )}
           </Button>
         </div>
-        <DialogFooter className="sm:justify-start">
-          {/* Optionally add a close button if needed, though the default X works */}
-          {/* <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose> */}
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
