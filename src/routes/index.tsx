@@ -5,10 +5,9 @@ import { CreateRoomBox } from '@/features/homepage/create-room-box';
 import { JoinRoomBox } from '@/features/homepage/join-room-box';
 import { SocialLinks } from '@/features/homepage/social-links';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
-// Removed unused api import
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useSessionAuth } from '@/hooks/useSessionAuth'; // Import the new hook
+import { useSessionAuth } from '@/hooks/useSessionAuth';
 
 export const Route = createFileRoute('/')({
   component: Index,
