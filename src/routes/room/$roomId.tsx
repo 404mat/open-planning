@@ -2,8 +2,9 @@ import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { api } from '@convex/_generated/api';
 import { CardSelector } from '@/features/room/card-selector';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
+import { ShareDialog } from '@/components/share-dialog';
 import { getVotingSystemvalues } from '@/lib/voting';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/useSessionAuth';
 
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/room/$roomId')({
 function RoomComponent() {
   const { roomId } = Route.useParams();
   const [playerName, setPlayerName] = useState('');
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const { sessionId, player, isLoading, showWelcomePopup, createPlayer } =
     useSessionAuth();
@@ -25,6 +27,14 @@ function RoomComponent() {
   );
 
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+
+  // show share dialog if user is the only participant
+  useEffect(() => {
+    if (roomData && roomData.participants.length === 1) {
+      setShowShareDialog(true);
+    }
+  }, [roomData]);
+  const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   // --- Render Logic ---
 
@@ -75,26 +85,35 @@ function RoomComponent() {
 
   // --- Render Authenticated Room Content ---
   return (
-    <div className="flex flex-col justify-between items-center w-full max-w-[1920px] py-5 h-screen">
-      {/* header */}
-      <div className="flex items-center justify-center">
-        {/* TODO: Add player avatar/name here using `player` from useSessionAuth */}
-        <h1 className="text-xl font-semibold">{roomData.prettyName}</h1>
-      </div>
+    <>
+      {/* Share Dialog */}
+      <ShareDialog
+        roomUrl={roomUrl}
+        isOpen={showShareDialog}
+        onOpenChange={setShowShareDialog}
+      />
 
-      {/* table - Placeholder */}
-      <div className="flex-grow flex items-center justify-center">
-        <p>Participants table placeholder (User: {player?.name})</p>
-      </div>
+      <div className="flex flex-col justify-between items-center w-full max-w-[1920px] py-5 h-screen">
+        {/* header */}
+        <div className="flex items-center justify-center">
+          {/* TODO: Add player avatar/name here using `player` from useSessionAuth */}
+          <h1 className="text-xl font-semibold">{roomData.prettyName}</h1>
+        </div>
 
-      {/* cards */}
-      <div className="pb-4">
-        <CardSelector
-          cards={getVotingSystemvalues(roomData.voteSystem)}
-          selectedCard={selectedCard}
-          onSelectCard={setSelectedCard}
-        />
+        {/* table - Placeholder */}
+        <div className="flex-grow flex items-center justify-center">
+          <p>Participants table placeholder (User: {player?.name})</p>
+        </div>
+
+        {/* cards */}
+        <div className="pb-4">
+          <CardSelector
+            cards={getVotingSystemvalues(roomData.voteSystem)}
+            selectedCard={selectedCard}
+            onSelectCard={setSelectedCard}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
