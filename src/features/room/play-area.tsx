@@ -8,7 +8,7 @@ interface ParticipantListProps {
   player: Doc<'players'> | null | undefined;
 }
 
-export function ParticipantList({ roomData, player }: ParticipantListProps) {
+export function PlayArea({ roomData, player }: ParticipantListProps) {
   // Extract participant IDs for fetching names
   const participantIds = useMemo(() => {
     return roomData.participants.map((p) => p.playerId);

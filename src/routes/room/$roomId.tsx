@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/useSessionAuth';
 import { RoomHeader } from '@/features/room/room-header';
-import { ParticipantList } from '@/features/room/participant-list';
+import { PlayArea } from '@/features/room/play-area';
 import { useToast } from '@/hooks/use-toast';
 
 export const Route = createFileRoute('/room/$roomId')({
@@ -149,7 +149,7 @@ function RoomComponent() {
           onShareClick={() => setShowShareDialog(true)}
         />
 
-        <ParticipantList roomData={roomData} player={player} />
+        <PlayArea roomData={roomData} player={player} />
 
         <div className="pb-4">
           <CardSelector
