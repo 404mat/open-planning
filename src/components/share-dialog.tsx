@@ -48,8 +48,7 @@ export function ShareDialog({
         <DialogHeader>
           <DialogTitle>Invite friends !</DialogTitle>
           <DialogDescription>
-            You are alone right now in this room. Invite other teammates to
-            start collaborating.
+            Invite other teammates to start collaborating in this room.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">

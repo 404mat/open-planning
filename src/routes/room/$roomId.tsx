@@ -7,6 +7,7 @@ import { getVotingSystemvalues } from '@/lib/voting';
 import { useState, useEffect } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/useSessionAuth';
+import { RoomHeader } from '@/features/room/room-header';
 
 export const Route = createFileRoute('/room/$roomId')({
   component: RoomComponent,
@@ -95,10 +96,11 @@ function RoomComponent() {
 
       <div className="flex flex-col justify-between items-center w-full max-w-[1920px] py-5 h-screen">
         {/* header */}
-        <div className="flex items-center justify-center">
-          {/* TODO: Add player avatar/name here using `player` from useSessionAuth */}
-          <h1 className="text-xl font-semibold">{roomData.prettyName}</h1>
-        </div>
+        <RoomHeader
+          roomName={roomData.prettyName}
+          playerName={player?.name ?? ''}
+          onShareClick={() => setShowShareDialog(true)}
+        />
 
         {/* table - Placeholder */}
         <div className="flex-grow flex items-center justify-center">
