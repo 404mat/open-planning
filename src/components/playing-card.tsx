@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { CARD_HEIGHT, CARD_WIDTH } from '@/lib/constants';
 
 interface PokerCardProps {
@@ -25,22 +26,22 @@ export function PlayingCard({
           perspective: '1000px',
         }}
       >
-        {/* card transition when flipped */}
-        <div
-          className={`w-full h-full transition-transform duration-700 [transform-style:preserve-3d] relative
-          ${isRevealed ? '[transform:rotateY(0deg)]' : '[transform:rotateY(180deg)]'}
-        `}
+        {/* Card flip animation container */}
+        <motion.div
+          className="w-full h-full [transform-style:preserve-3d] relative"
+          initial={false}
+          animate={{ rotateY: isRevealed ? 0 : 180 }}
+          transition={{ duration: 0.7, ease: 'easeInOut' }}
         >
           {/* Front of card (revealed) */}
-          <div
+          <motion.div
             onClick={onClick}
             className={`w-full h-full bg-white rounded-lg shadow-md absolute backface-hidden
-            ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''}
-            ${
-              isSelected
-                ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110'
-                : ''
-            }`}
+            ${onClick ? 'cursor-pointer' : ''}
+            ${isSelected ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : ''}`}
+            whileHover={onClick ? { scale: 1.05 } : {}}
+            animate={{ scale: isSelected ? 1.1 : 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
             {/* Card inner border */}
             <div className="absolute inset-[3px] border border-gray-200 rounded-md"></div>
@@ -67,10 +68,10 @@ export function PlayingCard({
             {/* Card texture */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.4),transparent)] pointer-events-none" />
-          </div>
+          </motion.div>
 
           {/* Back of card */}
-          <div
+          <motion.div
             className={`w-full h-full rounded-lg shadow-md absolute backface-hidden [transform:rotateY(180deg)] flex items-center justify-center ${
               value
                 ? 'bg-gradient-to-br from-blue-500 to-blue-700'
@@ -90,10 +91,12 @@ export function PlayingCard({
               />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent)] pointer-events-none" />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-      <span className="text-sm font-medium text-gray-700">{subtext}</span>
+      {subtext && (
+        <span className="text-sm font-medium text-gray-700">{subtext}</span>
+      )}
     </div>
   );
 }
