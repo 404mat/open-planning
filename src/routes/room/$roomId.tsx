@@ -54,6 +54,19 @@ function RoomComponent() {
       setShowShareDialog(true);
     }
   }, [roomData]);
+
+  // Initialize selected card with the player's current vote
+  useEffect(() => {
+    if (roomData && player) {
+      const currentPlayerParticipant = roomData.participants.find(
+        (p) => p.playerId === player._id
+      );
+      if (currentPlayerParticipant && currentPlayerParticipant.vote) {
+        setSelectedCard(currentPlayerParticipant.vote);
+      }
+    }
+  }, [roomData, player]);
+
   const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   async function handleCardSelected(value: string | null) {
