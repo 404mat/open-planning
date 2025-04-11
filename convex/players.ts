@@ -23,6 +23,22 @@ export const create = mutationWithSession({
 });
 
 /**
+ * Retrieves multiple players by their internal Convex IDs.
+ * @param playerIds - An array of internal Convex player IDs (`_id`).
+ * @returns An array of player objects matching the provided IDs. Returns null for IDs not found.
+ */
+export const getPlayersByIds = queryWithSession({
+  args: { playerIds: v.array(v.id('players')) },
+  handler: async (ctx, args) => {
+    // Fetch players in parallel
+    const players = await Promise.all(
+      args.playerIds.map((playerId) => ctx.db.get(playerId))
+    );
+    return players;
+  },
+});
+
+/**
  * Retrieves a player by their session ID.
  * @param localSessionId - The session ID of the player to retrieve.
  * @returns The player object if found, otherwise null.
