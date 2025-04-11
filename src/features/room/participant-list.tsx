@@ -45,6 +45,7 @@ export function ParticipantList({ roomData, player }: ParticipantListProps) {
               {playerNamesMap.get(participant.playerId) ?? 'Loading...'}
               {participant.playerId === player?._id ? ' (You)' : ''}
               {participant.isAdmin ? ' (Admin)' : ''}
+              {participant.vote ? `  -> Vote: ${participant.vote}` : '   ->'}
             </li>
           ))}
         </ul>

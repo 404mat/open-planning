@@ -10,6 +10,7 @@ import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/useSessionAuth';
 import { RoomHeader } from '@/features/room/room-header';
 import { ParticipantList } from '@/features/room/participant-list';
+import { useToast } from '@/hooks/use-toast';
 
 export const Route = createFileRoute('/room/$roomId')({
   component: RoomComponent,
@@ -21,9 +22,12 @@ function RoomComponent() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
-  const addParticipant = useSessionMutation(api.rooms.addParticipant);
+  const { errorToast } = useToast();
+
   const { sessionId, player, isLoading, showWelcomePopup, createPlayer } =
     useSessionAuth();
+  const addParticipant = useSessionMutation(api.rooms.addParticipant);
+  const participantVote = useSessionMutation(api.participants.updateVote);
 
   // Fetch room data only if authenticated (sessionId is present)
   const roomData = useSessionQuery(
@@ -51,6 +55,22 @@ function RoomComponent() {
     }
   }, [roomData]);
   const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
+
+  async function handleCardSelected(value: string | null) {
+    if (!player) return;
+    const { success } = await participantVote({
+      roomId: roomId,
+      playerId: player?._id,
+      vote: value ?? '',
+    });
+    if (success) {
+      setSelectedCard(value);
+    } else {
+      errorToast({
+        text: 'Your vote could not be submitted. Please try again.',
+      });
+    }
+  }
 
   // --- Render Logic ---
 
@@ -122,7 +142,7 @@ function RoomComponent() {
           <CardSelector
             cards={getVotingSystemvalues(roomData.voteSystem)}
             selectedCard={selectedCard}
-            onSelectCard={setSelectedCard}
+            onSelectCard={(value) => handleCardSelected(value)}
           />
         </div>
       </div>
