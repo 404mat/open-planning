@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
 import type { Doc } from '@convex/_generated/dataModel';
+import { PlayingCard } from '@/components/playing-card';
 
 interface ParticipantListProps {
   roomData: Doc<'rooms'>;
@@ -35,20 +36,26 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
 
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-4">
-      <h2 className="text-xl font-semibold mb-4">Participants</h2>
       {playersData === undefined && participantIds.length > 0 ? (
         <p>Loading participant names...</p>
       ) : roomData.participants.length > 0 ? (
-        <ul className="list-disc space-y-1">
-          {roomData.participants.map((participant) => (
-            <li key={participant.playerId}>
-              {playerNamesMap.get(participant.playerId) ?? 'Loading...'}
-              {participant.playerId === player?._id ? ' (You)' : ''}
-              {participant.isAdmin ? ' (Admin)' : ''}
-              {participant.vote ? `  -> Vote: ${participant.vote}` : '   ->'}
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-wrap gap-4 justify-center">
+          {roomData.participants.map((participant) => {
+            const playerName = playerNamesMap.get(participant.playerId);
+            const isCurrentUser = participant.playerId === player?._id;
+            const subtext = `${isCurrentUser ? '• ' : ''}${playerName ?? 'Loading...'}${participant.isAdmin ? ' 👑' : ''}`;
+
+            return (
+              <PlayingCard
+                key={participant.playerId}
+                value={participant.vote ?? null}
+                subtext={subtext}
+                isRevealed={roomData.isRevealed}
+                isSelected={false}
+              />
+            );
+          })}
+        </div>
       ) : (
         <p>No participants yet.</p>
       )}
