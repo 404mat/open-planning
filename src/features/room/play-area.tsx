@@ -43,13 +43,16 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
           {roomData.participants.map((participant) => {
             const playerName = playerNamesMap.get(participant.playerId);
             const isCurrentUser = participant.playerId === player?._id;
-            const subtext = `${isCurrentUser ? '• ' : ''}${playerName ?? 'Loading...'}${participant.isAdmin ? ' 👑' : ''}`;
 
             return (
               <PlayingCard
                 key={participant.playerId}
                 value={participant.vote ?? null}
-                subtext={subtext}
+                subtext={{
+                  text: playerName ?? 'Loading...',
+                  isCurrentUser,
+                  isAdmin: participant.isAdmin,
+                }}
                 isRevealed={roomData.isRevealed}
                 isSelected={false}
               />

@@ -5,7 +5,7 @@ interface PokerCardProps {
   value: string | null;
   isSelected?: boolean;
   isRevealed?: boolean;
-  subtext?: string;
+  subtext?: { text: string; isCurrentUser?: boolean; isAdmin?: boolean };
   onClick?: () => void;
 }
 
@@ -95,7 +95,7 @@ export function PlayingCard({
         </motion.div>
       </div>
       {subtext && (
-        <span className="text-sm font-medium text-gray-700">{subtext}</span>
+        <span className="text-sm font-medium text-gray-700">{`${subtext.isAdmin ? '👑 ' : ''}${subtext.isCurrentUser ? '• ' : ''} ${subtext.text}`}</span>
       )}
     </div>
   );
