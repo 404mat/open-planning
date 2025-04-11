@@ -47,17 +47,17 @@ export function PlayingCard({
             <div className="absolute inset-[3px] border border-gray-200 rounded-md"></div>
 
             {/* Card corners */}
-            <div className="absolute top-1 left-2 text-red-400/20 font-bold text-sm">
+            <div className="absolute top-1 left-2 text-red-400/20 font-bold text-sm select-none">
               {value ?? '-'}
             </div>
-            <div className="absolute bottom-1 right-2 text-red-400/20 font-bold text-sm rotate-180">
+            <div className="absolute bottom-1 right-2 text-red-400/20 font-bold text-sm rotate-180 select-none">
               {value ?? '-'}
             </div>
 
             {/* Center value */}
             <div className="absolute inset-0 flex items-center justify-center">
               <span
-                className={`text-2xl font-bold ${
+                className={`text-2xl font-bold select-none ${
                   isSelected ? 'text-blue-600' : 'text-gray-800'
                 }`}
               >
