@@ -1,5 +1,5 @@
 import CookieBanner from '@/components/cookie-banner';
-import HomepageAvatar from '@/components/homepage-avatar';
+import NameAvatar from '@/components/name-avatar';
 import PillComment from '@/components/pill-comment';
 import { CreateRoomBox } from '@/features/homepage/create-room-box';
 import { JoinRoomBox } from '@/features/homepage/join-room-box';
@@ -28,7 +28,7 @@ function Index() {
           <div
             className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
           >
-            <HomepageAvatar userName={player?.name ?? ''} />
+            <NameAvatar userName={player?.name ?? ''} />
           </div>
         </div>
 

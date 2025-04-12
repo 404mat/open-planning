@@ -1,5 +1,5 @@
 import { BackButton } from '@/components/buttons/back-button';
-import HomepageAvatar from '@/components/homepage-avatar';
+import NameAvatar from '@/components/name-avatar';
 import { useNavigate } from '@tanstack/react-router';
 import { Link } from 'lucide-react';
 
@@ -35,7 +35,7 @@ export function RoomHeader({
           <Link size={10} />
         </div>
       </div>
-      <HomepageAvatar userName={playerName ?? ''} />
+      <NameAvatar userName={playerName ?? ''} />
     </div>
   );
 }
