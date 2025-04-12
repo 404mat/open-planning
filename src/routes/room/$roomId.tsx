@@ -142,7 +142,7 @@ function RoomComponent() {
         onOpenChange={setShowShareDialog}
       />
 
-      <div className="flex flex-col justify-between items-center w-full max-w-[1920px] py-5 h-screen">
+      <div className="flex flex-col justify-between items-center w-full py-5 h-screen">
         <RoomHeader
           roomName={roomData.prettyName}
           playerName={player?.name ?? ''}
