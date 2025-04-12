@@ -17,7 +17,7 @@ export function PlayingCard({
   onClick,
 }: PokerCardProps) {
   function getHtmlValue() {
-    if (!isRevealed) return <span className="opacity-0">😉</span>;
+    if (!isRevealed) return <span className="invisible">😉</span>;
     return value;
   }
 

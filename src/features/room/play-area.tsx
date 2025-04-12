@@ -110,8 +110,17 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
 
       {/* controls */}
       <div className="flex gap-4">
-        <Button onClick={handleRevealVotes}>
-          {roomData.isRevealed ? 'Hide votes' : 'Reveal votes !'}
+        <Button
+          onClick={handleRevealVotes}
+          className="group grid"
+          data-revealed={roomData.isRevealed}
+        >
+          <span className="[grid-area:1/1] group-data-[revealed=true]:invisible">
+            Reveal votes !
+          </span>
+          <span className="[grid-area:1/1] group-data-[revealed=false]:invisible">
+            Hide votes
+          </span>
         </Button>
         <Button variant={'secondary'} onClick={handleResetVotes}>
           <XIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
