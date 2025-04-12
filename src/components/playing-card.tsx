@@ -16,6 +16,11 @@ export function PlayingCard({
   subtext,
   onClick,
 }: PokerCardProps) {
+  function getHtmlValue() {
+    if (!isRevealed) return <span className="opacity-0">😉</span>;
+    return value;
+  }
+
   return (
     <div className="flex flex-col items-center gap-2 w-max">
       <div
@@ -48,10 +53,10 @@ export function PlayingCard({
 
             {/* Card corners */}
             <div className="absolute top-1 left-2 text-red-400/20 font-bold text-sm select-none">
-              {value ?? '-'}
+              {getHtmlValue()}
             </div>
             <div className="absolute bottom-1 right-2 text-red-400/20 font-bold text-sm rotate-180 select-none">
-              {value ?? '-'}
+              {getHtmlValue()}
             </div>
 
             {/* Center value */}
@@ -61,7 +66,7 @@ export function PlayingCard({
                   isSelected ? 'text-blue-600' : 'text-gray-800'
                 }`}
               >
-                {value ?? '-'}
+                {getHtmlValue()}
               </span>
             </div>
 
