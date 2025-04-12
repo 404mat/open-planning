@@ -61,8 +61,16 @@ function RoomComponent() {
       const currentPlayerParticipant = roomData.participants.find(
         (p) => p.playerId === player._id
       );
-      if (currentPlayerParticipant && currentPlayerParticipant.vote) {
-        setSelectedCard(currentPlayerParticipant.vote);
+      if (currentPlayerParticipant) {
+        // If the vote is empty (reset), clear the selection, otherwise set it
+        if (currentPlayerParticipant.vote === '') {
+          setSelectedCard(null);
+        } else {
+          setSelectedCard(currentPlayerParticipant.vote);
+        }
+      } else {
+        // Player might not be in participants list yet
+        setSelectedCard(null);
       }
     }
   }, [roomData, player]);

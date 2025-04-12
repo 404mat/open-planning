@@ -1,8 +1,14 @@
 import { useMemo } from 'react';
-import { useSessionQuery } from 'convex-helpers/react/sessions';
+import {
+  useSessionMutation,
+  useSessionQuery,
+} from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
 import type { Doc } from '@convex/_generated/dataModel';
 import { PlayingCard } from '@/components/playing-card';
+import { Button } from '@/components/ui/button';
+import { XIcon } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ParticipantListProps {
   roomData: Doc<'rooms'>;
@@ -10,6 +16,31 @@ interface ParticipantListProps {
 }
 
 export function PlayArea({ roomData, player }: ParticipantListProps) {
+  const { errorToast } = useToast();
+
+  const changeRevealStatus = useSessionMutation(api.rooms.updateReveal);
+  const resetRoomVotes = useSessionMutation(api.participants.resetAllVotes);
+
+  // Change the reveal status of the votes
+  const handleRevealVotes = () => {
+    changeRevealStatus({
+      roomId: roomData.roomId,
+      isRevealed: !roomData.isRevealed,
+    });
+  };
+
+  // Clear all votes
+  const handleResetVotes = async () => {
+    const { success } = await resetRoomVotes({
+      roomId: roomData.roomId,
+    });
+    if (!success) {
+      errorToast({
+        text: 'Failed to reset votes. Please try again.',
+      });
+    }
+  };
+
   // Extract participant IDs for fetching names
   const participantIds = useMemo(() => {
     return roomData.participants.map((p) => p.playerId);
@@ -54,7 +85,8 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
 
   // Main content
   return (
-    <div className="flex-grow flex flex-col items-center justify-center p-4">
+    <div className="flex-grow flex flex-col items-center justify-center p-4 gap-12">
+      {/* cards */}
       <div className="flex flex-wrap gap-4 justify-center max-w-2xl">
         {roomData.participants.map((participant) => {
           const playerName = playerNamesMap.get(participant.playerId);
@@ -74,6 +106,17 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
             />
           );
         })}
+      </div>
+
+      {/* controls */}
+      <div className="flex gap-4">
+        <Button onClick={handleRevealVotes}>
+          {roomData.isRevealed ? 'Hide votes' : 'Reveal votes !'}
+        </Button>
+        <Button variant={'secondary'} onClick={handleResetVotes}>
+          <XIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
+          Reset votes
+        </Button>
       </div>
     </div>
   );

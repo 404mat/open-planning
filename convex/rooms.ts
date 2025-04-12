@@ -186,6 +186,8 @@ export const updateReveal = mutationWithSession({
       .first();
     if (room) {
       await ctx.db.patch(room._id, { isRevealed: args.isRevealed });
+    } else {
+      console.error(`Room not found: ${args.roomId}`);
     }
   },
 });
