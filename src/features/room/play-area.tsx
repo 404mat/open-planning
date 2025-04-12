@@ -38,6 +38,11 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
       errorToast({
         text: 'Failed to reset votes. Please try again.',
       });
+    } else {
+      changeRevealStatus({
+        roomId: roomData.roomId,
+        isRevealed: false,
+      });
     }
   };
 
