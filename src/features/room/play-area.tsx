@@ -34,34 +34,47 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
     return map;
   }, [playersData]);
 
+  // Loading state
+  if (playersData === undefined && participantIds.length > 0) {
+    return (
+      <div className="flex-grow flex flex-col items-center justify-center p-4">
+        <p>Loading participant names...</p>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (roomData.participants.length === 0) {
+    return (
+      <div className="flex-grow flex flex-col items-center justify-center p-4">
+        <p>No participants yet.</p>
+      </div>
+    );
+  }
+
+  // Main content
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-4">
-      {playersData === undefined && participantIds.length > 0 ? (
-        <p>Loading participant names...</p>
-      ) : roomData.participants.length > 0 ? (
-        <div className="flex flex-wrap gap-4 justify-center">
-          {roomData.participants.map((participant) => {
-            const playerName = playerNamesMap.get(participant.playerId);
-            const isCurrentUser = participant.playerId === player?._id;
+      <div className="flex flex-wrap gap-4 justify-center">
+        {roomData.participants.map((participant) => {
+          const playerName = playerNamesMap.get(participant.playerId);
+          const isCurrentUser = participant.playerId === player?._id;
 
-            return (
-              <PlayingCard
-                key={participant.playerId}
-                value={participant.vote ?? null}
-                subtext={{
-                  text: playerName ?? 'Loading...',
-                  isCurrentUser,
-                  isAdmin: participant.isAdmin,
-                }}
-                isRevealed={roomData.isRevealed}
-                isSelected={false}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <p>No participants yet.</p>
-      )}
+          return (
+            <PlayingCard
+              key={participant.playerId}
+              value={participant.vote ?? null}
+              subtext={{
+                text: playerName ?? 'Loading...',
+                isCurrentUser,
+                isAdmin: participant.isAdmin,
+              }}
+              isRevealed={roomData.isRevealed}
+              isSelected={false}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
