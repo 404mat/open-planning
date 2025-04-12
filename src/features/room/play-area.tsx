@@ -55,7 +55,7 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
   // Main content
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-4">
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center max-w-2xl">
         {roomData.participants.map((participant) => {
           const playerName = playerNamesMap.get(participant.playerId);
           const isCurrentUser = participant.playerId === player?._id;
