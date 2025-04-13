@@ -3,7 +3,7 @@ import { mutationWithSession, queryWithSession } from './lib/sessions';
 import {
   formatStringToRoomId,
   appendRandomSuffix,
-} from './lib/roomIdGenerator';
+} from './lib/room_id_generator';
 
 /**
  * Retrieves a room by its ID.
