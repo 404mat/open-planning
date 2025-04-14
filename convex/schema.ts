@@ -27,5 +27,6 @@ export default defineSchema({
     lastSeenAt: v.number(),
   })
     .index('by_playerId', ['playerId'])
-    .index('by_sessionId', ['sessionId']),
+    .index('by_sessionId', ['sessionId'])
+    .index('by_lastSeenAt', ['lastSeenAt']),
 });

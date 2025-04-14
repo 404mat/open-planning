@@ -1,6 +1,8 @@
 import { v } from 'convex/values';
 import { mutationWithSession } from './lib/sessions';
 import { queryWithSession } from './lib/sessions';
+import { internalMutation } from './_generated/server';
+import { BATCH_SIZE, FOURTEEN_DAYS_MS } from './lib/constants';
 
 /**
  * Creates a new player with a unique ID and associates it with a session.
@@ -51,5 +53,36 @@ export const find = queryWithSession({
       .withIndex('by_sessionId', (q) => q.eq('sessionId', args.localSessionId))
       .first();
     return player;
+  },
+});
+
+/**
+ * Clear all players that were not seen in the last few days.
+ * @returns void
+ */
+export const clearInactivePlayers = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const FOURTEEN_DAYS_AGO = Date.now() - FOURTEEN_DAYS_MS;
+    let deletedCount = 0;
+
+    while (true) {
+      const inactivePlayers = await ctx.db
+        .query('players')
+        .withIndex('by_lastSeenAt', (q) =>
+          q.lt('lastSeenAt', FOURTEEN_DAYS_AGO)
+        )
+        .order('asc')
+        .take(BATCH_SIZE);
+
+      if (inactivePlayers.length === 0) break;
+
+      for (const player of inactivePlayers) {
+        await ctx.db.delete(player._id);
+        deletedCount++;
+      }
+    }
+
+    return { deletedCount };
   },
 });

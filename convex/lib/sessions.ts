@@ -11,8 +11,7 @@ import {
 } from 'convex-helpers/server/sessions';
 import { QueryCtx } from '../_generated/server';
 import { Id } from '../_generated/dataModel';
-
-const PRESENCE_UPDATE_MS = 5 * 60 * 1000; // 10 minutes in ms
+import { PRESENCE_UPDATE_MS } from './constants';
 
 async function getUser(ctx: QueryCtx, sessionId: SessionId) {
   const user = await ctx.db
