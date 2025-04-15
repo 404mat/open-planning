@@ -18,7 +18,9 @@ export default defineSchema({
       })
     ),
     updatedAt: v.number(),
-  }).index('by_roomId', ['roomId']),
+  })
+    .index('by_roomId', ['roomId'])
+    .index('by_updatedAt', ['updatedAt']),
 
   players: defineTable({
     playerId: v.string(),

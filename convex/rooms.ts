@@ -4,6 +4,8 @@ import {
   formatStringToRoomId,
   appendRandomSuffix,
 } from './lib/room_id_generator';
+import { internalMutation } from './_generated/server';
+import { BATCH_SIZE, THIRTY_DAYS_MS } from './lib/constants';
 
 /**
  * Retrieves a room by its ID.
@@ -207,5 +209,34 @@ export const updateCurrentStoryUrl = mutationWithSession({
     if (room) {
       await ctx.db.patch(room._id, { currentStoryUrl: args.currentStoryUrl });
     }
+  },
+});
+
+/**
+ * Clear inactive rooms that are not used in the last month
+ * @returns void
+ */
+export const clearInactiveRooms = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const THIRTY_DAYS_AGO = Date.now() - THIRTY_DAYS_MS;
+    let deletedCount = 0;
+
+    while (true) {
+      const inactiveRooms = await ctx.db
+        .query('rooms')
+        .withIndex('by_updatedAt', (q) => q.lt('updatedAt', THIRTY_DAYS_AGO))
+        .order('asc')
+        .take(BATCH_SIZE);
+
+      if (inactiveRooms.length === 0) break;
+
+      for (const room of inactiveRooms) {
+        await ctx.db.delete(room._id);
+        deletedCount++;
+      }
+    }
+
+    return { deletedCount };
   },
 });

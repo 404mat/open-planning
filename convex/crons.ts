@@ -5,8 +5,14 @@ const crons = cronJobs();
 
 crons.interval(
   'clear inactive players',
-  { hours: 6 },
+  { hours: 12 },
   internal.players.clearInactivePlayers
+);
+
+crons.interval(
+  'clear inactive rooms',
+  { hours: 12 },
+  internal.rooms.clearInactiveRooms
 );
 
 export default crons;
