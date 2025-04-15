@@ -42,19 +42,9 @@ export const mutationWithSession = customMutation(mutation, {
         Date.now() - user.lastSeenAt > PRESENCE_UPDATE_MS
       ) {
         try {
-          // Check if lastSeenAt is actually part of the user object before accessing it.
-          // The getUser function returns the full player document or null.
-          if ('lastSeenAt' in user) {
-            await ctx.db.patch(userId as Id<'players'>, {
-              // Use userId
-              lastSeenAt: Date.now(),
-            });
-          } else {
-            // Handle case where lastSeenAt might not be defined on the user object
-            await ctx.db.patch(userId as Id<'players'>, {
-              lastSeenAt: Date.now(),
-            });
-          }
+          await ctx.db.patch(userId as Id<'players'>, {
+            lastSeenAt: Date.now(),
+          });
         } catch (error) {
           console.error(`Failed to update presence for user ${userId}:`, error);
           // todo Decide if the mutation should fail or just log the error
