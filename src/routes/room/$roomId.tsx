@@ -17,7 +17,7 @@ export const Route = createFileRoute('/room/$roomId')({
 });
 
 function RoomComponent() {
-  const { roomId } = Route.useParams();
+  const { roomId: pathSlug } = Route.useParams();
   const [playerName, setPlayerName] = useState('');
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -32,7 +32,7 @@ function RoomComponent() {
   // Fetch room data only if authenticated (sessionId is present)
   const roomData = useSessionQuery(
     api.rooms.get,
-    sessionId ? { roomId: roomId } : 'skip'
+    sessionId ? { roomSlug: pathSlug } : 'skip'
   );
 
   // Add the current player if they are not already a participant
@@ -41,12 +41,11 @@ function RoomComponent() {
       roomData &&
       player &&
       player._id && // Internal Convex ID for checking existence
-      player.playerId &&
       !roomData.participants.some((p) => p.playerId === player._id)
     ) {
-      addParticipant({ roomId, playerId: player.playerId });
+      addParticipant({ roomId: roomData._id, playerId: player._id });
     }
-  }, [roomData, player, roomId, addParticipant]);
+  }, [roomData, player, pathSlug, addParticipant]);
 
   // show share dialog if user is the only participant
   useEffect(() => {
@@ -78,10 +77,10 @@ function RoomComponent() {
   const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   async function handleCardSelected(value: string | null) {
-    if (!player) return;
+    if (!player || !roomData) return;
     const { success } = await participantVote({
-      roomId: roomId,
-      playerId: player?._id,
+      roomId: roomData._id,
+      playerId: player._id,
       vote: value ?? '',
     });
     if (success) {

@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { mutationWithSession } from './lib/sessions';
+import { playerMutationWithSession } from './lib/sessions';
 
 /**
  * Update a participant's vote in a room
@@ -8,9 +8,9 @@ import { mutationWithSession } from './lib/sessions';
  * @params vote - The new vote value.
  * @returns { success: boolean, message: string } - Indicates success or failure with a message.
  */
-export const updateVote = mutationWithSession({
+export const updateVote = playerMutationWithSession({
   args: {
-    roomId: v.string(),
+    roomId: v.id('rooms'),
     playerId: v.id('players'),
     vote: v.string(),
   },
@@ -19,10 +19,7 @@ export const updateVote = mutationWithSession({
     args
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      const room = await ctx.db
-        .query('rooms')
-        .withIndex('by_roomId', (q) => q.eq('roomId', args.roomId))
-        .first();
+      const room = await ctx.db.get(args.roomId);
 
       if (!room) {
         return {
@@ -69,17 +66,14 @@ export const updateVote = mutationWithSession({
  * @params playerId - The ID of the player to update.
  * @params isAllowedVote - The new isAllowedVote status.
  */
-export const updateIsAllowedVote = mutationWithSession({
+export const updateIsAllowedVote = playerMutationWithSession({
   args: {
-    roomId: v.string(),
+    roomId: v.id('rooms'),
     playerId: v.id('players'),
     isAllowedVote: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const room = await ctx.db
-      .query('rooms')
-      .withIndex('by_roomId', (q) => q.eq('roomId', args.roomId))
-      .first();
+    const room = await ctx.db.get(args.roomId);
 
     if (!room) {
       throw new Error(`Room with roomId ${args.roomId} not found`); //todo: handle this later
@@ -101,19 +95,16 @@ export const updateIsAllowedVote = mutationWithSession({
  * @param roomId - The ID of the room to retrieve.
  * @returns { success: boolean, message: string } - Indicates success or failure with a message.
  */
-export const resetAllVotes = mutationWithSession({
+export const resetAllVotes = playerMutationWithSession({
   args: {
-    roomId: v.string(),
+    roomId: v.id('rooms'),
   },
   handler: async (
     ctx,
     args
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      const room = await ctx.db
-        .query('rooms')
-        .withIndex('by_roomId', (q) => q.eq('roomId', args.roomId))
-        .first();
+      const room = await ctx.db.get(args.roomId);
 
       if (!room) {
         return {
@@ -147,17 +138,14 @@ export const resetAllVotes = mutationWithSession({
  * @params playerId - The ID of the player to update.
  * @params isAdmin - The new isAdmin status.
  */
-export const updateIsAdmin = mutationWithSession({
+export const updateIsAdmin = playerMutationWithSession({
   args: {
-    roomId: v.string(),
+    roomId: v.id('rooms'),
     playerId: v.id('players'),
     isAdmin: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const room = await ctx.db
-      .query('rooms')
-      .withIndex('by_roomId', (q) => q.eq('roomId', args.roomId))
-      .first();
+    const room = await ctx.db.get(args.roomId);
 
     if (!room) {
       throw new Error(`Room with roomId ${args.roomId} not found`); //todo: handle this later

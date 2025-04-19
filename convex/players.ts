@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { mutationWithSession } from './lib/sessions';
+import { playerMutationWithSession } from './lib/sessions';
 import { queryWithSession } from './lib/sessions';
 import { internalMutation } from './_generated/server';
 import { BATCH_SIZE, FOURTEEN_DAYS_MS } from './lib/constants';
@@ -9,12 +9,10 @@ import { BATCH_SIZE, FOURTEEN_DAYS_MS } from './lib/constants';
  * @param name - The name of the player.
  * @returns An object containing the player's name, ID, and session ID.
  */
-export const create = mutationWithSession({
+export const create = playerMutationWithSession({
   args: { name: v.string() },
   handler: async (ctx, { name }) => {
-    const newPlayerId = crypto.randomUUID();
     const playerId = await ctx.db.insert('players', {
-      playerId: newPlayerId, // Generate a unique ID for the player
       name,
       sessionId: ctx.sessionId,
       lastSeenAt: Date.now(),
