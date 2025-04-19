@@ -24,7 +24,7 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
   // Change the reveal status of the votes
   const handleRevealVotes = () => {
     changeRevealStatus({
-      roomId: roomData.roomId,
+      roomId: roomData._id,
       isRevealed: !roomData.isRevealed,
     });
   };
@@ -32,7 +32,7 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
   // Clear all votes
   const handleResetVotes = async () => {
     const { success } = await resetRoomVotes({
-      roomId: roomData.roomId,
+      roomId: roomData._id,
     });
     if (!success) {
       errorToast({
@@ -40,7 +40,7 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
       });
     } else {
       changeRevealStatus({
-        roomId: roomData.roomId,
+        roomId: roomData._id,
         isRevealed: false,
       });
     }

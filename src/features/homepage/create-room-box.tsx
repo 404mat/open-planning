@@ -45,7 +45,7 @@ export function CreateRoomBox() {
       }
 
       const finalRoomId = await createRoom({
-        roomId: value.roomName,
+        roomName: value.roomName,
         voteSystem: value.voteSystem,
         playerReveal: value.playerReveal,
         playerChangeVote: value.playerChangeVote,
