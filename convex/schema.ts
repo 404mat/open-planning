@@ -3,7 +3,7 @@ import { v } from 'convex/values';
 
 export default defineSchema({
   rooms: defineTable({
-    roomId: v.string(),
+    roomSlug: v.string(),
     prettyName: v.string(),
     isLocked: v.boolean(),
     isRevealed: v.boolean(),
@@ -19,16 +19,14 @@ export default defineSchema({
     ),
     updatedAt: v.number(),
   })
-    .index('by_roomId', ['roomId'])
+    .index('by_roomSlug', ['roomSlug'])
     .index('by_updatedAt', ['updatedAt']),
 
   players: defineTable({
-    playerId: v.string(),
-    sessionId: v.string(),
     name: v.string(),
+    sessionId: v.string(),
     lastSeenAt: v.number(),
   })
-    .index('by_playerId', ['playerId'])
     .index('by_sessionId', ['sessionId'])
     .index('by_lastSeenAt', ['lastSeenAt']),
 });

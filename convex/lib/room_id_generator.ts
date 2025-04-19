@@ -18,20 +18,20 @@ export function generateRoomId(): string {
 }
 
 /**
- * Converts an arbitrary string into a valid room ID format.
- * If the input is null, undefined, or empty, generates a random ID.
+ * Converts an arbitrary string into a valid room slug format.
+ * If the input is null, undefined, or empty, generates a random slug.
  * Otherwise, formats the string:
  * - Converts to lowercase.
  * - Replaces non-alphanumeric characters (excluding hyphens/underscores) with hyphens.
  * - Collapses consecutive hyphens/underscores into a single hyphen.
  * - Removes leading/trailing hyphens/underscores.
  * - Truncates to 20 characters, ensuring it doesn't end with a hyphen/underscore.
- * - Ensures the final ID is at least 5 characters long (pads with '-room' if needed).
- * - Falls back to a generated ID if formatting results in an invalid state.
+ * - Ensures the final slug is at least 5 characters long (pads with '-room' if needed).
+ * - Falls back to a generated slug if formatting results in an invalid state.
  * @param inputString The string to format.
- * @returns A formatted string guaranteed to be valid as a room ID.
+ * @returns A formatted string guaranteed to be valid as a room slug.
  */
-export function formatStringToRoomId(inputString: string): string {
+export function formatStringToRoomSlug(inputString: string): string {
   if (!inputString) {
     return generateRoomId();
   }
@@ -69,14 +69,14 @@ export function formatStringToRoomId(inputString: string): string {
   }
 
   // Final check: If somehow the string is still invalid (e.g., empty, too short after processing),
-  // return a default valid ID. This covers edge cases.
+  // return a default valid slug. This covers edge cases.
   // Regex checks for 5-20 chars: starts/ends alphanumeric, middle allows -, _
   if (
     !/^[a-z0-9][a-z0-9-_]{3,18}[a-z0-9]$/.test(formatted) ||
     formatted.includes('--') ||
     formatted.includes('__')
   ) {
-    // Fallback to a generated ID if formatting fails completely
+    // Fallback to a generated slug if formatting fails completely
     return generateRoomId();
   }
 
