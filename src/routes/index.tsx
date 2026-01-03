@@ -1,18 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { useSessionAuth } from "@/hooks/useSessionAuth";
-import CookieBanner from "@/components/cookie-banner";
-import NameAvatar from "@/components/name-avatar";
-import PillComment from "@/components/pill-comment";
-import { CreateRoomBox } from "@/features/homepage/create-room-box";
-import { JoinRoomBox } from "@/features/homepage/join-room-box";
-import { SocialLinks } from "@/features/homepage/social-links";
-import { WelcomePopup } from "@/features/homepage/welcome-popup";
+import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useSessionAuth } from '@/hooks/useSessionAuth';
+import CookieBanner from '@/components/cookie-banner';
+import NameAvatar from '@/components/name-avatar';
+import { CreateRoomBox } from '@/features/homepage/create-room-box';
+import { JoinRoomBox } from '@/features/homepage/join-room-box';
+import { SocialLinks } from '@/features/homepage/social-links';
+import { WelcomePopup } from '@/features/homepage/welcome-popup';
 
-export const Route = createFileRoute("/")({ component: App });
+export const Route = createFileRoute('/')({ component: App });
 
 function App() {
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState('');
 
   const { sessionId, player, showWelcomePopup, createPlayer } =
     useSessionAuth();
@@ -24,20 +23,15 @@ function App() {
         <div className="flex justify-between items-center w-full max-w-360 px-4">
           <SocialLinks />
           <div
-            className={`${sessionId ? "" : "opacity-0 pointer-events-none"}`}
+            className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
           >
-            <NameAvatar userName={player?.name ?? ""} />
+            <NameAvatar userName={player?.name ?? ''} />
           </div>
         </div>
 
         {/* main content */}
         <div className="flex flex-col justify-between items-center gap-8">
-          <div className="flex flex-col gap-4 items-center">
-            <PillComment
-              text={`Already used by <strong className="text-foreground font-medium">thousands</strong> of teams.`}
-            />
-            <h1 className="font-brand font-bold text-6xl">OpenPlanning</h1>
-          </div>
+          <h1 className="font-brand font-bold text-6xl">OpenPlanning</h1>
 
           {/* 2 main panels */}
           <div className="flex gap-6">
