@@ -1,1 +1,4 @@
 convex/_generated
+pnpm-lock.yaml
+pnpm-workspace.yaml
+src/components/ui/*
