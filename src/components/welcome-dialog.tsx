@@ -39,7 +39,11 @@ export default function WelcomeDialog({
       <DialogContent
         className="gap-0 p-0 sm:max-w-lg [&>button:last-child]:text-white"
         showCloseButton={false}
-        disableEscapeKey={disableEscapeKey ?? false}
+        onEscapeKeyDown={(e) => {
+          if (disableEscapeKey) {
+            e.preventDefault();
+          }
+        }}
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
