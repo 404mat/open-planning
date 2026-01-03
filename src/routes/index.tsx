@@ -1,20 +1,18 @@
-import CookieBanner from '@/components/cookie-banner';
-import NameAvatar from '@/components/name-avatar';
-import PillComment from '@/components/pill-comment';
-import { CreateRoomBox } from '@/features/homepage/create-room-box';
-import { JoinRoomBox } from '@/features/homepage/join-room-box';
-import { SocialLinks } from '@/features/homepage/social-links';
-import { WelcomePopup } from '@/features/homepage/welcome-popup';
-import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { useSessionAuth } from '@/hooks/useSessionAuth';
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useSessionAuth } from "@/hooks/useSessionAuth";
+import CookieBanner from "@/components/cookie-banner";
+import NameAvatar from "@/components/name-avatar";
+import PillComment from "@/components/pill-comment";
+import { CreateRoomBox } from "@/features/homepage/create-room-box";
+import { JoinRoomBox } from "@/features/homepage/join-room-box";
+import { SocialLinks } from "@/features/homepage/social-links";
+import { WelcomePopup } from "@/features/homepage/welcome-popup";
 
-export const Route = createFileRoute('/')({
-  component: Index,
-});
+export const Route = createFileRoute("/")({ component: App });
 
-function Index() {
-  const [playerName, setPlayerName] = useState('');
+function App() {
+  const [playerName, setPlayerName] = useState("");
 
   const { sessionId, player, showWelcomePopup, createPlayer } =
     useSessionAuth();
@@ -23,12 +21,12 @@ function Index() {
     <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8 realtive">
       <div className="flex flex-col justify-between items-center w-full gap-20">
         {/* top navbar */}
-        <div className="flex justify-between items-center w-full max-w-[1440px] px-4">
+        <div className="flex justify-between items-center w-full max-w-360 px-4">
           <SocialLinks />
           <div
-            className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
+            className={`${sessionId ? "" : "opacity-0 pointer-events-none"}`}
           >
-            <NameAvatar userName={player?.name ?? ''} />
+            <NameAvatar userName={player?.name ?? ""} />
           </div>
         </div>
 

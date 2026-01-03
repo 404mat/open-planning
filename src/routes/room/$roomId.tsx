@@ -1,24 +1,24 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router';
-import { api } from '@convex/_generated/api';
-import { useSessionMutation } from 'convex-helpers/react/sessions';
-import { CardSelector } from '@/features/room/card-selector';
-import { WelcomePopup } from '@/features/homepage/welcome-popup';
-import { ShareDialog } from '@/components/share-dialog';
-import { getVotingSystemvalues } from '@/lib/voting';
-import { useState, useEffect } from 'react';
-import { useSessionQuery } from 'convex-helpers/react/sessions';
-import { useSessionAuth } from '@/hooks/useSessionAuth';
-import { RoomHeader } from '@/features/room/room-header';
-import { PlayArea } from '@/features/room/play-area';
-import { useToast } from '@/hooks/use-toast';
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { api } from "@convex/_generated/api";
+import { useSessionMutation } from "convex-helpers/react/sessions";
+import { CardSelector } from "@/features/room/card-selector";
+import { WelcomePopup } from "@/features/homepage/welcome-popup";
+import { ShareDialog } from "@/components/share-dialog";
+import { getVotingSystemvalues } from "@/lib/voting";
+import { useState, useEffect } from "react";
+import { useSessionQuery } from "convex-helpers/react/sessions";
+import { useSessionAuth } from "@/hooks/useSessionAuth";
+import { RoomHeader } from "@/features/room/room-header";
+import { PlayArea } from "@/features/room/play-area";
+import { useToast } from "@/hooks/use-toast";
 
-export const Route = createFileRoute('/room/$roomId')({
+export const Route = createFileRoute("/room/$roomId")({
   component: RoomComponent,
 });
 
 function RoomComponent() {
   const { roomId: pathSlug } = Route.useParams();
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState("");
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
@@ -32,7 +32,7 @@ function RoomComponent() {
   // Fetch room data only if authenticated (sessionId is present)
   const roomData = useSessionQuery(
     api.rooms.get,
-    sessionId ? { roomSlug: pathSlug } : 'skip'
+    sessionId ? { roomSlug: pathSlug } : "skip",
   );
 
   // Add the current player if they are not already a participant
@@ -58,11 +58,11 @@ function RoomComponent() {
   useEffect(() => {
     if (roomData && player) {
       const currentPlayerParticipant = roomData.participants.find(
-        (p) => p.playerId === player._id
+        (p) => p.playerId === player._id,
       );
       if (currentPlayerParticipant) {
         // If the vote is empty (reset), clear the selection, otherwise set it
-        if (currentPlayerParticipant.vote === '') {
+        if (currentPlayerParticipant.vote === "") {
           setSelectedCard(null);
         } else {
           setSelectedCard(currentPlayerParticipant.vote);
@@ -74,20 +74,20 @@ function RoomComponent() {
     }
   }, [roomData, player]);
 
-  const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const roomUrl = typeof window !== "undefined" ? window.location.href : "";
 
   async function handleCardSelected(value: string | null) {
     if (!player || !roomData) return;
     const { success } = await participantVote({
       roomId: roomData._id,
       playerId: player._id,
-      vote: value ?? '',
+      vote: value ?? "",
     });
     if (success) {
       setSelectedCard(value);
     } else {
       errorToast({
-        text: 'Your vote could not be submitted. Please try again.',
+        text: "Your vote could not be submitted. Please try again.",
       });
     }
   }
@@ -152,7 +152,7 @@ function RoomComponent() {
       <div className="flex flex-col justify-between items-center w-full py-5 h-screen">
         <RoomHeader
           roomName={roomData.prettyName}
-          playerName={player?.name ?? ''}
+          playerName={player?.name ?? ""}
           onShareClick={() => setShowShareDialog(true)}
         />
 

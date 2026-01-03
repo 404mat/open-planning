@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import WelcomeImage from '@/assets/images/welcome-dialog-image.png';
 
 interface WelcomeDialogProps {
   onClose: () => void;
@@ -48,7 +47,7 @@ export default function WelcomeDialog({
         <div className="p-2">
           <img
             className="w-full rounded-md drop-shadow-lg"
-            src={WelcomeImage}
+            src="/images/welcome-dialog-image.png"
             width={1920}
             height={1080}
             alt="dialog"
