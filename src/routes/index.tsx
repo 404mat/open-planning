@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useSessionAuth } from '@/hooks/useSessionAuth';
+import { useSessionAuth } from '@/hooks/use-session-auth';
 import CookieBanner from '@/components/cookie-banner';
 import NameAvatar from '@/components/name-avatar';
 import { CreateRoomBox } from '@/features/homepage/create-room-box';

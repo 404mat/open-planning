@@ -7,7 +7,7 @@ import { ShareDialog } from '@/components/share-dialog';
 import { getVotingSystemvalues } from '@/lib/voting';
 import { useState, useEffect } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
-import { useSessionAuth } from '@/hooks/useSessionAuth';
+import { useSessionAuth } from '@/hooks/use-session-auth';
 import { RoomHeader } from '@/features/room/room-header';
 import { PlayArea } from '@/features/room/play-area';
 import { useToast } from '@/hooks/use-toast';
