@@ -3,6 +3,7 @@ import {
   mutationWithSession,
   roomMutationWithSession,
   getParticipant,
+  requireAdmin,
 } from './lib/auth';
 
 /**
@@ -74,6 +75,7 @@ export const resetAllVotes = roomMutationWithSession({
 
 /**
  * Update a specific participant's isAdmin status in a room.
+ * Only admins can update this.
  * @param roomId - The ID of the room.
  * @param targetSessionId - The session ID of the participant to update.
  * @param isAdmin - The new isAdmin status.
@@ -84,6 +86,13 @@ export const updateIsAdmin = roomMutationWithSession({
     isAdmin: v.boolean(),
   },
   handler: async (ctx, args) => {
+    if (!ctx.session) {
+      throw new Error('Not authenticated');
+    }
+
+    // Require admin access
+    await requireAdmin(ctx, ctx.roomId, ctx.session._id);
+
     const participant = await getParticipant(
       ctx,
       ctx.roomId,
@@ -106,5 +115,43 @@ export const updateIsAdmin = roomMutationWithSession({
     }
 
     await ctx.db.patch(participant._id, { isAdmin: args.isAdmin });
+  },
+});
+
+/**
+ * Remove a participant from a room.
+ * Only admins can remove participants.
+ * @param roomId - The ID of the room.
+ * @param targetSessionId - The session ID of the participant to remove.
+ */
+export const removeParticipant = roomMutationWithSession({
+  args: {
+    targetSessionId: v.id('sessions'),
+  },
+  handler: async (ctx, args) => {
+    if (!ctx.session) {
+      throw new Error('Not authenticated');
+    }
+
+    // Require admin access
+    await requireAdmin(ctx, ctx.roomId, ctx.session._id);
+
+    const participant = await getParticipant(
+      ctx,
+      ctx.roomId,
+      args.targetSessionId
+    );
+
+    if (!participant) {
+      throw new Error('Participant not found in this room');
+    }
+
+    // Don't allow removing yourself
+    if (participant.sessionId === ctx.session._id) {
+      throw new Error('Cannot remove yourself from the room');
+    }
+
+    // Remove the participant
+    await ctx.db.delete(participant._id);
   },
 });

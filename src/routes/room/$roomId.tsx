@@ -1,11 +1,11 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router';
+import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router';
 import { api } from '@convex/_generated/api';
 import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { CardSelector } from '@/features/room/card-selector';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
 import { ShareDialog } from '@/components/share-dialog';
 import { getVotingSystemvalues } from '@/lib/voting';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/use-session-auth';
 import { RoomHeader } from '@/features/room/room-header';
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/room/$roomId')({
 
 function RoomComponent() {
   const { roomId: pathSlug } = Route.useParams();
+  const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -48,21 +49,71 @@ function RoomComponent() {
     roomData ? { roomId: roomData._id } : 'skip'
   );
 
+  // Track if user was previously in the room (to detect removal)
+  const wasInRoomRef = useRef<boolean>(false);
+  const hasCheckedInitialJoinRef = useRef<boolean>(false);
+
   // Check if current user is in the participants list
   const currentParticipant = useMemo(() => {
     if (!participants || !session) return null;
     return participants.find((p) => p.sessionId === session._id) ?? null;
   }, [participants, session]);
 
-  // Add the current session if they are not already a participant
+  // Track if user is currently in the room
+  const isInRoom = useMemo(() => {
+    if (!participants || !session) return false;
+    return participants.some((p) => p.sessionId === session._id);
+  }, [participants, session]);
+
+  // Update ref when user is in room
   useEffect(() => {
-    if (roomData && session && session._id && participants !== undefined) {
-      const isInRoom = participants?.some((p) => p.sessionId === session._id);
-      if (!isInRoom) {
-        addParticipant({ roomId: roomData._id, sessionDocId: session._id });
-      }
+    if (isInRoom) {
+      wasInRoomRef.current = true;
+      hasCheckedInitialJoinRef.current = true;
     }
-  }, [roomData, session, participants, addParticipant]);
+  }, [isInRoom]);
+
+  // Redirect if user was in room but is now removed (check this BEFORE auto-join)
+  useEffect(() => {
+    if (
+      roomData &&
+      session &&
+      session._id &&
+      participants !== undefined &&
+      hasCheckedInitialJoinRef.current &&
+      wasInRoomRef.current &&
+      !isInRoom
+    ) {
+      errorToast({
+        text: 'You have been removed from this room.',
+      });
+      navigate({ to: '/' });
+      return; // Exit early to prevent auto-join
+    }
+  }, [roomData, session, participants, isInRoom, errorToast, navigate]);
+
+  // Add the current session if they are not already a participant
+  // Only run if user was never in the room (initial join) or if they're still in the room
+  useEffect(() => {
+    if (
+      roomData &&
+      session &&
+      session._id &&
+      participants !== undefined &&
+      !isInRoom &&
+      // Don't auto-join if user was previously in room (they were kicked)
+      !(hasCheckedInitialJoinRef.current && wasInRoomRef.current)
+    ) {
+      hasCheckedInitialJoinRef.current = true;
+      addParticipant({ roomId: roomData._id, sessionDocId: session._id }).catch(
+        () => {
+          errorToast({
+            text: 'Failed to join room. Please try again.',
+          });
+        }
+      );
+    }
+  }, [roomData, session, participants, isInRoom, addParticipant, errorToast]);
 
   // show share dialog if user is the only participant
   useEffect(() => {
