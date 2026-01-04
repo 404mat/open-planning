@@ -52,6 +52,8 @@ function RoomComponent() {
   // Track if user was previously in the room (to detect removal)
   const wasInRoomRef = useRef<boolean>(false);
   const hasCheckedInitialJoinRef = useRef<boolean>(false);
+  // Track previous participant count to detect when it changes to 1
+  const previousParticipantCountRef = useRef<number | null>(null);
 
   // Check if current user is in the participants list
   const currentParticipant = useMemo(() => {
@@ -115,12 +117,23 @@ function RoomComponent() {
     }
   }, [roomData, session, participants, isInRoom, addParticipant, errorToast]);
 
-  // show share dialog if user is the only participant
+  // show share dialog when participant count changes to 1 from any other number
   useEffect(() => {
-    if (participants && participants.length === 1) {
+    if (participants === undefined) return;
+
+    const currentCount = participants.length;
+    const previousCount = previousParticipantCountRef.current;
+
+    // Show dialog when count is 1 and either:
+    // - It's the initial load (previousCount is null), OR
+    // - It transitioned from a different number (previousCount !== 1)
+    if (currentCount === 1 && (previousCount === null || previousCount !== 1)) {
       setShowShareDialog(true);
     }
-  }, [participants]);
+
+    // Update the ref with the current count
+    previousParticipantCountRef.current = currentCount;
+  }, [participants?.length]);
 
   // Initialize selected card with the user's current vote
   useEffect(() => {
