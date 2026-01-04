@@ -41,7 +41,7 @@ export function validateJoinRoomInput(input: string): {
       roomId: '',
     };
   }
-  if (potentialRoomId.length > 20) {
+  if (potentialRoomId.length > 30) {
     return {
       isValid: false,
       errorMessage: 'Room ID must be at most 20 characters long',
