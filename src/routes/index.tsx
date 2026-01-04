@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useSessionAuth } from '@/hooks/use-session-auth';
-import CookieBanner from '@/components/cookie-banner';
 import NameAvatar from '@/components/name-avatar';
 import { CreateRoomBox } from '@/features/homepage/create-room-box';
 import { JoinRoomBox } from '@/features/homepage/join-room-box';
@@ -43,10 +42,6 @@ function App() {
             to facilitate collaborative estimation and planning sessions.
           </p>
         </div>
-      </div>
-
-      <div className="max-w-[1440px]">
-        <CookieBanner />
       </div>
 
       {/* welcome popup - Show based on hook state */}

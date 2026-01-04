@@ -8,6 +8,7 @@ import appCss from '../styles.css?url';
 import { SessionProvider } from 'convex-helpers/react/sessions';
 import { ToastProvider } from '@/context/toast-provider';
 import { SESSION_ID_KEY } from '@/lib/constants';
+import CookieBanner from '@/components/cookie-banner';
 
 export const Route = createRootRoute({
   ssr: false,
@@ -46,6 +47,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <SessionProvider storageKey={SESSION_ID_KEY}>
             <ToastProvider>{children}</ToastProvider>
           </SessionProvider>
+          <CookieBanner />
           <TanStackDevtools
             config={{
               position: 'bottom-right',
