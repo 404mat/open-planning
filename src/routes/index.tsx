@@ -13,7 +13,7 @@ export const Route = createFileRoute('/')({ component: App });
 function App() {
   const [playerName, setPlayerName] = useState('');
 
-  const { sessionId, player, showWelcomePopup, createPlayer } =
+  const { sessionId, player, showWelcomePopup, createPlayer, logout } =
     useSessionAuth();
 
   return (
@@ -25,7 +25,7 @@ function App() {
           <div
             className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
           >
-            <NameAvatar userName={player?.name ?? ''} />
+            <NameAvatar userName={player?.name ?? ''} onLogout={logout} />
           </div>
         </div>
 

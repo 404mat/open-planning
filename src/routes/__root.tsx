@@ -7,6 +7,7 @@ import ConvexProvider from '../integrations/convex/provider';
 import appCss from '../styles.css?url';
 import { SessionProvider } from 'convex-helpers/react/sessions';
 import { ToastProvider } from '@/context/toast-provider';
+import { SESSION_ID_KEY } from '@/lib/constants';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -41,7 +42,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ConvexProvider>
-          <SessionProvider>
+          <SessionProvider storageKey={SESSION_ID_KEY}>
             <ToastProvider>{children}</ToastProvider>
           </SessionProvider>
           <TanStackDevtools

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  useSessionId,
   useSessionMutation,
   useSessionQuery,
 } from 'convex-helpers/react/sessions';
@@ -21,6 +22,7 @@ type Player = Doc<'players'>;
  *  - `isLoading: boolean`: True during the initial session check.
  *  - `showWelcomePopup: boolean`: True if the welcome popup should be displayed.
  *  - `createPlayer: (name: string) => Promise<void>`: Function to create a new player.
+ *  - `logout: () => void`: Function to log out the current user.
  */
 export function useSessionAuth() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -33,6 +35,9 @@ export function useSessionAuth() {
   const [initialLocalStorageId, setInitialLocalStorageId] = useState<
     string | null
   >(null);
+
+  // Access the SessionProvider's session ID setter to reset it on logout
+  const [, setProviderSessionId] = useSessionId();
 
   // 1. Read initial sessionId from localStorage on mount
   useEffect(() => {
@@ -128,5 +133,25 @@ export function useSessionAuth() {
     }
   };
 
-  return { sessionId, player, isLoading, showWelcomePopup, createPlayer };
+  // 6. Function to handle logout
+  const logout = () => {
+    console.log('Logging out...');
+    // Generate a new session ID to reset the SessionProvider's internal state
+    const newSessionId = crypto.randomUUID();
+    setProviderSessionId(() => newSessionId);
+    // Clear our local state
+    setSessionId(null);
+    setPlayer(null);
+    setShowWelcomePopup(true);
+    setInitialLocalStorageId(null);
+  };
+
+  return {
+    sessionId,
+    player,
+    isLoading,
+    showWelcomePopup,
+    createPlayer,
+    logout,
+  };
 }
