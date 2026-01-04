@@ -7,6 +7,7 @@ interface PokerCardProps {
   isRevealed?: boolean;
   subtext?: { text: string; isCurrentUser?: boolean; isAdmin?: boolean };
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 export function PlayingCard({
@@ -15,6 +16,7 @@ export function PlayingCard({
   isRevealed = false,
   subtext,
   onClick,
+  disabled = false,
 }: PokerCardProps) {
   function getHtmlValue() {
     if (!isRevealed) return <span className="invisible">😉</span>;
@@ -43,8 +45,9 @@ export function PlayingCard({
             onClick={onClick}
             className={`w-full h-full bg-white rounded-lg shadow-md absolute backface-hidden
             ${onClick ? 'cursor-pointer' : ''}
+            ${disabled ? 'opacity-50' : ''}
             ${isSelected ? 'ring-4 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : ''}`}
-            whileHover={onClick ? { scale: 1.05 } : {}}
+            whileHover={onClick && !disabled ? { scale: 1.05 } : {}}
             animate={{ scale: isSelected ? 1.1 : 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >

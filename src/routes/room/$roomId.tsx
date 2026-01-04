@@ -22,12 +22,19 @@ function RoomComponent() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
-  const { errorToast } = useToast();
+  const { errorToast, warningToast } = useToast();
 
   const { sessionId, session, isLoading, showWelcomePopup, createPlayer } =
     useSessionAuth();
   const addParticipant = useSessionMutation(api.rooms.addParticipant);
   const participantVote = useSessionMutation(api.participants.updateVote);
+  const updateVoteSystem = useSessionMutation(api.rooms.updateVoteSystem);
+  const updateLock = useSessionMutation(api.rooms.updateLock);
+  const updateUsersCanReveal = useSessionMutation(
+    api.rooms.updateUsersCanReveal
+  );
+  const resetAllVotes = useSessionMutation(api.participants.resetAllVotes);
+  const updateReveal = useSessionMutation(api.rooms.updateReveal);
 
   // Fetch room data only if authenticated (sessionId is present)
   const roomData = useSessionQuery(
@@ -83,6 +90,12 @@ function RoomComponent() {
 
   async function handleCardSelected(value: string | null) {
     if (!session || !roomData) return;
+    if (roomData.isLocked) {
+      warningToast({
+        text: 'An admin has locked this feature for now.',
+      });
+      return;
+    }
     try {
       await participantVote({
         roomId: roomData._id,
@@ -92,6 +105,61 @@ function RoomComponent() {
     } catch {
       errorToast({
         text: 'Your vote could not be submitted. Please try again.',
+      });
+    }
+  }
+
+  async function handleVoteSystemChange(newVoteSystem: string) {
+    if (!roomData) return;
+    try {
+      await updateVoteSystem({
+        roomId: roomData._id,
+        voteSystem: newVoteSystem,
+      });
+      // Reset all votes when voting system changes
+      await resetAllVotes({
+        roomId: roomData._id,
+      });
+      // Also hide votes if they were revealed
+      if (roomData.isRevealed) {
+        await updateReveal({
+          roomId: roomData._id,
+          isRevealed: false,
+        });
+      }
+      // Clear the selected card in the UI
+      setSelectedCard(null);
+    } catch {
+      errorToast({
+        text: 'Failed to update voting system. Please try again.',
+      });
+    }
+  }
+
+  async function handleLockChange(newIsLocked: boolean) {
+    if (!roomData) return;
+    try {
+      await updateLock({
+        roomId: roomData._id,
+        isLocked: newIsLocked,
+      });
+    } catch {
+      errorToast({
+        text: 'Failed to update lock status. Please try again.',
+      });
+    }
+  }
+
+  async function handleUsersCanRevealChange(newUsersCanReveal: boolean) {
+    if (!roomData) return;
+    try {
+      await updateUsersCanReveal({
+        roomId: roomData._id,
+        usersCanReveal: newUsersCanReveal,
+      });
+    } catch {
+      errorToast({
+        text: 'Failed to update reveal permission. Please try again.',
       });
     }
   }
@@ -158,6 +226,14 @@ function RoomComponent() {
           roomName={roomData.prettyName}
           playerName={session?.name ?? 'Unknown player'}
           onShareClick={() => setShowShareDialog(true)}
+          voteSystem={roomData.voteSystem}
+          isLocked={roomData.isLocked}
+          usersCanReveal={roomData.usersCanReveal ?? true}
+          currentStoryUrl={roomData.currentStoryUrl}
+          isAdmin={currentParticipant?.isAdmin ?? false}
+          onVoteSystemChange={handleVoteSystemChange}
+          onLockChange={handleLockChange}
+          onUsersCanRevealChange={handleUsersCanRevealChange}
         />
 
         <PlayArea
@@ -171,6 +247,7 @@ function RoomComponent() {
             cards={getVotingSystemvalues(roomData.voteSystem)}
             selectedCard={selectedCard}
             onSelectCard={(value) => handleCardSelected(value)}
+            isLocked={roomData.isLocked}
           />
         </div>
       </div>

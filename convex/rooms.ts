@@ -3,6 +3,7 @@ import {
   roomMutationWithSession,
   queryWithSession,
   mutationWithSession,
+  getParticipant,
 } from './lib/auth';
 import {
   formatStringToRoomSlug,
@@ -117,6 +118,7 @@ export const create = mutationWithSession({
       prettyName: args.roomName || finalRoomSlug,
       isLocked: false,
       isRevealed: false,
+      usersCanReveal: args.playerReveal ?? true,
       voteSystem: args.voteSystem,
       currentStoryUrl: '',
       updatedAt: Date.now(),
@@ -194,12 +196,64 @@ export const updateLock = roomMutationWithSession({
 
 /**
  * Updates the reveal status of the room specified in the context.
+ * Only admins or users (if usersCanReveal is true) can update the reveal status.
  * @param isRevealed - The new reveal status of the room.
  */
 export const updateReveal = roomMutationWithSession({
   args: { isRevealed: v.boolean() },
   handler: async (ctx, args) => {
+    const room = await ctx.db.get(ctx.roomId);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+
+    // Check if user is admin
+    if (!ctx.session) {
+      throw new Error('Not authenticated');
+    }
+    const participant = await getParticipant(ctx, ctx.roomId, ctx.session._id);
+    if (!participant) {
+      throw new Error('Not a participant in this room');
+    }
+
+    // Only allow reveal if user is admin OR if usersCanReveal is true
+    if (!participant.isAdmin && !room.usersCanReveal) {
+      throw new Error(
+        'Only admins can reveal votes when users reveal is disabled'
+      );
+    }
+
     await ctx.db.patch(ctx.roomId, { isRevealed: args.isRevealed });
+  },
+});
+
+/**
+ * Updates the vote system of the room specified in the context.
+ * @param voteSystem - The new vote system of the room.
+ */
+export const updateVoteSystem = roomMutationWithSession({
+  args: { voteSystem: v.string() },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(ctx.roomId, { voteSystem: args.voteSystem });
+  },
+});
+
+/**
+ * Updates whether users can reveal votes in the room specified in the context.
+ * Only admins can update this setting.
+ * @param usersCanReveal - Whether users can reveal votes.
+ */
+export const updateUsersCanReveal = roomMutationWithSession({
+  args: { usersCanReveal: v.boolean() },
+  handler: async (ctx, args) => {
+    if (!ctx.session) {
+      throw new Error('Not authenticated');
+    }
+    const participant = await getParticipant(ctx, ctx.roomId, ctx.session._id);
+    if (!participant || !participant.isAdmin) {
+      throw new Error('Only admins can update this setting');
+    }
+    await ctx.db.patch(ctx.roomId, { usersCanReveal: args.usersCanReveal });
   },
 });
 

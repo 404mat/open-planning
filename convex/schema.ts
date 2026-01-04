@@ -15,6 +15,7 @@ export default defineSchema({
     prettyName: v.string(),
     isLocked: v.boolean(),
     isRevealed: v.boolean(),
+    usersCanReveal: v.boolean(),
     voteSystem: v.string(),
     currentStoryUrl: v.string(),
     updatedAt: v.number(),

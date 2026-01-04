@@ -20,28 +20,63 @@ export function PlayArea({
   participants,
   currentSessionId,
 }: PlayAreaProps) {
-  const { errorToast } = useToast();
+  const { errorToast, warningToast } = useToast();
 
   const changeRevealStatus = useSessionMutation(api.rooms.updateReveal);
   const resetRoomVotes = useSessionMutation(api.participants.resetAllVotes);
 
+  // Find current user's participant data
+  const currentParticipant = currentSessionId
+    ? participants.find((p) => p.sessionId === currentSessionId)
+    : null;
+
+  // Check if user can reveal (admin or usersCanReveal is true)
+  const canReveal =
+    currentParticipant?.isAdmin || (roomData.usersCanReveal ?? true);
+
   // Change the reveal status of the votes
-  const handleRevealVotes = () => {
-    changeRevealStatus({
-      roomId: roomData._id,
-      isRevealed: !roomData.isRevealed,
-    });
+  const handleRevealVotes = async () => {
+    if (!canReveal) {
+      warningToast({
+        text: 'An admin has locked this feature for now.',
+      });
+      return;
+    }
+
+    try {
+      await changeRevealStatus({
+        roomId: roomData._id,
+        isRevealed: !roomData.isRevealed,
+      });
+    } catch (error) {
+      errorToast({
+        text: 'Failed to update reveal status. Please try again.',
+      });
+    }
   };
 
   // Clear all votes
   const handleResetVotes = async () => {
-    await resetRoomVotes({
-      roomId: roomData._id,
-    });
-    changeRevealStatus({
-      roomId: roomData._id,
-      isRevealed: false,
-    });
+    if (!canReveal) {
+      warningToast({
+        text: 'An admin has locked this feature for now.',
+      });
+      return;
+    }
+
+    try {
+      await resetRoomVotes({
+        roomId: roomData._id,
+      });
+      await changeRevealStatus({
+        roomId: roomData._id,
+        isRevealed: false,
+      });
+    } catch (error) {
+      errorToast({
+        text: 'Failed to reset votes. Please try again.',
+      });
+    }
   };
 
   // Empty state
@@ -81,7 +116,7 @@ export function PlayArea({
       <div className="flex gap-4">
         <Button
           onClick={handleRevealVotes}
-          className="group grid"
+          className={`group grid ${!canReveal ? 'opacity-50 cursor-not-allowed' : ''}`}
           data-revealed={roomData.isRevealed}
         >
           <span className="[grid-area:1/1] group-data-[revealed=true]:invisible">
@@ -91,7 +126,11 @@ export function PlayArea({
             Hide votes
           </span>
         </Button>
-        <Button variant={'secondary'} onClick={handleResetVotes}>
+        <Button
+          variant={'secondary'}
+          onClick={handleResetVotes}
+          className={!canReveal ? 'opacity-50 cursor-not-allowed' : ''}
+        >
           <XIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
           Reset votes
         </Button>
