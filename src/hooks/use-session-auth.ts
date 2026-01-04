@@ -6,7 +6,10 @@ import {
 } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
 import type { Doc } from '@convex/_generated/dataModel';
-import { getLocalStorageValue, setLocalStorageValue } from '@/lib/localStorage';
+import {
+  getLocalStorageValue,
+  setLocalStorageValue,
+} from '@/lib/local-storage';
 import { SESSION_ID_KEY } from '@/lib/constants';
 
 type Player = Doc<'players'>;
