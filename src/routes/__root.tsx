@@ -10,6 +10,7 @@ import { ToastProvider } from '@/context/toast-provider';
 import { SESSION_ID_KEY } from '@/lib/constants';
 
 export const Route = createRootRoute({
+  ssr: false,
   head: () => ({
     meta: [
       {
