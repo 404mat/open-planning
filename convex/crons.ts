@@ -4,9 +4,9 @@ import { internal } from './_generated/api';
 const crons = cronJobs();
 
 crons.interval(
-  'clear inactive players',
+  'clear inactive sessions',
   { hours: 12 },
-  internal.players.clearInactivePlayers
+  internal.sessions.clearInactiveSessions
 );
 
 crons.interval(

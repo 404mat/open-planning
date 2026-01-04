@@ -5,7 +5,7 @@ import { CardSelector } from '@/features/room/card-selector';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
 import { ShareDialog } from '@/components/share-dialog';
 import { getVotingSystemvalues } from '@/lib/voting';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/use-session-auth';
 import { RoomHeader } from '@/features/room/room-header';
@@ -24,7 +24,7 @@ function RoomComponent() {
 
   const { errorToast } = useToast();
 
-  const { sessionId, player, isLoading, showWelcomePopup, createPlayer } =
+  const { sessionId, session, isLoading, showWelcomePopup, createPlayer } =
     useSessionAuth();
   const addParticipant = useSessionMutation(api.rooms.addParticipant);
   const participantVote = useSessionMutation(api.participants.updateVote);
@@ -35,57 +35,61 @@ function RoomComponent() {
     sessionId ? { roomSlug: pathSlug } : 'skip'
   );
 
-  // Add the current player if they are not already a participant
+  // Fetch participants for the room
+  const participants = useSessionQuery(
+    api.rooms.getParticipants,
+    roomData ? { roomId: roomData._id } : 'skip'
+  );
+
+  // Check if current user is in the participants list
+  const currentParticipant = useMemo(() => {
+    if (!participants || !session) return null;
+    return participants.find((p) => p.sessionId === session._id) ?? null;
+  }, [participants, session]);
+
+  // Add the current session if they are not already a participant
   useEffect(() => {
-    if (
-      roomData &&
-      player &&
-      player._id && // Internal Convex ID for checking existence
-      !roomData.participants.some((p) => p.playerId === player._id)
-    ) {
-      addParticipant({ roomId: roomData._id, playerId: player._id });
+    if (roomData && session && session._id && participants !== undefined) {
+      const isInRoom = participants?.some((p) => p.sessionId === session._id);
+      if (!isInRoom) {
+        addParticipant({ roomId: roomData._id, sessionDocId: session._id });
+      }
     }
-  }, [roomData, player, pathSlug, addParticipant]);
+  }, [roomData, session, participants, addParticipant]);
 
   // show share dialog if user is the only participant
   useEffect(() => {
-    if (roomData && roomData.participants.length === 1) {
+    if (participants && participants.length === 1) {
       setShowShareDialog(true);
     }
-  }, [roomData]);
+  }, [participants]);
 
-  // Initialize selected card with the player's current vote
+  // Initialize selected card with the user's current vote
   useEffect(() => {
-    if (roomData && player) {
-      const currentPlayerParticipant = roomData.participants.find(
-        (p) => p.playerId === player._id
-      );
-      if (currentPlayerParticipant) {
-        // If the vote is empty (reset), clear the selection, otherwise set it
-        if (currentPlayerParticipant.vote === '') {
-          setSelectedCard(null);
-        } else {
-          setSelectedCard(currentPlayerParticipant.vote);
-        }
-      } else {
-        // Player might not be in participants list yet
+    if (currentParticipant) {
+      // If the vote is empty (reset), clear the selection, otherwise set it
+      if (currentParticipant.vote === '') {
         setSelectedCard(null);
+      } else {
+        setSelectedCard(currentParticipant.vote);
       }
+    } else {
+      // User might not be in participants list yet
+      setSelectedCard(null);
     }
-  }, [roomData, player]);
+  }, [currentParticipant]);
 
   const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
 
   async function handleCardSelected(value: string | null) {
-    if (!player || !roomData) return;
-    const { success } = await participantVote({
-      roomId: roomData._id,
-      playerId: player._id,
-      vote: value ?? '',
-    });
-    if (success) {
+    if (!session || !roomData) return;
+    try {
+      await participantVote({
+        roomId: roomData._id,
+        vote: value ?? '',
+      });
       setSelectedCard(value);
-    } else {
+    } catch {
       errorToast({
         text: 'Your vote could not be submitted. Please try again.',
       });
@@ -124,7 +128,7 @@ function RoomComponent() {
   // 3. Handle Authenticated State (sessionId is guaranteed to be non-null here)
 
   // Handle Room Data Loading
-  if (roomData === undefined) {
+  if (roomData === undefined || participants === undefined) {
     // todo make this UI better
     return (
       <div className="flex justify-center items-center h-screen">
@@ -152,11 +156,15 @@ function RoomComponent() {
       <div className="flex flex-col justify-between items-center w-full py-5 h-screen">
         <RoomHeader
           roomName={roomData.prettyName}
-          playerName={player?.name ?? ''}
+          playerName={session?.name ?? 'Unknown player'}
           onShareClick={() => setShowShareDialog(true)}
         />
 
-        <PlayArea roomData={roomData} player={player} />
+        <PlayArea
+          roomData={roomData}
+          participants={participants}
+          currentSessionId={session?._id}
+        />
 
         <div className="pb-4">
           <CardSelector

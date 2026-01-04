@@ -2,6 +2,14 @@ import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
 export default defineSchema({
+  sessions: defineTable({
+    name: v.string(),
+    sessionId: v.string(),
+    lastSeenAt: v.number(),
+  })
+    .index('by_sessionId', ['sessionId'])
+    .index('by_lastSeenAt', ['lastSeenAt']),
+
   rooms: defineTable({
     roomSlug: v.string(),
     prettyName: v.string(),
@@ -9,24 +17,18 @@ export default defineSchema({
     isRevealed: v.boolean(),
     voteSystem: v.string(),
     currentStoryUrl: v.string(),
-    participants: v.array(
-      v.object({
-        playerId: v.id('players'),
-        vote: v.string(),
-        isAdmin: v.boolean(),
-        isAllowedVote: v.boolean(),
-      })
-    ),
     updatedAt: v.number(),
   })
     .index('by_roomSlug', ['roomSlug'])
     .index('by_updatedAt', ['updatedAt']),
 
-  players: defineTable({
-    name: v.string(),
-    sessionId: v.string(),
-    lastSeenAt: v.number(),
+  participants: defineTable({
+    roomId: v.id('rooms'),
+    sessionId: v.id('sessions'),
+    vote: v.string(),
+    isAdmin: v.boolean(),
+    isAllowedVote: v.boolean(),
   })
-    .index('by_sessionId', ['sessionId'])
-    .index('by_lastSeenAt', ['lastSeenAt']),
+    .index('by_room', ['roomId'])
+    .index('by_room_session', ['roomId', 'sessionId']),
 });

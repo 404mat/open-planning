@@ -16,33 +16,37 @@ import { v } from 'convex/values';
 
 /* ---- Helper functions ---- */
 
-async function getUserBySession(ctx: QueryCtx, sessionId: SessionId) {
-  const user = await ctx.db
-    .query('players')
+async function getSessionBySessionId(ctx: QueryCtx, sessionId: SessionId) {
+  const session = await ctx.db
+    .query('sessions')
     .withIndex('by_sessionId', (q) => q.eq('sessionId', sessionId))
     .first();
-  return user;
+  return session;
 }
 
-async function handleUserPresenceAndUpdate(
+async function handleSessionPresenceUpdate(
   ctx: MutationCtx,
   sessionId: SessionId
 ) {
-  const user = await getUserBySession(ctx, sessionId);
-  if (user) {
-    const userId = user._id;
-    if (!user.lastSeenAt || Date.now() - user.lastSeenAt > PRESENCE_UPDATE_MS) {
+  const session = await getSessionBySessionId(ctx, sessionId);
+  if (session) {
+    if (
+      !session.lastSeenAt ||
+      Date.now() - session.lastSeenAt > PRESENCE_UPDATE_MS
+    ) {
       try {
-        await ctx.db.patch(userId as Id<'players'>, {
+        await ctx.db.patch(session._id, {
           lastSeenAt: Date.now(),
         });
       } catch (error) {
-        console.error(`Failed to update presence for user ${userId}:`, error);
-        // todo decide if the mutation should fail or just log the error
+        console.error(
+          `Failed to update presence for session ${session._id}:`,
+          error
+        );
       }
     }
   }
-  return user;
+  return session;
 }
 
 async function handleRoomActivityUpdate(ctx: MutationCtx, roomId: Id<'rooms'>) {
@@ -52,7 +56,7 @@ async function handleRoomActivityUpdate(ctx: MutationCtx, roomId: Id<'rooms'>) {
         '[handleRoomActivityUpdate] Error: roomId is invalid!',
         roomId
       );
-      return; // Prevent patch call with invalid ID
+      return;
     }
     await ctx.db.patch(roomId, {
       updatedAt: Date.now(),
@@ -60,6 +64,41 @@ async function handleRoomActivityUpdate(ctx: MutationCtx, roomId: Id<'rooms'>) {
   } catch (error) {
     console.error(`Failed to update activity for room ${roomId}:`, error);
   }
+}
+
+/* ---- Participant Auth Helpers ---- */
+
+export async function getParticipant(
+  ctx: QueryCtx,
+  roomId: Id<'rooms'>,
+  sessionDocId: Id<'sessions'>
+) {
+  return ctx.db
+    .query('participants')
+    .withIndex('by_room_session', (q) =>
+      q.eq('roomId', roomId).eq('sessionId', sessionDocId)
+    )
+    .first();
+}
+
+export async function requireParticipant(
+  ctx: QueryCtx,
+  roomId: Id<'rooms'>,
+  sessionDocId: Id<'sessions'>
+) {
+  const participant = await getParticipant(ctx, roomId, sessionDocId);
+  if (!participant) throw new Error('Not a participant in this room');
+  return participant;
+}
+
+export async function requireAdmin(
+  ctx: QueryCtx,
+  roomId: Id<'rooms'>,
+  sessionDocId: Id<'sessions'>
+) {
+  const participant = await requireParticipant(ctx, roomId, sessionDocId);
+  if (!participant.isAdmin) throw new Error('Admin access required');
+  return participant;
 }
 
 /* ---- Custom actions ---- */
@@ -78,22 +117,21 @@ export const actionWithSession = customAction(action, {
   },
 });
 
-/* ---- Custom mutations ---- */
+/* ---- Custom queries and mutations ---- */
 
 export const queryWithSession = customQuery(query, {
   args: SessionIdArg,
   input: async (ctx, { sessionId }) => {
-    const user = await getUserBySession(ctx, sessionId);
-    return { ctx: { ...ctx, user, sessionId }, args: {} };
+    const session = await getSessionBySessionId(ctx, sessionId);
+    return { ctx: { ...ctx, session, sessionId }, args: {} };
   },
 });
 
-export const playerMutationWithSession = customMutation(mutation, {
+export const mutationWithSession = customMutation(mutation, {
   args: SessionIdArg,
   input: async (ctx, { sessionId }) => {
-    const user = await handleUserPresenceAndUpdate(ctx, sessionId);
-
-    return { ctx: { ...ctx, user, sessionId }, args: {} };
+    const session = await handleSessionPresenceUpdate(ctx, sessionId);
+    return { ctx: { ...ctx, session, sessionId }, args: {} };
   },
 });
 
@@ -101,16 +139,17 @@ const RoomMutationArgs = {
   ...SessionIdArg,
   roomId: v.id('rooms'),
 };
+
 export const roomMutationWithSession = customMutation(mutation, {
   args: RoomMutationArgs,
   input: async (ctx, args) => {
     const { roomId, sessionId, ...restArgs } = args;
 
     await handleRoomActivityUpdate(ctx, roomId);
-    const user = await handleUserPresenceAndUpdate(ctx, sessionId);
+    const session = await handleSessionPresenceUpdate(ctx, sessionId);
 
     return {
-      ctx: { ...ctx, user, sessionId, roomId },
+      ctx: { ...ctx, session, sessionId, roomId },
       args: restArgs,
     };
   },

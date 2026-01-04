@@ -1,21 +1,25 @@
-import { useMemo } from 'react';
-import {
-  useSessionMutation,
-  useSessionQuery,
-} from 'convex-helpers/react/sessions';
+import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
-import type { Doc } from '@convex/_generated/dataModel';
+import type { Doc, Id } from '@convex/_generated/dataModel';
 import { PlayingCard } from '@/components/playing-card';
 import { Button } from '@/components/ui/button';
 import { XIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-interface ParticipantListProps {
+// Participant with name from the getParticipants query
+type ParticipantWithName = Doc<'participants'> & { name: string };
+
+interface PlayAreaProps {
   roomData: Doc<'rooms'>;
-  player: Doc<'players'> | null | undefined;
+  participants: ParticipantWithName[];
+  currentSessionId: Id<'sessions'> | undefined;
 }
 
-export function PlayArea({ roomData, player }: ParticipantListProps) {
+export function PlayArea({
+  roomData,
+  participants,
+  currentSessionId,
+}: PlayAreaProps) {
   const { errorToast } = useToast();
 
   const changeRevealStatus = useSessionMutation(api.rooms.updateReveal);
@@ -31,58 +35,19 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
 
   // Clear all votes
   const handleResetVotes = async () => {
-    const { success } = await resetRoomVotes({
+    await resetRoomVotes({
       roomId: roomData._id,
     });
-    if (!success) {
-      errorToast({
-        text: 'Failed to reset votes. Please try again.',
-      });
-    } else {
-      changeRevealStatus({
-        roomId: roomData._id,
-        isRevealed: false,
-      });
-    }
+    changeRevealStatus({
+      roomId: roomData._id,
+      isRevealed: false,
+    });
   };
 
-  // Extract participant IDs for fetching names
-  const participantIds = useMemo(() => {
-    return roomData.participants.map((p) => p.playerId);
-  }, [roomData.participants]);
-
-  // Fetch player data for all participants in the room using useSessionQuery
-  const playersData = useSessionQuery(
-    api.players.getPlayersByIds,
-    participantIds.length > 0 ? { playerIds: participantIds } : 'skip'
-  );
-
-  // Create a map for easy lookup of player names by their ID
-  const playerNamesMap = useMemo(() => {
-    const map = new Map<Doc<'players'>['_id'], string>();
-    if (playersData) {
-      playersData.forEach((playerDoc) => {
-        if (playerDoc) {
-          map.set(playerDoc._id, playerDoc.name);
-        }
-      });
-    }
-    return map;
-  }, [playersData]);
-
-  // Loading state
-  if (playersData === undefined && participantIds.length > 0) {
-    return (
-      <div className="flex-grow flex flex-col items-center justify-center p-4">
-        <p>Loading participant names...</p>
-      </div>
-    );
-  }
-
   // Empty state
-  if (roomData.participants.length === 0) {
+  if (participants.length === 0) {
     return (
-      <div className="flex-grow flex flex-col items-center justify-center p-4">
+      <div className="grow flex flex-col items-center justify-center p-4">
         <p>No participants yet.</p>
       </div>
     );
@@ -90,19 +55,18 @@ export function PlayArea({ roomData, player }: ParticipantListProps) {
 
   // Main content
   return (
-    <div className="flex-grow flex flex-col items-center justify-center p-4 gap-12">
+    <div className="grow flex flex-col items-center justify-center p-4 gap-12">
       {/* cards */}
       <div className="flex flex-wrap gap-4 justify-center max-w-2xl">
-        {roomData.participants.map((participant) => {
-          const playerName = playerNamesMap.get(participant.playerId);
-          const isCurrentUser = participant.playerId === player?._id;
+        {participants.map((participant) => {
+          const isCurrentUser = participant.sessionId === currentSessionId;
 
           return (
             <PlayingCard
-              key={participant.playerId}
-              value={participant.vote ?? null}
+              key={participant._id}
+              value={participant.vote || null}
               subtext={{
-                text: playerName ?? 'Loading...',
+                text: participant.name,
                 isCurrentUser,
                 isAdmin: participant.isAdmin,
               }}

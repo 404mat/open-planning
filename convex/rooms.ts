@@ -2,8 +2,8 @@ import { v } from 'convex/values';
 import {
   roomMutationWithSession,
   queryWithSession,
-  playerMutationWithSession,
-} from './lib/sessions';
+  mutationWithSession,
+} from './lib/auth';
 import {
   formatStringToRoomSlug,
   appendRandomSuffix,
@@ -28,20 +28,59 @@ export const get = queryWithSession({
 });
 
 /**
+ * Retrieves all participants for a room.
+ * @param roomId - The ID of the room.
+ * @returns Array of participant documents with session data.
+ */
+export const getParticipants = queryWithSession({
+  args: { roomId: v.id('rooms') },
+  handler: async (ctx, args) => {
+    const participants = await ctx.db
+      .query('participants')
+      .withIndex('by_room', (q) => q.eq('roomId', args.roomId))
+      .collect();
+
+    // Fetch session data for each participant
+    const participantsWithSessions = await Promise.all(
+      participants.map(async (p) => {
+        const session = await ctx.db.get(p.sessionId);
+        return {
+          ...p,
+          name: session?.name ?? 'Unknown',
+        };
+      })
+    );
+
+    return participantsWithSessions;
+  },
+});
+
+/**
  * Deletes a room using the roomId from the context.
+ * Also cleans up all participant entries.
  */
 export const remove = roomMutationWithSession({
   args: {},
   handler: async (ctx) => {
+    // Clean up all participants for this room
+    const participants = await ctx.db
+      .query('participants')
+      .withIndex('by_room', (q) => q.eq('roomId', ctx.roomId))
+      .collect();
+
+    for (const p of participants) {
+      await ctx.db.delete(p._id);
+    }
+
     await ctx.db.delete(ctx.roomId);
   },
 });
 
 /**
- * Creates a new room with the specified ID, voting system, and initial admin player.
- * @param roomOptions - The romm default or custom options.
+ * Creates a new room with the specified options and adds the creator as admin.
+ * @param roomOptions - The room default or custom options.
  */
-export const create = playerMutationWithSession({
+export const create = mutationWithSession({
   args: {
     roomName: v.string(),
     voteSystem: v.string(),
@@ -50,16 +89,15 @@ export const create = playerMutationWithSession({
     playerAddTicket: v.boolean(),
   },
   handler: async (ctx, args) => {
-    // Find the player creating the room
-    const creatorPlayer = await ctx.db
-      .query('players')
+    // Find the session creating the room
+    const creatorSession = await ctx.db
+      .query('sessions')
       .withIndex('by_sessionId', (q) => q.eq('sessionId', ctx.sessionId))
       .first();
 
-    if (!creatorPlayer) {
-      console.error(`Creator player not found: ${ctx.sessionId}`);
-      // prevent creation of a room without an admin
-      throw new Error(`Creator player not found: ${ctx.sessionId}`);
+    if (!creatorSession) {
+      console.error(`Creator session not found: ${ctx.sessionId}`);
+      throw new Error(`Creator session not found: ${ctx.sessionId}`);
     }
 
     const formattedRoomSlug = formatStringToRoomSlug(args.roomName);
@@ -73,23 +111,24 @@ export const create = playerMutationWithSession({
       ? appendRandomSuffix(formattedRoomSlug)
       : formattedRoomSlug;
 
-    // Construct the initial admin participant object
-    const adminParticipant = {
-      playerId: creatorPlayer._id, // Use internal Convex ID
-      vote: '',
-      isAdmin: true,
-      isAllowedVote: true,
-    };
-
-    await ctx.db.insert('rooms', {
+    // Create the room
+    const roomId = await ctx.db.insert('rooms', {
       roomSlug: finalRoomSlug,
-      prettyName: args.roomName,
+      prettyName: args.roomName || finalRoomSlug,
       isLocked: false,
       isRevealed: false,
       voteSystem: args.voteSystem,
       currentStoryUrl: '',
-      participants: [adminParticipant],
       updatedAt: Date.now(),
+    });
+
+    // Add the creator as an admin participant
+    await ctx.db.insert('participants', {
+      roomId,
+      sessionId: creatorSession._id,
+      vote: '',
+      isAdmin: true,
+      isAllowedVote: true,
     });
 
     return finalRoomSlug;
@@ -98,12 +137,11 @@ export const create = playerMutationWithSession({
 
 /**
  * Adds a participant to a room.
- * @param roomId - The ID of the room to add the participant to.
- * Adds a participant to the room specified in the context.
- * @param playerId - The ID of the participant player to add.
+ * @param roomId - The ID of the room.
+ * @param sessionDocId - The document ID of the session to add.
  */
 export const addParticipant = roomMutationWithSession({
-  args: { playerId: v.id('players') },
+  args: { sessionDocId: v.id('sessions') },
   handler: async (ctx, args) => {
     const room = await ctx.db.get(ctx.roomId);
 
@@ -112,32 +150,33 @@ export const addParticipant = roomMutationWithSession({
       return;
     }
 
-    // Find the player using the external playerId string
-    const player = await ctx.db.get(args.playerId);
+    const session = await ctx.db.get(args.sessionDocId);
 
-    if (!player) {
-      console.error(`Player not found: ${args.playerId}`);
+    if (!session) {
+      console.error(`Session not found: ${args.sessionDocId}`);
       return;
     }
 
-    // Check if participant (by internal _id) is already in the room
-    const participantExists = room.participants.some(
-      (p) => p.playerId === player._id
-    );
+    // Check if participant already exists in the room
+    const existingParticipant = await ctx.db
+      .query('participants')
+      .withIndex('by_room_session', (q) =>
+        q.eq('roomId', ctx.roomId).eq('sessionId', args.sessionDocId)
+      )
+      .first();
 
-    if (!participantExists) {
-      const newParticipant = {
-        playerId: player._id,
-        vote: '', // Default vote is blank
-        isAdmin: false, // todo make sure there is already an admin
-        isAllowedVote: true, // todo make this dependant of room
-      };
-
-      // Add the new participant object to the array
-      const updatedParticipants = [...room.participants, newParticipant];
-      await ctx.db.patch(room._id, { participants: updatedParticipants });
+    if (!existingParticipant) {
+      await ctx.db.insert('participants', {
+        roomId: ctx.roomId,
+        sessionId: args.sessionDocId,
+        vote: '',
+        isAdmin: false,
+        isAllowedVote: true,
+      });
     } else {
-      console.log(`Participant ${args.playerId} already in room ${ctx.roomId}`);
+      console.log(
+        `Participant ${args.sessionDocId} already in room ${ctx.roomId}`
+      );
     }
   },
 });
@@ -176,7 +215,8 @@ export const updateCurrentStoryUrl = roomMutationWithSession({
 });
 
 /**
- * Clear inactive rooms that are not used in the last month
+ * Clear inactive rooms that are not used in the last month.
+ * Also cleans up participant entries for deleted rooms.
  * @returns void
  */
 export const clearInactiveRooms = internalMutation({
@@ -195,6 +235,16 @@ export const clearInactiveRooms = internalMutation({
       if (inactiveRooms.length === 0) break;
 
       for (const room of inactiveRooms) {
+        // Clean up participant entries for this room
+        const participants = await ctx.db
+          .query('participants')
+          .withIndex('by_room', (q) => q.eq('roomId', room._id))
+          .collect();
+
+        for (const p of participants) {
+          await ctx.db.delete(p._id);
+        }
+
         await ctx.db.delete(room._id);
         deletedCount++;
       }

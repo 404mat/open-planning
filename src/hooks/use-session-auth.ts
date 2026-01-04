@@ -12,24 +12,24 @@ import {
 } from '@/lib/local-storage';
 import { SESSION_ID_KEY } from '@/lib/constants';
 
-type Player = Doc<'players'>;
+type Session = Doc<'sessions'>;
 
 /**
  * Hook to manage user session authentication and welcome popup display.
  * Handles reading session ID from localStorage, validating it with the backend,
- * and creating a new player/session if needed via a welcome popup.
+ * and creating a new session if needed via a welcome popup.
  *
  * @returns {object} - An object containing session state and control functions:
  *  - `sessionId: string | null`: The validated session ID, or null if not authenticated.
- *  - `player: Player | null`: The authenticated player data, or null.
+ *  - `session: Session | null`: The authenticated session data, or null.
  *  - `isLoading: boolean`: True during the initial session check.
  *  - `showWelcomePopup: boolean`: True if the welcome popup should be displayed.
- *  - `createPlayer: (name: string) => Promise<void>`: Function to create a new player.
+ *  - `createSession: (name: string) => Promise<void>`: Function to create a new session.
  *  - `logout: () => void`: Function to log out the current user.
  */
 export function useSessionAuth() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [player, setPlayer] = useState<Player | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
 
@@ -52,8 +52,8 @@ export function useSessionAuth() {
     // We don't set isLoading false here yet, wait for validation
   }, []);
 
-  // 2. Query to find player based on the initial ID (if any)
-  const foundPlayer = useSessionQuery(api.players.find, {
+  // 2. Query to find session based on the initial ID (if any)
+  const foundSession = useSessionQuery(api.sessions.find, {
     // Use 'skip' if no ID was found initially to prevent unnecessary query
     localSessionId: initialLocalStorageId ?? 'skip',
   });
@@ -67,69 +67,71 @@ export function useSessionAuth() {
 
     if (initialLocalStorageId) {
       // Case 1: We found an ID in localStorage initially
-      if (foundPlayer === undefined) {
+      if (foundSession === undefined) {
         // Query is still loading, wait...
         setIsLoading(true);
         return;
       }
 
-      if (foundPlayer === null) {
-        // Query finished, but player not found (invalid/expired session)
+      if (foundSession === null) {
+        // Query finished, but session not found (invalid/expired session)
         console.log('Session ID invalid, clearing...');
         setLocalStorageValue(SESSION_ID_KEY, '');
         setSessionId(null);
-        setPlayer(null);
+        setSession(null);
         setShowWelcomePopup(true);
         setInitialLocalStorageId(null);
       } else {
-        // Query finished, player found (valid session)
-        console.log('Session ID valid:', foundPlayer.sessionId);
-        setSessionId(foundPlayer.sessionId);
-        setPlayer(foundPlayer);
+        // Query finished, session found (valid session)
+        setSessionId(foundSession.sessionId);
+        setSession(foundSession);
         setShowWelcomePopup(false);
         // Ensure localStorage is up-to-date (redundant but safe)
-        setLocalStorageValue(SESSION_ID_KEY, foundPlayer.sessionId);
+        setLocalStorageValue(SESSION_ID_KEY, foundSession.sessionId);
       }
     } else {
       // Case 2: No ID found in localStorage initially
       console.log('No initial Session ID found.');
       setSessionId(null);
-      setPlayer(null);
+      setSession(null);
       setShowWelcomePopup(true);
     }
 
     // Validation complete (or determined unnecessary)
     setIsLoading(false);
-  }, [foundPlayer, initialLocalStorageId, checkedInitialId]);
+  }, [foundSession, initialLocalStorageId, checkedInitialId]);
 
-  // 4. Mutation to create a new player
-  const createPlayerMutation = useSessionMutation(api.players.create);
+  // 4. Mutation to create a new session
+  const createSessionMutation = useSessionMutation(api.sessions.create);
 
-  // 5. Function to handle player creation
-  const createPlayer = async (name: string) => {
-    if (!name.trim()) return; // Avoid creating player with empty name
+  // 5. Function to handle session creation
+  const createSession = async (name: string) => {
+    if (!name.trim()) return; // Avoid creating session with empty name
 
     setIsLoading(true); // Show loading state during creation
     try {
-      const { sessionId: newSessionId, playerId } = await createPlayerMutation({
+      const {
+        sessionId: newSessionId,
+        sessionDocId,
+        name: sessionName,
+      } = await createSessionMutation({
         name: name.trim(),
       });
-      console.log('Player created, new Session ID:', newSessionId);
+      console.log('Session created, new Session ID:', newSessionId);
       setLocalStorageValue(SESSION_ID_KEY, newSessionId);
       setSessionId(newSessionId);
-      // Set player state immediately based on creation result
-      setPlayer({
-        _id: playerId, // Note: The mutation returns playerId, not _id. Adjust if your Player type expects _id.
+      // Set session state immediately based on creation result
+      setSession({
+        _id: sessionDocId,
         _creationTime: Date.now(),
-        name: name.trim(),
-        playerId: playerId,
+        name: sessionName,
         sessionId: newSessionId,
         lastSeenAt: Date.now(),
-      } as Player);
+      } as Session);
       setShowWelcomePopup(false);
       setInitialLocalStorageId(newSessionId); // Update tracked initial ID
     } catch (error) {
-      console.error('Failed to create player:', error);
+      console.error('Failed to create session:', error);
       // todo: handle error state, show toast, etc.
     } finally {
       setIsLoading(false);
@@ -144,17 +146,20 @@ export function useSessionAuth() {
     setProviderSessionId(() => newSessionId);
     // Clear our local state
     setSessionId(null);
-    setPlayer(null);
+    setSession(null);
     setShowWelcomePopup(true);
     setInitialLocalStorageId(null);
   };
 
   return {
     sessionId,
-    player,
+    session,
+    // Backwards compatibility aliases
+    player: session,
+    createPlayer: createSession,
     isLoading,
     showWelcomePopup,
-    createPlayer,
+    createSession,
     logout,
   };
 }
