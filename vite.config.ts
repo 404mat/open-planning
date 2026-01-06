@@ -22,7 +22,10 @@ const config = defineConfig({
         plugins: ['babel-plugin-react-compiler'],
       },
     }),
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    // Only enable Cloudflare plugin in production builds
+    ...(process.env.NODE_ENV === 'production'
+      ? [cloudflare({ viteEnvironment: { name: 'ssr' } })]
+      : []),
   ],
 });
 
