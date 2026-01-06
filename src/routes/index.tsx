@@ -30,7 +30,9 @@ function App() {
 
         {/* main content */}
         <div className="flex flex-col justify-between items-center gap-8">
-          <h1 className="font-brand font-bold text-6xl">OpenPlanning</h1>
+          <h1 className="font-bold text-6xl">
+            Open<span className="italic">Planning</span>
+          </h1>
 
           {/* 2 main panels */}
           <div className="flex gap-6">
