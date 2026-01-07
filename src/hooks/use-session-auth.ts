@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   useSessionId,
   useSessionMutation,
@@ -6,150 +6,66 @@ import {
 } from 'convex-helpers/react/sessions';
 import { api } from '@convex/_generated/api';
 import type { Doc } from '@convex/_generated/dataModel';
-import {
-  getLocalStorageValue,
-  setLocalStorageValue,
-} from '@/lib/local-storage';
-import { SESSION_ID_KEY } from '@/lib/constants';
 
 type Session = Doc<'sessions'>;
 
 /**
- * Hook to manage user session authentication and welcome popup display.
- * Handles reading session ID from localStorage, validating it with the backend,
- * and creating a new session if needed via a welcome popup.
+ * Hook to manage user session authentication.
+ * Uses SessionProvider's sessionId as the single source of truth.
+ * The session is stored in localStorage and persists across browser restarts.
  *
  * @returns {object} - An object containing session state and control functions:
- *  - `sessionId: string | null`: The validated session ID, or null if not authenticated.
- *  - `session: Session | null`: The authenticated session data, or null.
- *  - `isLoading: boolean`: True during the initial session check.
- *  - `showWelcomePopup: boolean`: True if the welcome popup should be displayed.
+ *  - `sessionId: string | null`: The session ID from SessionProvider.
+ *  - `session: Session | null`: The authenticated session data from the database.
+ *  - `isLoading: boolean`: True while the session query is loading.
+ *  - `showWelcomePopup: boolean`: True if no session exists and user needs to create one.
  *  - `createSession: (name: string) => Promise<void>`: Function to create a new session.
- *  - `logout: () => void`: Function to log out the current user.
+ *  - `logout: () => void`: Function to log out and regenerate session ID.
  */
 export function useSessionAuth() {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showWelcomePopup, setShowWelcomePopup] = useState(false);
+  // Get the sessionId from SessionProvider (stored in localStorage)
+  const [sessionId, refreshSessionId] = useSessionId();
 
-  // Internal state for initial check
-  const [checkedInitialId, setCheckedInitialId] = useState(false);
-  const [initialLocalStorageId, setInitialLocalStorageId] = useState<
-    string | null
-  >(null);
+  // Query for the current session using the sessionId
+  // The queryWithSession custom function looks up the session by sessionId
+  const sessionQueryResult = useSessionQuery(api.sessions.me, {});
 
-  // Access the SessionProvider's session ID setter to reset it on logout
-  const [, setProviderSessionId] = useSessionId();
-
-  // 1. Read initial sessionId from localStorage on mount
-  useEffect(() => {
-    const storedSessionId = getLocalStorageValue(SESSION_ID_KEY);
-    if (storedSessionId) {
-      setInitialLocalStorageId(storedSessionId);
-    }
-    setCheckedInitialId(true);
-    // We don't set isLoading false here yet, wait for validation
-  }, []);
-
-  // 2. Query to find session based on the initial ID (if any)
-  const foundSession = useSessionQuery(api.sessions.find, {
-    // Use 'skip' if no ID was found initially to prevent unnecessary query
-    localSessionId: initialLocalStorageId ?? 'skip',
-  });
-
-  // 3. Validate the session ID once the query result is available or initial check is done
-  useEffect(() => {
-    // Only run validation *after* the initial check
-    if (!checkedInitialId) {
-      return;
-    }
-
-    if (initialLocalStorageId) {
-      // Case 1: We found an ID in localStorage initially
-      if (foundSession === undefined) {
-        // Query is still loading, wait...
-        setIsLoading(true);
-        return;
-      }
-
-      if (foundSession === null) {
-        // Query finished, but session not found (invalid/expired session)
-        console.log('Session ID invalid, clearing...');
-        setLocalStorageValue(SESSION_ID_KEY, '');
-        setSessionId(null);
-        setSession(null);
-        setShowWelcomePopup(true);
-        setInitialLocalStorageId(null);
-      } else {
-        // Query finished, session found (valid session)
-        setSessionId(foundSession.sessionId);
-        setSession(foundSession);
-        setShowWelcomePopup(false);
-        // Ensure localStorage is up-to-date (redundant but safe)
-        setLocalStorageValue(SESSION_ID_KEY, foundSession.sessionId);
-      }
-    } else {
-      // Case 2: No ID found in localStorage initially
-      console.log('No initial Session ID found.');
-      setSessionId(null);
-      setSession(null);
-      setShowWelcomePopup(true);
-    }
-
-    // Validation complete (or determined unnecessary)
-    setIsLoading(false);
-  }, [foundSession, initialLocalStorageId, checkedInitialId]);
-
-  // 4. Mutation to create a new session
+  // Mutation to create a new session
   const createSessionMutation = useSessionMutation(api.sessions.create);
 
-  // 5. Function to handle session creation
-  const createSession = async (name: string) => {
-    if (!name.trim()) return; // Avoid creating session with empty name
+  // Derive session state
+  const session = useMemo<Session | null>(() => {
+    if (sessionQueryResult === undefined) return null;
+    return sessionQueryResult;
+  }, [sessionQueryResult]);
 
-    setIsLoading(true); // Show loading state during creation
-    try {
-      const {
-        sessionId: newSessionId,
-        sessionDocId,
-        name: sessionName,
-      } = await createSessionMutation({
-        name: name.trim(),
-      });
-      console.log('Session created, new Session ID:', newSessionId);
-      setLocalStorageValue(SESSION_ID_KEY, newSessionId);
-      setSessionId(newSessionId);
-      // Set session state immediately based on creation result
-      setSession({
-        _id: sessionDocId,
-        _creationTime: Date.now(),
-        name: sessionName,
-        sessionId: newSessionId,
-        lastSeenAt: Date.now(),
-      } as Session);
-      setShowWelcomePopup(false);
-      setInitialLocalStorageId(newSessionId); // Update tracked initial ID
-    } catch (error) {
-      console.error('Failed to create session:', error);
-      // todo: handle error state, show toast, etc.
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Loading state: true if query hasn't returned yet
+  const isLoading = sessionQueryResult === undefined;
 
-  // 6. Function to handle logout
-  const logout = () => {
-    console.log('Logging out...');
-    // Generate a new session ID to reset the SessionProvider's internal state
-    const newSessionId = crypto.randomUUID();
-    setProviderSessionId(() => newSessionId);
-    // Clear our local state
-    setSessionId(null);
-    setSession(null);
-    setShowWelcomePopup(true);
-    setInitialLocalStorageId(null);
-  };
+  // Show welcome popup if not loading and no session exists
+  const showWelcomePopup = !isLoading && session === null;
+
+  // Create a new session with the given name
+  const createSession = useCallback(
+    async (name: string) => {
+      if (!name.trim()) return;
+
+      try {
+        await createSessionMutation({ name: name.trim() });
+      } catch (error) {
+        console.error('Failed to create session:', error);
+        throw error;
+      }
+    },
+    [createSessionMutation]
+  );
+
+  // Logout: regenerate the session ID, effectively creating a new anonymous session
+  const logout = useCallback(() => {
+    // refreshSessionId generates a new UUID and updates localStorage
+    // This effectively logs out the user since the new sessionId won't have a session doc
+    refreshSessionId();
+  }, [refreshSessionId]);
 
   return {
     sessionId,

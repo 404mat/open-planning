@@ -6,9 +6,11 @@ import ConvexProvider from '../integrations/convex/provider';
 
 import appCss from '../styles.css?url';
 import { SessionProvider } from 'convex-helpers/react/sessions';
+import { useLocalStorage } from 'usehooks-ts';
 import { ToastProvider } from '@/context/toast-provider';
-import { SESSION_ID_KEY } from '@/lib/constants';
 import CookieBanner from '@/components/cookie-banner';
+
+const SESSION_STORAGE_KEY = 'open-planning-session-id';
 
 export const Route = createRootRoute({
   ssr: false,
@@ -44,7 +46,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ConvexProvider>
-          <SessionProvider storageKey={SESSION_ID_KEY}>
+          <SessionProvider
+            storageKey={SESSION_STORAGE_KEY}
+            useStorage={useLocalStorage}
+          >
             <ToastProvider>{children}</ToastProvider>
           </SessionProvider>
           <CookieBanner />

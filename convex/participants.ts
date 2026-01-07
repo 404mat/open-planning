@@ -1,6 +1,5 @@
 import { v } from 'convex/values';
 import {
-  mutationWithSession,
   roomMutationWithSession,
   getParticipant,
   requireAdmin,
