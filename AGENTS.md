@@ -1,90 +1,29 @@
-This document serves as some special instructions when working with Convex.
+This document describes the architecture conventions for this project.
 
-# Schemas
+# Stack
 
-When designing the schema please see this page on built in System fields and data types available: https://docs.convex.dev/database/types
+- **Frontend**: TanStack Start (Vite), React 19, TanStack Router, Tailwind 4.
+- **Backend**: One Cloudflare Worker. All state lives in a single Durable Object
+  class, `PlanningRoom` (`server/planning-room.ts`), built with
+  [PartyServer](https://github.com/cloudflare/partykit). Clients talk to it over
+  WebSockets (typed messages in `shared/protocol.ts`) with the `partysocket`
+  React hook.
+- **Tooling**: the `cf` Cloudflare CLI (`cf dev` / `cf build` / `cf deploy`).
+  The project is configured by the typed `cloudflare.config.ts` — do not add a
+  `wrangler.jsonc`.
 
-Here are some specifics that are often mishandled:
+# Conventions
 
-## v (https://docs.convex.dev/api/modules/values#v)
-
-The validator builder.
-
-This builder allows you to build validators for Convex values.
-
-Validators can be used in schema definitions and as input validators for Convex functions.
-
-Type declaration
-Name Type
-id <TableName>(tableName: TableName) => VId<GenericId<TableName>, "required">
-null () => VNull<null, "required">
-number () => VFloat64<number, "required">
-float64 () => VFloat64<number, "required">
-bigint () => VInt64<bigint, "required">
-int64 () => VInt64<bigint, "required">
-boolean () => VBoolean<boolean, "required">
-string () => VString<string, "required">
-bytes () => VBytes<ArrayBuffer, "required">
-literal <T>(literal: T) => VLiteral<T, "required">
-array <T>(element: T) => VArray<T["type"][], T, "required">
-object <T>(fields: T) => VObject<Expand<{ [Property in string | number | symbol]?: Exclude<Infer<T[Property]>, undefined> } & { [Property in string | number | symbol]: Infer<T[Property]> }>, T, "required", { [Property in string | number | symbol]: Property | `${Property & string}.${T[Property]["fieldPaths"]}` }[keyof T] & string>
-record <Key, Value>(keys: Key, values: Value) => VRecord<Record<Infer<Key>, Value["type"]>, Key, Value, "required", string>
-union <T>(...members: T) => VUnion<T[number]["type"], T, "required", T[number]["fieldPaths"]>
-any () => VAny<any, "required", string>
-optional <T>(value: T) => VOptional<T>
-
-## System fields (https://docs.convex.dev/database/types#system-fields)
-
-Every document in Convex has two automatically-generated system fields:
-
-\_id: The document ID of the document.
-\_creationTime: The time this document was created, in milliseconds since the Unix epoch.
-
-You do not need to add indices as these are added automatically.
-
-## Example Schema
-
-This is an example of a well crafted schema.
-
-```ts
-import { defineSchema, defineTable } from 'convex/server';
-import { v } from 'convex/values';
-
-export default defineSchema({
-  users: defineTable({
-    name: v.string(),
-  }),
-
-  sessions: defineTable({
-    userId: v.id('users'),
-    sessionId: v.string(),
-  }).index('sessionId', ['sessionId']),
-
-  threads: defineTable({
-    uuid: v.string(),
-    summary: v.optional(v.string()),
-    summarizer: v.optional(v.id('_scheduled_functions')),
-  }).index('uuid', ['uuid']),
-
-  messages: defineTable({
-    message: v.string(),
-    threadId: v.id('threads'),
-    author: v.union(
-      v.object({
-        role: v.literal('system'),
-      }),
-      v.object({
-        role: v.literal('assistant'),
-        context: v.array(v.id('messages')),
-        model: v.optional(v.string()),
-      }),
-      v.object({
-        role: v.literal('user'),
-        userId: v.id('users'),
-      })
-    ),
-  }).index('threadId', ['threadId']),
-});
-```
-
-Sourced from: https://github.com/PatrickJS/awesome-cursorrules/blob/main/rules/convex-cursorrules-prompt-file/.cursorrules
+- The Worker entrypoint is `server/worker.ts`: `POST /api/rooms` (room creation),
+  `/parties/*` (PartyServer routing), everything else goes to the TanStack Start
+  handler. Keep that three-step routing order.
+- Room state is only ever mutated inside the Durable Object. Never trust client
+  state: re-validate permissions (admin-only flags, `isLocked`, reveal rules)
+  inside `PlanningRoom` before mutating, then persist via `save()` and call
+  `broadcastState()`.
+- The room Durable Object is addressed by slug via `idFromName` (PartyServer
+  requirement); the connection's `session` query parameter is the player identity.
+- Shared message/state types live in `shared/protocol.ts` — imported by both
+  `src/` and `server/`, keep it runtime-dependency-free.
+- Env `Env` types come from the generated `.cloudflare/types/index.d.ts`
+  (`cf workers types`, or written automatically by the Vite plugin).

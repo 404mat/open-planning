@@ -1,77 +1,57 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  useSessionId,
-  useSessionMutation,
-  useSessionQuery,
-} from 'convex-helpers/react/sessions';
-import { api } from '@convex/_generated/api';
-import type { Doc } from '@convex/_generated/dataModel';
-
-type Session = Doc<'sessions'>;
+  loadSession,
+  resetSession,
+  saveSessionName,
+  type SessionInfo,
+} from '@/integrations/session';
 
 /**
  * Hook to manage user session authentication.
- * Uses SessionProvider's sessionId as the single source of truth.
- * The session is stored in localStorage and persists across browser restarts.
+ *
+ * The session (id + display name) is kept in localStorage as the single
+ * source of truth and persists across browser restarts. It replaces the
+ * previous Convex-backed session: the room Durable Object records the
+ * player when their socket joins, so no server round-trip is needed here.
  *
  * @returns {object} - An object containing session state and control functions:
- *  - `sessionId: string | null`: The session ID from SessionProvider.
- *  - `session: Session | null`: The authenticated session data from the database.
- *  - `isLoading: boolean`: True while the session query is loading.
- *  - `showWelcomePopup: boolean`: True if no session exists and user needs to create one.
- *  - `createSession: (name: string) => Promise<void>`: Function to create a new session.
- *  - `logout: () => void`: Function to log out and regenerate session ID.
+ *  - `sessionId: string`: The player's stable UUID.
+ *  - `session: SessionInfo | null`: The authenticated session data (null until named).
+ *  - `isLoading: boolean`: Always false — the session is read synchronously.
+ *  - `showWelcomePopup: boolean`: True if no name exists yet and the player needs to create one.
+ *  - `createSession: (name: string) => Promise<void>`: Function to set the player's name.
+ *  - `logout: () => void`: Function to log out and regenerate the session ID.
  */
 export function useSessionAuth() {
-  // Get the sessionId from SessionProvider (stored in localStorage)
-  const [sessionId, refreshSessionId] = useSessionId();
+  const [session, setSession] = useState<SessionInfo>(() => loadSession());
 
-  // Query for the current session using the sessionId
-  // The queryWithSession custom function looks up the session by sessionId
-  const sessionQueryResult = useSessionQuery(api.sessions.me, {});
+  // The session is read synchronously from localStorage; there is no
+  // asynchronous load anymore, but the flag is kept for API compatibility.
+  const isLoading = false;
 
-  // Mutation to create a new session
-  const createSessionMutation = useSessionMutation(api.sessions.create);
+  // Show welcome popup if the player has no name yet
+  const showWelcomePopup = !isLoading && session.name === null;
 
-  // Derive session state
-  const session = useMemo<Session | null>(() => {
-    if (sessionQueryResult === undefined) return null;
-    return sessionQueryResult;
-  }, [sessionQueryResult]);
-
-  // Loading state: true if query hasn't returned yet
-  const isLoading = sessionQueryResult === undefined;
-
-  // Show welcome popup if not loading and no session exists
-  const showWelcomePopup = !isLoading && session === null;
+  // Authenticated session data, null until the name is chosen
+  const authedSession = session.name === null ? null : session;
 
   // Create a new session with the given name
-  const createSession = useCallback(
-    async (name: string) => {
-      if (!name.trim()) return;
+  const createSession = useCallback(async (name: string) => {
+    if (!name.trim()) return;
+    setSession(saveSessionName(name.trim()));
+  }, []);
 
-      try {
-        await createSessionMutation({ name: name.trim() });
-      } catch (error) {
-        console.error('Failed to create session:', error);
-        throw error;
-      }
-    },
-    [createSessionMutation]
-  );
-
-  // Logout: regenerate the session ID, effectively creating a new anonymous session
+  // Logout: regenerate the session ID and clear the name, effectively
+  // creating a new anonymous session
   const logout = useCallback(() => {
-    // refreshSessionId generates a new UUID and updates localStorage
-    // This effectively logs out the user since the new sessionId won't have a session doc
-    refreshSessionId();
-  }, [refreshSessionId]);
+    setSession(resetSession());
+  }, []);
 
   return {
-    sessionId,
-    session,
+    sessionId: session.sessionId,
+    session: authedSession,
     // Backwards compatibility aliases
-    player: session,
+    player: authedSession,
     createPlayer: createSession,
     isLoading,
     showWelcomePopup,
