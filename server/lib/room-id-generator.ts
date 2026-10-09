@@ -1,10 +1,4 @@
-import {
-  uniqueNamesGenerator,
-  Config,
-  adjectives,
-  animals,
-  colors,
-} from 'unique-names-generator';
+import { uniqueNamesGenerator, Config, adjectives, animals, colors } from 'unique-names-generator';
 
 const customConfig: Config = {
   dictionaries: [adjectives, colors, animals],

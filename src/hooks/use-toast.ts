@@ -9,13 +9,9 @@ export const useToast = () => {
 
   return {
     toast: (toast: ToastInput) => showToast(toast),
-    successToast: (toast: Omit<ToastInput, 'type'>) =>
-      showToast({ ...toast, type: 'success' }),
-    errorToast: (toast: Omit<ToastInput, 'type'>) =>
-      showToast({ ...toast, type: 'error' }),
-    infoToast: (toast: Omit<ToastInput, 'type'>) =>
-      showToast({ ...toast, type: 'info' }),
-    warningToast: (toast: Omit<ToastInput, 'type'>) =>
-      showToast({ ...toast, type: 'warning' }),
+    successToast: (toast: Omit<ToastInput, 'type'>) => showToast({ ...toast, type: 'success' }),
+    errorToast: (toast: Omit<ToastInput, 'type'>) => showToast({ ...toast, type: 'error' }),
+    infoToast: (toast: Omit<ToastInput, 'type'>) => showToast({ ...toast, type: 'info' }),
+    warningToast: (toast: Omit<ToastInput, 'type'>) => showToast({ ...toast, type: 'warning' }),
   };
 };

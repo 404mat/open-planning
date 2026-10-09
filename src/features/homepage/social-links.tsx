@@ -4,16 +4,8 @@ export function SocialLinks() {
       <a href="" target="_blank" rel="noopener noreferrer">
         <img src="/svgs/Bluesky.svg" alt="bluesky-logo" className="w-6 h-6" />
       </a>
-      <a
-        href="https://github.com/404mat/open-planning"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img
-          src="/svgs/Github-light.svg"
-          alt="github-logo"
-          className="w-6 h-6"
-        />
+      <a href="https://github.com/404mat/open-planning" target="_blank" rel="noopener noreferrer">
+        <img src="/svgs/Github-light.svg" alt="github-logo" className="w-6 h-6" />
       </a>
     </div>
   );

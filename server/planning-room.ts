@@ -124,10 +124,7 @@ export class PlanningRoom extends Server<Env> {
     this.send(connection, { type: 'state', state: this.room });
   }
 
-  async onMessage(
-    connection: Connection,
-    message: string | ArrayBuffer
-  ): Promise<void> {
+  async onMessage(connection: Connection, message: string | ArrayBuffer): Promise<void> {
     if (typeof message !== 'string') return;
 
     let parsed: unknown;
@@ -216,10 +213,7 @@ export class PlanningRoom extends Server<Env> {
 
   /* ---------- Handlers ---------- */
 
-  private async handleJoin(
-    sessionId: string,
-    msg: { name?: unknown }
-  ): Promise<void> {
+  private async handleJoin(sessionId: string, msg: { name?: unknown }): Promise<void> {
     const state = this.requireRoom();
     if (!state || typeof msg.name !== 'string' || msg.name.trim() === '') {
       // Missing name is only possible from hand-crafted payload; a socket
@@ -250,10 +244,7 @@ export class PlanningRoom extends Server<Env> {
     this.broadcastState();
   }
 
-  private async handleVote(
-    sessionId: string,
-    msg: { vote?: unknown }
-  ): Promise<void> {
+  private async handleVote(sessionId: string, msg: { vote?: unknown }): Promise<void> {
     const state = this.requireRoom();
     if (!state || typeof msg.vote !== 'string') {
       this.replyError(sessionId, 'Invalid vote');
@@ -265,10 +256,7 @@ export class PlanningRoom extends Server<Env> {
       return;
     }
     if (!participant.isAllowedVote) {
-      this.replyError(
-        sessionId,
-        'An admin has disabled voting for you in this room.'
-      );
+      this.replyError(sessionId, 'An admin has disabled voting for you in this room.');
       return;
     }
     if (state.room.isLocked) {
@@ -281,10 +269,7 @@ export class PlanningRoom extends Server<Env> {
     this.broadcastState();
   }
 
-  private async handleReveal(
-    sessionId: string,
-    msg: { isRevealed?: unknown }
-  ): Promise<void> {
+  private async handleReveal(sessionId: string, msg: { isRevealed?: unknown }): Promise<void> {
     const state = this.requireRoom();
     if (!state || typeof msg.isRevealed !== 'boolean') {
       this.replyError(sessionId, 'Invalid reveal value');
@@ -296,10 +281,7 @@ export class PlanningRoom extends Server<Env> {
       return;
     }
     if (!participant.isAdmin && !state.room.usersCanReveal) {
-      this.replyError(
-        sessionId,
-        'Only admins can reveal votes when users reveal is disabled'
-      );
+      this.replyError(sessionId, 'Only admins can reveal votes when users reveal is disabled');
       return;
     }
 
@@ -317,10 +299,7 @@ export class PlanningRoom extends Server<Env> {
       return;
     }
     if (!participant.isAdmin && !state.room.usersCanReveal) {
-      this.replyError(
-        sessionId,
-        'Only admins can reset votes when users reveal is disabled'
-      );
+      this.replyError(sessionId, 'Only admins can reset votes when users reveal is disabled');
       return;
     }
 
@@ -356,10 +335,7 @@ export class PlanningRoom extends Server<Env> {
     this.broadcastState();
   }
 
-  private async handleSetLocked(
-    sessionId: string,
-    msg: { isLocked?: unknown }
-  ): Promise<void> {
+  private async handleSetLocked(sessionId: string, msg: { isLocked?: unknown }): Promise<void> {
     const state = this.requireRoom();
     if (!state) return;
     if (!this.requireAdmin(state, sessionId, 'lock voting')) return;
@@ -444,10 +420,7 @@ export class PlanningRoom extends Server<Env> {
     this.broadcastState();
   }
 
-  private async handleKick(
-    sessionId: string,
-    msg: { targetSessionId?: unknown }
-  ): Promise<void> {
+  private async handleKick(sessionId: string, msg: { targetSessionId?: unknown }): Promise<void> {
     const state = this.requireRoom();
     if (!state) return;
     const participant = this.getParticipant(state, sessionId);
@@ -473,9 +446,7 @@ export class PlanningRoom extends Server<Env> {
       return;
     }
 
-    state.participants = state.participants.filter(
-      (p) => p.sessionId !== msg.targetSessionId
-    );
+    state.participants = state.participants.filter((p) => p.sessionId !== msg.targetSessionId);
     await this.save();
     this.broadcastState();
 
@@ -520,9 +491,7 @@ export class PlanningRoom extends Server<Env> {
   private async handleLeave(sessionId: string): Promise<void> {
     const state = this.requireRoom();
     if (!state) return;
-    state.participants = state.participants.filter(
-      (p) => p.sessionId !== sessionId
-    );
+    state.participants = state.participants.filter((p) => p.sessionId !== sessionId);
     await this.save();
     this.broadcastState();
   }
@@ -560,18 +529,11 @@ export class PlanningRoom extends Server<Env> {
     return this.room;
   }
 
-  private getParticipant(
-    state: RoomState,
-    sessionId: string
-  ): Participant | undefined {
+  private getParticipant(state: RoomState, sessionId: string): Participant | undefined {
     return state.participants.find((p) => p.sessionId === sessionId);
   }
 
-  private requireAdmin(
-    state: RoomState,
-    sessionId: string,
-    action: string
-  ): boolean {
+  private requireAdmin(state: RoomState, sessionId: string, action: string): boolean {
     const participant = this.getParticipant(state, sessionId);
     if (!participant) {
       this.replyError(sessionId, 'Not a participant in this room');
@@ -634,10 +596,7 @@ export function getSessionId(connection: Connection): string | null {
 }
 
 function validateCreatePayload(payload: CreateRoomPayload): string | null {
-  if (
-    typeof payload.creatorSessionId !== 'string' ||
-    payload.creatorSessionId === ''
-  ) {
+  if (typeof payload.creatorSessionId !== 'string' || payload.creatorSessionId === '') {
     return 'Missing creator session';
   }
   if (typeof payload.creatorName !== 'string' || payload.creatorName === '') {
@@ -645,8 +604,7 @@ function validateCreatePayload(payload: CreateRoomPayload): string | null {
   }
   if (
     typeof payload.roomName !== 'string' ||
-    (payload.roomName !== '' &&
-      (payload.roomName.length < 5 || payload.roomName.length > 20))
+    (payload.roomName !== '' && (payload.roomName.length < 5 || payload.roomName.length > 20))
   ) {
     return 'Room name must be between 5 and 20 characters if specified';
   }

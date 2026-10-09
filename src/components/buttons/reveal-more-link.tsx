@@ -12,10 +12,7 @@ export function RevealMoreLink({
   expanded?: boolean;
 }) {
   return (
-    <div
-      className="flex gap-1 items-center rounded-md cursor-pointer size-max"
-      onClick={onClick}
-    >
+    <div className="flex gap-1 items-center rounded-md cursor-pointer size-max" onClick={onClick}>
       <p className="text-sm hover:text-gray-500">
         {expanded ? (textOpened ?? textClosed) : textClosed}
       </p>

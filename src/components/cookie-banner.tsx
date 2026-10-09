@@ -1,9 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import {
-  getLocalStorageValue,
-  setLocalStorageValue,
-} from '@/lib/local-storage';
+import { getLocalStorageValue, setLocalStorageValue } from '@/lib/local-storage';
 
 const COOKIE_BANNER_DISMISSED_KEY = 'cookie-banner-dismissed';
 

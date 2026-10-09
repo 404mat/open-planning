@@ -2,11 +2,7 @@ import { BackButton } from '@/components/buttons/back-button';
 import NameAvatar from '@/components/name-avatar';
 import { useNavigate } from '@tanstack/react-router';
 import { Link, Settings } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -75,11 +71,7 @@ export function RoomHeader({
                 </div>
                 <div className="grid gap-3">
                   <div className="grid gap-1.5">
-                    <Label
-                      className={`text-xs ${
-                        !isAdmin ? 'text-muted-foreground' : ''
-                      }`}
-                    >
+                    <Label className={`text-xs ${!isAdmin ? 'text-muted-foreground' : ''}`}>
                       Voting System
                     </Label>
                     <Select
@@ -108,9 +100,7 @@ export function RoomHeader({
                       <Label
                         htmlFor="users-can-vote"
                         className={`text-sm ${
-                          !isAdmin
-                            ? 'text-muted-foreground cursor-not-allowed'
-                            : 'cursor-pointer'
+                          !isAdmin ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'
                         }`}
                       >
                         Users can vote
@@ -120,17 +110,13 @@ export function RoomHeader({
                       <Checkbox
                         id="users-can-reveal"
                         checked={usersCanReveal}
-                        onCheckedChange={(checked) =>
-                          onUsersCanRevealChange(checked === true)
-                        }
+                        onCheckedChange={(checked) => onUsersCanRevealChange(checked === true)}
                         disabled={!isAdmin}
                       />
                       <Label
                         htmlFor="users-can-reveal"
                         className={`text-sm ${
-                          !isAdmin
-                            ? 'text-muted-foreground cursor-not-allowed'
-                            : 'cursor-pointer'
+                          !isAdmin ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'
                         }`}
                       >
                         Users can reveal
@@ -140,9 +126,7 @@ export function RoomHeader({
                   {currentStoryUrl && (
                     <div className="grid gap-1.5">
                       <Label className="text-xs">Current Story URL</Label>
-                      <div className="text-sm text-muted-foreground">
-                        {currentStoryUrl}
-                      </div>
+                      <div className="text-sm text-muted-foreground">{currentStoryUrl}</div>
                     </div>
                   )}
                 </div>
@@ -150,13 +134,8 @@ export function RoomHeader({
             </PopoverContent>
           </Popover>
         </div>
-        <div
-          className="flex gap-1 items-center hover:underline"
-          onClick={onShareClick}
-        >
-          <h4 className="text-xs text-muted-foreground hover:text-black">
-            Share this room's link
-          </h4>
+        <div className="flex gap-1 items-center hover:underline" onClick={onShareClick}>
+          <h4 className="text-xs text-muted-foreground hover:text-black">Share this room's link</h4>
           <Link size={10} />
         </div>
       </div>

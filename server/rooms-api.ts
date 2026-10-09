@@ -1,11 +1,5 @@
-import {
-  appendRandomSuffix,
-  formatStringToRoomSlug,
-} from './lib/room-id-generator';
-import {
-  type CreateRoomPayload,
-  type CreateRoomResult,
-} from '../shared/protocol';
+import { appendRandomSuffix, formatStringToRoomSlug } from './lib/room-id-generator';
+import { type CreateRoomPayload, type CreateRoomResult } from '../shared/protocol';
 
 const MAX_SLUG_ATTEMPTS = 10;
 
@@ -16,34 +10,19 @@ const MAX_SLUG_ATTEMPTS = 10;
  * the "append a suffix if taken" behavior are identical; the uniqueness
  * check now works by probing the Durable Object for the slug.
  */
-export async function handleCreateRoom(
-  request: Request,
-  env: Env
-): Promise<Response> {
+export async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
   let payload: CreateRoomPayload;
   try {
     payload = (await request.json()) as CreateRoomPayload;
   } catch {
-    return Response.json(
-      { error: 'There was an error creating the room.' },
-      { status: 400 }
-    );
+    return Response.json({ error: 'There was an error creating the room.' }, { status: 400 });
   }
 
-  if (
-    typeof payload.creatorSessionId !== 'string' ||
-    !payload.creatorSessionId
-  ) {
-    return Response.json(
-      { error: 'You need a player profile to create a room.' },
-      { status: 400 }
-    );
+  if (typeof payload.creatorSessionId !== 'string' || !payload.creatorSessionId) {
+    return Response.json({ error: 'You need a player profile to create a room.' }, { status: 400 });
   }
   if (typeof payload.creatorName !== 'string' || !payload.creatorName.trim()) {
-    return Response.json(
-      { error: 'You need a player name to create a room.' },
-      { status: 400 }
-    );
+    return Response.json({ error: 'You need a player name to create a room.' }, { status: 400 });
   }
   if (
     typeof payload.roomName === 'string' &&

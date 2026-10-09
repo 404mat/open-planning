@@ -34,11 +34,7 @@ export default function SimpleInput({
         onChange={onChange}
         disabled={disabled ?? false}
       />
-      <p
-        className="text-muted-foreground mt-2 text-xs"
-        role="region"
-        aria-live="polite"
-      >
+      <p className="text-muted-foreground mt-2 text-xs" role="region" aria-live="polite">
         {helperText ?? ''}
       </p>
     </div>

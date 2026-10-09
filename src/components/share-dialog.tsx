@@ -18,11 +18,7 @@ interface ShareDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function ShareDialog({
-  roomUrl,
-  isOpen,
-  onOpenChange,
-}: ShareDialogProps) {
+export function ShareDialog({ roomUrl, isOpen, onOpenChange }: ShareDialogProps) {
   const { infoToast, errorToast } = useToast();
   const [isCopied, setIsCopied] = useState(false);
 
@@ -58,19 +54,9 @@ export function ShareDialog({
             </Label>
             <Input id="link" defaultValue={roomUrl} readOnly />
           </div>
-          <Button
-            type="button"
-            size="sm"
-            className="px-3"
-            onClick={handleCopy}
-            disabled={isCopied}
-          >
+          <Button type="button" size="sm" className="px-3" onClick={handleCopy} disabled={isCopied}>
             <span className="sr-only">{isCopied ? 'Copied' : 'Copy'}</span>
-            {isCopied ? (
-              <CheckIcon className="h-4 w-4" />
-            ) : (
-              <CopyIcon className="h-4 w-4" />
-            )}
+            {isCopied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
           </Button>
         </div>
       </DialogContent>

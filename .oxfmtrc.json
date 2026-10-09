@@ -1,0 +1,7 @@
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "ignorePatterns": ["pnpm-lock.yaml", "src/routeTree.gen.ts", "src/components/ui/*"]
+}

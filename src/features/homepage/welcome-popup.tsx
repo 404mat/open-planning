@@ -54,8 +54,8 @@ export function WelcomePopup({ onClose, value, onChange }: WelcomePopupProps) {
             <DialogTitle>Welcome to OpenPlanning</DialogTitle>
             <DialogDescription>
               <br />
-              Looks like you're new here! Please enter a display name below to
-              create your profile and get started.
+              Looks like you're new here! Please enter a display name below to create your profile
+              and get started.
             </DialogDescription>
           </DialogHeader>
           <SimpleInput

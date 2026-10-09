@@ -19,22 +19,14 @@ interface PlayAreaProps {
   actions: RoomActions;
 }
 
-export function PlayArea({
-  room,
-  participants,
-  currentSessionId,
-  actions,
-}: PlayAreaProps) {
+export function PlayArea({ room, participants, currentSessionId, actions }: PlayAreaProps) {
   const { errorToast, warningToast, successToast } = useToast();
 
   // Find current user's participant data
-  const currentParticipant = participants.find(
-    (p) => p.sessionId === currentSessionId
-  );
+  const currentParticipant = participants.find((p) => p.sessionId === currentSessionId);
 
   // Check if user can reveal (admin or usersCanReveal is true)
-  const canReveal =
-    currentParticipant?.isAdmin || (room.usersCanReveal ?? true);
+  const canReveal = currentParticipant?.isAdmin || (room.usersCanReveal ?? true);
 
   // Check if current user is admin
   const isAdmin = currentParticipant?.isAdmin ?? false;
@@ -178,9 +170,7 @@ export function PlayArea({
           <span className="[grid-area:1/1] group-data-[revealed=true]:invisible">
             Reveal votes !
           </span>
-          <span className="[grid-area:1/1] group-data-[revealed=false]:invisible">
-            Hide votes
-          </span>
+          <span className="[grid-area:1/1] group-data-[revealed=false]:invisible">Hide votes</span>
         </Button>
         <Button
           variant={'secondary'}

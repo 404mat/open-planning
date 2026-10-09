@@ -15,12 +15,7 @@ export default function RightAlignedCheckbox({
   const id = useId();
   return (
     <div className="flex items-center justify-between gap-2">
-      <Checkbox
-        id={id}
-        className="order-1"
-        checked={checked}
-        onCheckedChange={onChange}
-      />
+      <Checkbox id={id} className="order-1" checked={checked} onCheckedChange={onChange} />
       <Label htmlFor={id}>{text}</Label>
     </div>
   );
