@@ -18,12 +18,22 @@ interface WelcomePopupProps {
 }
 
 export function WelcomePopup({ onClose, value, onChange }: WelcomePopupProps) {
+  // This dialog must stay open until the player enters a display name, so it
+  // ignores escape-key / outside-press dismiss attempts via the native
+  // Base UI `onOpenChange` event details.
   const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
+      onOpenChange={(open, eventDetails) => {
+        if (
+          !open &&
+          (eventDetails?.reason === 'escape-key' || eventDetails?.reason === 'outside-press')
+        ) {
+          eventDetails?.cancel();
+          return;
+        }
         setIsOpen(open);
         if (!open) {
           onClose();
@@ -33,12 +43,6 @@ export function WelcomePopup({ onClose, value, onChange }: WelcomePopupProps) {
       <DialogContent
         className="gap-0 p-0 sm:max-w-lg [&>button:last-child]:text-white"
         showCloseButton={false}
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-        onInteractOutside={(e) => {
-          e.preventDefault();
-        }}
       >
         <div className="p-2">
           <img
@@ -65,10 +69,8 @@ export function WelcomePopup({ onClose, value, onChange }: WelcomePopupProps) {
             onChange={onChange}
           />
           <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" disabled={value.trim().length <= 2}>
-                Start playing
-              </Button>
+            <DialogClose render={<Button type="button" disabled={value.trim().length <= 2} />}>
+              Start playing
             </DialogClose>
           </DialogFooter>
         </div>

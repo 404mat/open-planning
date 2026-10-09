@@ -13,6 +13,12 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 
+const voteSystemOptions = {
+  fibonacci: 'Fibonacci',
+  numbers: 'Numbers',
+  tshirt: 'T-Shirt Sizes',
+};
+
 export function RoomHeader({
   roomName,
   playerName,
@@ -53,13 +59,15 @@ export function RoomHeader({
         <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold">{roomName}</h2>
           <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="text-muted-foreground hover:text-black transition-colors"
-                aria-label="Room settings"
-              >
-                <Settings size={18} />
-              </button>
+            <PopoverTrigger
+              render={
+                <button
+                  className="text-muted-foreground hover:text-black transition-colors"
+                  aria-label="Room settings"
+                />
+              }
+            >
+              <Settings size={18} />
             </PopoverTrigger>
             <PopoverContent className="w-80" align="center">
               <div className="grid gap-4">
@@ -75,8 +83,9 @@ export function RoomHeader({
                       Voting System
                     </Label>
                     <Select
+                      items={voteSystemOptions}
                       value={voteSystem}
-                      onValueChange={onVoteSystemChange}
+                      onValueChange={(value) => onVoteSystemChange((value ?? voteSystem) as string)}
                       disabled={!isAdmin}
                     >
                       <SelectTrigger className="w-full">
@@ -96,6 +105,7 @@ export function RoomHeader({
                         checked={!isLocked}
                         onCheckedChange={(checked) => onLockChange(!checked)}
                         disabled={!isAdmin}
+                        className="data-disabled:opacity-50 data-disabled:cursor-not-allowed"
                       />
                       <Label
                         htmlFor="users-can-vote"
@@ -112,6 +122,7 @@ export function RoomHeader({
                         checked={usersCanReveal}
                         onCheckedChange={(checked) => onUsersCanRevealChange(checked === true)}
                         disabled={!isAdmin}
+                        className="data-disabled:opacity-50 data-disabled:cursor-not-allowed"
                       />
                       <Label
                         htmlFor="users-can-reveal"

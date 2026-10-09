@@ -132,8 +132,11 @@ export function PlayArea({ room, participants, currentSessionId, actions }: Play
           if (canManage) {
             return (
               <DropdownMenu key={participant.sessionId}>
-                <DropdownMenuTrigger asChild>
-                  <div className="cursor-pointer">{card}</div>
+                <DropdownMenuTrigger
+                  render={<div className="cursor-pointer" />}
+                  nativeButton={false}
+                >
+                  {card}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center">
                   <DropdownMenuItem

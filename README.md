@@ -37,6 +37,9 @@ room state lives in a [Durable Object](https://developers.cloudflare.com/durable
 - **Client** (`src/hooks/use-room.ts`): connects with
   [partysocket](https://github.com/cloudflare/partykit) (auto-reconnect), sends
   typed `ClientMessage`s and renders whatever state it receives.
+- **UI kit** (`src/components/ui/`): the shadcn/ui components built on
+  [Base UI](https://base-ui.com) (`@base-ui/react`), with its design-token CSS
+  in `src/styles/shadcn.css`.
 - **Player identity**: a UUID + display name kept in localStorage
   (`open-planning-session-id` / `-name`). Kicked players get a `kicked` push and
   are redirected; participants and votes otherwise persist until the room is
