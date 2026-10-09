@@ -8,6 +8,8 @@ count.txt
 .nitro
 .tanstack
 .wrangler
+.cloudflare
+worker-configuration.d.ts
 .output
 .vinxi
 todos.json

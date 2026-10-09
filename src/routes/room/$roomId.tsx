@@ -1,13 +1,11 @@
 import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router';
-import { api } from '@convex/_generated/api';
-import { useSessionMutation } from 'convex-helpers/react/sessions';
 import { CardSelector } from '@/features/room/card-selector';
 import { WelcomePopup } from '@/features/homepage/welcome-popup';
 import { ShareDialog } from '@/components/share-dialog';
 import { getVotingSystemvalues } from '@/lib/voting';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useSessionQuery } from 'convex-helpers/react/sessions';
 import { useSessionAuth } from '@/hooks/use-session-auth';
+import { useRoom } from '@/hooks/use-room';
 import { RoomHeader } from '@/features/room/room-header';
 import { PlayArea } from '@/features/room/play-area';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +15,7 @@ export const Route = createFileRoute('/room/$roomId')({
 });
 
 function RoomComponent() {
-  const { roomId: pathSlug } = Route.useParams();
+  const { roomId: roomSlug } = Route.useParams();
   const navigate = useNavigate();
   const [playerName, setPlayerName] = useState('');
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -27,100 +25,24 @@ function RoomComponent() {
 
   const { sessionId, session, isLoading, showWelcomePopup, createPlayer } =
     useSessionAuth();
-  const addParticipant = useSessionMutation(api.rooms.addParticipant);
-  const participantVote = useSessionMutation(api.participants.updateVote);
-  const updateVoteSystem = useSessionMutation(api.rooms.updateVoteSystem);
-  const updateLock = useSessionMutation(api.rooms.updateLock);
-  const updateUsersCanReveal = useSessionMutation(
-    api.rooms.updateUsersCanReveal
+
+  // Live connection to the room Durable Object. Everything below the
+  // welcome popup is driven by the snapshots it streams.
+  const { room, participants, phase, actions } = useRoom({
+    roomSlug,
+    sessionId,
+    name: session?.name ?? '',
+    onError: (message) => errorToast({ text: message }),
+  });
+
+  const currentParticipant = useMemo(
+    () => participants.find((p) => p.sessionId === sessionId) ?? null,
+    [participants, sessionId]
   );
-  const resetAllVotes = useSessionMutation(api.participants.resetAllVotes);
-  const updateReveal = useSessionMutation(api.rooms.updateReveal);
-
-  // Fetch room data only if authenticated (sessionId is present)
-  const roomData = useSessionQuery(
-    api.rooms.get,
-    sessionId ? { roomSlug: pathSlug } : 'skip'
-  );
-
-  // Fetch participants for the room
-  const participants = useSessionQuery(
-    api.rooms.getParticipants,
-    roomData ? { roomId: roomData._id } : 'skip'
-  );
-
-  // Track if user was previously in the room (to detect removal)
-  const wasInRoomRef = useRef<boolean>(false);
-  const hasCheckedInitialJoinRef = useRef<boolean>(false);
-  // Track previous participant count to detect when it changes to 1
-  const previousParticipantCountRef = useRef<number | null>(null);
-
-  // Check if current user is in the participants list
-  const currentParticipant = useMemo(() => {
-    if (!participants || !session) return null;
-    return participants.find((p) => p.sessionId === session._id) ?? null;
-  }, [participants, session]);
-
-  // Track if user is currently in the room
-  const isInRoom = useMemo(() => {
-    if (!participants || !session) return false;
-    return participants.some((p) => p.sessionId === session._id);
-  }, [participants, session]);
-
-  // Update ref when user is in room
-  useEffect(() => {
-    if (isInRoom) {
-      wasInRoomRef.current = true;
-      hasCheckedInitialJoinRef.current = true;
-    }
-  }, [isInRoom]);
-
-  // Redirect if user was in room but is now removed (check this BEFORE auto-join)
-  useEffect(() => {
-    if (
-      roomData &&
-      session &&
-      session._id &&
-      participants !== undefined &&
-      hasCheckedInitialJoinRef.current &&
-      wasInRoomRef.current &&
-      !isInRoom
-    ) {
-      errorToast({
-        text: 'You have been removed from this room.',
-      });
-      navigate({ to: '/' });
-      return; // Exit early to prevent auto-join
-    }
-  }, [roomData, session, participants, isInRoom, errorToast, navigate]);
-
-  // Add the current session if they are not already a participant
-  // Only run if user was never in the room (initial join) or if they're still in the room
-  useEffect(() => {
-    if (
-      roomData &&
-      session &&
-      session._id &&
-      participants !== undefined &&
-      !isInRoom &&
-      // Don't auto-join if user was previously in room (they were kicked)
-      !(hasCheckedInitialJoinRef.current && wasInRoomRef.current)
-    ) {
-      hasCheckedInitialJoinRef.current = true;
-      addParticipant({ roomId: roomData._id, sessionDocId: session._id }).catch(
-        () => {
-          errorToast({
-            text: 'Failed to join room. Please try again.',
-          });
-        }
-      );
-    }
-  }, [roomData, session, participants, isInRoom, addParticipant, errorToast]);
 
   // show share dialog when participant count changes to 1 from any other number
+  const previousParticipantCountRef = useRef<number | null>(null);
   useEffect(() => {
-    if (participants === undefined) return;
-
     const currentCount = participants.length;
     const previousCount = previousParticipantCountRef.current;
 
@@ -133,7 +55,7 @@ function RoomComponent() {
 
     // Update the ref with the current count
     previousParticipantCountRef.current = currentCount;
-  }, [participants?.length]);
+  }, [participants.length]);
 
   // Initialize selected card with the user's current vote
   useEffect(() => {
@@ -150,89 +72,52 @@ function RoomComponent() {
     }
   }, [currentParticipant]);
 
-  const roomUrl = typeof window !== 'undefined' ? window.location.href : '';
+  // Kicked or room gone: toast once, then head back to the homepage
+  const hasHandledRemovalRef = useRef(false);
+  useEffect(() => {
+    if (
+      (phase === 'kicked' || phase === 'not-found') &&
+      !hasHandledRemovalRef.current
+    ) {
+      hasHandledRemovalRef.current = true;
+      if (phase === 'kicked') {
+        errorToast({ text: 'You have been removed from this room.' });
+      }
+      navigate({ to: '/' });
+    }
+  }, [phase, errorToast, navigate]);
 
   async function handleCardSelected(value: string | null) {
-    if (!session || !roomData) return;
-    if (roomData.isLocked) {
+    if (!room) return;
+    if (room.isLocked) {
       warningToast({
         text: 'An admin has locked this feature for now.',
       });
       return;
     }
-    try {
-      await participantVote({
-        roomId: roomData._id,
-        vote: value ?? '',
-      });
-      setSelectedCard(value);
-    } catch {
-      errorToast({
-        text: 'Your vote could not be submitted. Please try again.',
-      });
-    }
+    actions.vote(value ?? '');
+    setSelectedCard(value);
   }
 
   async function handleVoteSystemChange(newVoteSystem: string) {
-    if (!roomData) return;
-    try {
-      await updateVoteSystem({
-        roomId: roomData._id,
-        voteSystem: newVoteSystem,
-      });
-      // Reset all votes when voting system changes
-      await resetAllVotes({
-        roomId: roomData._id,
-      });
-      // Also hide votes if they were revealed
-      if (roomData.isRevealed) {
-        await updateReveal({
-          roomId: roomData._id,
-          isRevealed: false,
-        });
-      }
-      // Clear the selected card in the UI
-      setSelectedCard(null);
-    } catch {
-      errorToast({
-        text: 'Failed to update voting system. Please try again.',
-      });
-    }
+    if (!room) return;
+    // The server resets every vote and hides the table in one step.
+    actions.setVoteSystem(newVoteSystem);
+    setSelectedCard(null);
   }
 
   async function handleLockChange(newIsLocked: boolean) {
-    if (!roomData) return;
-    try {
-      await updateLock({
-        roomId: roomData._id,
-        isLocked: newIsLocked,
-      });
-    } catch {
-      errorToast({
-        text: 'Failed to update lock status. Please try again.',
-      });
-    }
+    actions.setLocked(newIsLocked);
   }
 
   async function handleUsersCanRevealChange(newUsersCanReveal: boolean) {
-    if (!roomData) return;
-    try {
-      await updateUsersCanReveal({
-        roomId: roomData._id,
-        usersCanReveal: newUsersCanReveal,
-      });
-    } catch {
-      errorToast({
-        text: 'Failed to update reveal permission. Please try again.',
-      });
-    }
+    actions.setUsersCanReveal(newUsersCanReveal);
   }
 
   // --- Render Logic ---
 
   // 1. Handle Auth Loading State
   if (isLoading) {
-    // todo: make this look better
     return (
       <div className="flex justify-center items-center h-screen">
         Loading session...
@@ -257,11 +142,13 @@ function RoomComponent() {
     );
   }
 
-  // 3. Handle Authenticated State (sessionId is guaranteed to be non-null here)
+  // 3. Handle Room phases driven by the socket
 
-  // Handle Room Data Loading
-  if (roomData === undefined || participants === undefined) {
-    // todo make this UI better
+  if (phase === 'not-found') {
+    return <Navigate to="/" />;
+  }
+
+  if (room === undefined) {
     return (
       <div className="flex justify-center items-center h-screen">
         Loading room...
@@ -269,31 +156,25 @@ function RoomComponent() {
     );
   }
 
-  // Handle Room Not Found
-  if (roomData === null) {
-    // todo redirect to 404
-    return <Navigate to="/" />;
-  }
-
-  // --- Render Authenticated Room Content ---
+  // --- Render Connected Room Content ---
   return (
     <>
       {/* Share Dialog */}
       <ShareDialog
-        roomUrl={roomUrl}
+        roomUrl={typeof window !== 'undefined' ? window.location.href : ''}
         isOpen={showShareDialog}
         onOpenChange={setShowShareDialog}
       />
 
       <div className="flex flex-col justify-between items-center w-full py-5 h-screen">
         <RoomHeader
-          roomName={roomData.prettyName}
+          roomName={room.prettyName}
           playerName={session?.name ?? 'Unknown player'}
           onShareClick={() => setShowShareDialog(true)}
-          voteSystem={roomData.voteSystem}
-          isLocked={roomData.isLocked}
-          usersCanReveal={roomData.usersCanReveal ?? true}
-          currentStoryUrl={roomData.currentStoryUrl}
+          voteSystem={room.voteSystem}
+          isLocked={room.isLocked}
+          usersCanReveal={room.usersCanReveal}
+          currentStoryUrl={room.currentStoryUrl}
           isAdmin={currentParticipant?.isAdmin ?? false}
           onVoteSystemChange={handleVoteSystemChange}
           onLockChange={handleLockChange}
@@ -301,17 +182,18 @@ function RoomComponent() {
         />
 
         <PlayArea
-          roomData={roomData}
+          room={room}
           participants={participants}
-          currentSessionId={session?._id}
+          currentSessionId={sessionId}
+          actions={actions}
         />
 
         <div className="pb-4">
           <CardSelector
-            cards={getVotingSystemvalues(roomData.voteSystem)}
+            cards={getVotingSystemvalues(room.voteSystem)}
             selectedCard={selectedCard}
             onSelectCard={(value) => handleCardSelected(value)}
-            isLocked={roomData.isLocked}
+            isLocked={room.isLocked}
           />
         </div>
       </div>

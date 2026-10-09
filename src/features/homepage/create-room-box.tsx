@@ -8,8 +8,8 @@ import { useForm } from '@tanstack/react-form';
 import { createRoomSchema } from '@/types/room-creation';
 import { ArkErrors } from 'arktype';
 import { useToast } from '@/hooks/use-toast';
-import { useSessionMutation } from 'convex-helpers/react/sessions';
-import { api } from '@convex/_generated/api';
+import { useSessionAuth } from '@/hooks/use-session-auth';
+import { type CreateRoomPayload, type CreateRoomResult } from 'shared/protocol';
 import { useNavigate } from '@tanstack/react-router';
 
 const voteSystems = [
@@ -21,10 +21,10 @@ const voteSystems = [
 export function CreateRoomBox() {
   const navigate = useNavigate();
   const { errorToast } = useToast();
+  const { sessionId, session } = useSessionAuth();
 
   const [advancedSettings, setAdvancedSettings] = useState(false);
 
-  const createRoom = useSessionMutation(api.rooms.create);
   const form = useForm({
     defaultValues: {
       roomName: '',
@@ -44,18 +44,59 @@ export function CreateRoomBox() {
         return;
       }
 
-      const finalRoomId = await createRoom({
+      if (!sessionId || !session?.name) {
+        errorToast({
+          text: 'You need a player name to create a room.',
+        });
+        return;
+      }
+
+      const payload: CreateRoomPayload = {
         roomName: value.roomName,
-        voteSystem: value.voteSystem,
+        voteSystem: value.voteSystem as CreateRoomPayload['voteSystem'],
         playerReveal: value.playerReveal,
         playerChangeVote: value.playerChangeVote,
         playerAddTicket: value.playerAddTicket,
-      });
+        creatorSessionId: sessionId,
+        creatorName: session.name,
+      };
+
+      let response: Response;
+      try {
+        response = await fetch('/api/rooms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } catch {
+        errorToast({
+          text: 'There was an error creating the room.',
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        errorToast({
+          text: 'There was an error creating the room.',
+        });
+        return;
+      }
+
+      const result = (await response
+        .json()
+        .catch(() => null)) as CreateRoomResult | null;
+
+      if (!result || !result.roomSlug) {
+        errorToast({
+          text: 'There was an error creating the room.',
+        });
+        return;
+      }
 
       navigate({
         to: '/room/$roomId',
         params: {
-          roomId: finalRoomId,
+          roomId: result.roomSlug,
         },
       });
     },

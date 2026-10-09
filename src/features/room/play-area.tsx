@@ -1,6 +1,3 @@
-import { useSessionMutation } from 'convex-helpers/react/sessions';
-import { api } from '@convex/_generated/api';
-import type { Doc, Id } from '@convex/_generated/dataModel';
 import { PlayingCard } from '@/components/playing-card';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,38 +9,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { XIcon, Crown, UserX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-// Participant with name from the getParticipants query
-type ParticipantWithName = Doc<'participants'> & { name: string };
+import type { RoomActions } from '@/hooks/use-room';
+import type { Participant, Room } from 'shared/protocol';
 
 interface PlayAreaProps {
-  roomData: Doc<'rooms'>;
-  participants: ParticipantWithName[];
-  currentSessionId: Id<'sessions'> | undefined;
+  room: Room;
+  participants: Participant[];
+  currentSessionId: string;
+  actions: RoomActions;
 }
 
 export function PlayArea({
-  roomData,
+  room,
   participants,
   currentSessionId,
+  actions,
 }: PlayAreaProps) {
   const { errorToast, warningToast, successToast } = useToast();
 
-  const changeRevealStatus = useSessionMutation(api.rooms.updateReveal);
-  const resetRoomVotes = useSessionMutation(api.participants.resetAllVotes);
-  const updateIsAdmin = useSessionMutation(api.participants.updateIsAdmin);
-  const removeParticipant = useSessionMutation(
-    api.participants.removeParticipant
-  );
-
   // Find current user's participant data
-  const currentParticipant = currentSessionId
-    ? participants.find((p) => p.sessionId === currentSessionId)
-    : null;
+  const currentParticipant = participants.find(
+    (p) => p.sessionId === currentSessionId
+  );
 
   // Check if user can reveal (admin or usersCanReveal is true)
   const canReveal =
-    currentParticipant?.isAdmin || (roomData.usersCanReveal ?? true);
+    currentParticipant?.isAdmin || (room.usersCanReveal ?? true);
 
   // Check if current user is admin
   const isAdmin = currentParticipant?.isAdmin ?? false;
@@ -58,11 +49,8 @@ export function PlayArea({
     }
 
     try {
-      await changeRevealStatus({
-        roomId: roomData._id,
-        isRevealed: !roomData.isRevealed,
-      });
-    } catch (error) {
+      actions.reveal(!room.isRevealed);
+    } catch {
       errorToast({
         text: 'Failed to update reveal status. Please try again.',
       });
@@ -79,14 +67,9 @@ export function PlayArea({
     }
 
     try {
-      await resetRoomVotes({
-        roomId: roomData._id,
-      });
-      await changeRevealStatus({
-        roomId: roomData._id,
-        isRevealed: false,
-      });
-    } catch (error) {
+      // Resetting also hides the votes, in a single server-side step.
+      actions.resetVotes();
+    } catch {
       errorToast({
         text: 'Failed to reset votes. Please try again.',
       });
@@ -94,42 +77,29 @@ export function PlayArea({
   };
 
   // Make a participant admin
-  const handleMakeAdmin = async (targetSessionId: Id<'sessions'>) => {
+  const handleMakeAdmin = (targetSessionId: string) => {
     try {
-      await updateIsAdmin({
-        roomId: roomData._id,
-        targetSessionId,
-        isAdmin: true,
-      });
+      actions.promoteAdmin(targetSessionId);
       successToast({
         text: 'Admin status updated successfully.',
       });
-    } catch (error) {
+    } catch {
       errorToast({
-        text:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update admin status. Please try again.',
+        text: 'Failed to update admin status. Please try again.',
       });
     }
   };
 
   // Remove a participant from the room
-  const handleKickPlayer = async (targetSessionId: Id<'sessions'>) => {
+  const handleKickPlayer = (targetSessionId: string) => {
     try {
-      await removeParticipant({
-        roomId: roomData._id,
-        targetSessionId,
-      });
+      actions.kick(targetSessionId);
       successToast({
         text: 'Player removed from room.',
       });
-    } catch (error) {
+    } catch {
       errorToast({
-        text:
-          error instanceof Error
-            ? error.message
-            : 'Failed to remove player. Please try again.',
+        text: 'Failed to remove player. Please try again.',
       });
     }
   };
@@ -154,14 +124,14 @@ export function PlayArea({
 
           const card = (
             <PlayingCard
-              key={participant._id}
+              key={participant.sessionId}
               value={participant.vote || null}
               subtext={{
                 text: participant.name,
                 isCurrentUser,
                 isAdmin: participant.isAdmin,
               }}
-              isRevealed={roomData.isRevealed}
+              isRevealed={room.isRevealed}
               isSelected={false}
             />
           );
@@ -169,7 +139,7 @@ export function PlayArea({
           // Wrap in dropdown menu if admin and not current user
           if (canManage) {
             return (
-              <DropdownMenu key={participant._id}>
+              <DropdownMenu key={participant.sessionId}>
                 <DropdownMenuTrigger asChild>
                   <div className="cursor-pointer">{card}</div>
                 </DropdownMenuTrigger>
@@ -203,7 +173,7 @@ export function PlayArea({
         <Button
           onClick={handleRevealVotes}
           className={`group grid ${!canReveal ? 'opacity-50 cursor-not-allowed' : ''}`}
-          data-revealed={roomData.isRevealed}
+          data-revealed={room.isRevealed}
         >
           <span className="[grid-area:1/1] group-data-[revealed=true]:invisible">
             Reveal votes !
