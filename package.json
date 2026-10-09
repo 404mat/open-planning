@@ -47,13 +47,13 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "2.0.0-beta.sha-c82c3efb3",
+    "@cloudflare/vite-plugin": "2.0.0-beta.sha-91c870c02",
     "@tanstack/devtools-vite": "^0.8.5",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
-    "cf": "1.0.0-beta.13",
+    "cf": "1.0.0-beta.14",
     "oxc-transform-react": "^0.152.0",
     "prettier": "^3.9.9",
     "typescript": "^7.0.2",

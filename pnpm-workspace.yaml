@@ -4,3 +4,10 @@ allowBuilds:
   workerd: true
 minimumReleaseAgeExclude:
   - lucide-react@1.54.0
+  - '@cloudflare/build-output-utils@0.9.0'
+  - '@cloudflare/config@0.24.1'
+  - '@cloudflare/runtime-types@0.1.9'
+  - '@cloudflare/vite-plugin@2.0.0-beta.sha-91c870c02'
+  - miniflare@5.20261006.1-alpha
+  - '@cloudflare/codemods@0.4.2'
+  - cf@1.0.0-beta.14
