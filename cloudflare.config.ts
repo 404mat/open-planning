@@ -1,10 +1,6 @@
 import { bindings, defineConfig, exports } from 'cf/config';
 
-/**
- * One Durable Object instance (`PlanningRoom`, PartyServer) per room owns
- * all room state. The binding below is how the Worker reaches it.
- */
-export default defineConfig({
+export default defineConfig(({ isPreview }) => ({
   worker: {
     name: 'open-planning',
     compatibilityDate: '2026-01-05',
@@ -13,16 +9,19 @@ export default defineConfig({
     observability: {
       enabled: true,
     },
-    // Declares the live Durable Object class (replaces the Wrangler
-    // `migrations` history; the class starts with SQLite storage).
     exports: {
       PlanningRoom: exports.durableObject({ storage: 'sqlite' }),
     },
     env: {
-      PLANNING_ROOM: bindings.durableObject({
-        worker: 'open-planning',
-        exportName: 'PlanningRoom',
-      }),
+      PLANNING_ROOM: isPreview
+        ? {
+            type: 'unsafe:durable_object_namespace',
+            class_name: 'PlanningRoom',
+          }
+        : bindings.durableObject({
+            worker: 'open-planning',
+            exportName: 'PlanningRoom',
+          }),
     },
   },
-});
+}));
