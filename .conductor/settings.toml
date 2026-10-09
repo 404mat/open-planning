@@ -1,0 +1,7 @@
+[scripts]
+setup = "pnpm install"
+
+[scripts.run.dev]
+command = "pnpm dev"
+default = true
+icon = "play"
