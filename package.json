@@ -32,7 +32,6 @@
     "@tanstack/react-start": "^1.168.60",
     "@tanstack/router-plugin": "^1.168.42",
     "arktype": "^2.2.8",
-    "avvvatars-react": "^0.4.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.54.0",
@@ -62,5 +61,13 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "web-vitals": "^6.2.3"
-  }
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.3.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.3.0"
 }

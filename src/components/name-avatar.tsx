@@ -1,4 +1,4 @@
-import Avvvatars from 'avvvatars-react';
+import Avatars from './avatars/avatars';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ export default function NameAvatar({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="gap-3 rounded-full px-3 ps-2">
-          <Avvvatars value={userName ?? ''} style="shape" size={22} />
+          <Avatars value={userName ?? ''} style="shape" size={22} />
           {userName}
         </Button>
       </DropdownMenuTrigger>
