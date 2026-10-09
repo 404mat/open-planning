@@ -2,13 +2,7 @@ import { ArrowLeftIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
-export function BackButton({
-  text,
-  onClick,
-}: {
-  text: string;
-  onClick: () => void;
-}) {
+export function BackButton({ text, onClick }: { text: string; onClick: () => void }) {
   return (
     <Button className="group" variant="ghost" onClick={onClick}>
       <ArrowLeftIcon

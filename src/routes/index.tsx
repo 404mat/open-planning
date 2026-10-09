@@ -12,8 +12,7 @@ export const Route = createFileRoute('/')({ component: App });
 function App() {
   const [playerName, setPlayerName] = useState('');
 
-  const { sessionId, player, showWelcomePopup, createPlayer, logout } =
-    useSessionAuth();
+  const { sessionId, player, showWelcomePopup, createPlayer, logout } = useSessionAuth();
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen bg-background py-8 realtive">
@@ -21,9 +20,7 @@ function App() {
         {/* top navbar */}
         <div className="flex justify-between items-center w-full max-w-360 px-4">
           <SocialLinks />
-          <div
-            className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}
-          >
+          <div className={`${sessionId ? '' : 'opacity-0 pointer-events-none'}`}>
             <NameAvatar userName={player?.name ?? ''} onLogout={logout} />
           </div>
         </div>
@@ -40,8 +37,8 @@ function App() {
             <JoinRoomBox />
           </div>
           <p className="text-center text-sm text-muted-foreground max-w-lg">
-            OpenPlanning is an open-source poker planning application designed
-            to facilitate collaborative estimation and planning sessions.
+            OpenPlanning is an open-source poker planning application designed to facilitate
+            collaborative estimation and planning sessions.
           </p>
         </div>
       </div>

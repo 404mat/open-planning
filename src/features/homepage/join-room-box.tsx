@@ -14,9 +14,7 @@ export function JoinRoomBox() {
       roomNameOrLink: '',
     },
     onSubmit: async ({ value }) => {
-      const { isValid, errorMessage, roomId } = validateJoinRoomInput(
-        value.roomNameOrLink
-      );
+      const { isValid, errorMessage, roomId } = validateJoinRoomInput(value.roomNameOrLink);
       if (!isValid) {
         errorToast({
           text: errorMessage ?? 'There was an error joining the room.',

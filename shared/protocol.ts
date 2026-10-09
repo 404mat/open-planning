@@ -109,7 +109,5 @@ export interface CreateRoomResult {
 
 /** Type guard used on both sides of the wire. */
 export function isVoteSystem(value: unknown): value is VoteSystem {
-  return (
-    typeof value === 'string' && (VOTE_SYSTEMS as string[]).includes(value)
-  );
+  return typeof value === 'string' && (VOTE_SYSTEMS as string[]).includes(value);
 }

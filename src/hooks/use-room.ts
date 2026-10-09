@@ -51,12 +51,7 @@ export interface UseRoomResult {
  * all `useSessionMutation` calls. One `PlanningRoom` Durable Object owns the
  * state; every change is broadcast to the room as a full snapshot.
  */
-export function useRoom({
-  roomSlug,
-  sessionId,
-  name,
-  onError,
-}: UseRoomOptions): UseRoomResult {
+export function useRoom({ roomSlug, sessionId, name, onError }: UseRoomOptions): UseRoomResult {
   const [room, setRoom] = useState<Room | undefined>(undefined);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [phase, setPhase] = useState<RoomPhase>('loading');
@@ -96,9 +91,7 @@ export function useRoom({
             setPhase('kicked');
             return;
           }
-          if (
-            message.state.participants.some((p) => p.sessionId === sessionId)
-          ) {
+          if (message.state.participants.some((p) => p.sessionId === sessionId)) {
             everJoinedRef.current = true;
           }
           setRoom(message.state.room);
@@ -154,12 +147,9 @@ export function useRoom({
     setVoteSystem: (voteSystem) =>
       send({ type: 'set-vote-system', voteSystem: voteSystem as VoteSystem }),
     setLocked: (isLocked) => send({ type: 'set-locked', isLocked }),
-    setUsersCanReveal: (usersCanReveal) =>
-      send({ type: 'set-users-can-reveal', usersCanReveal }),
-    setStoryUrl: (currentStoryUrl) =>
-      send({ type: 'set-story-url', currentStoryUrl }),
-    promoteAdmin: (targetSessionId) =>
-      send({ type: 'promote-admin', targetSessionId }),
+    setUsersCanReveal: (usersCanReveal) => send({ type: 'set-users-can-reveal', usersCanReveal }),
+    setStoryUrl: (currentStoryUrl) => send({ type: 'set-story-url', currentStoryUrl }),
+    promoteAdmin: (targetSessionId) => send({ type: 'promote-admin', targetSessionId }),
     kick: (targetSessionId) => send({ type: 'kick', targetSessionId }),
   };
 

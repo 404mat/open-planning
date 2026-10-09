@@ -23,8 +23,7 @@ function RoomComponent() {
 
   const { errorToast, warningToast } = useToast();
 
-  const { sessionId, session, isLoading, showWelcomePopup, createPlayer } =
-    useSessionAuth();
+  const { sessionId, session, isLoading, showWelcomePopup, createPlayer } = useSessionAuth();
 
   // Live connection to the room Durable Object. Everything below the
   // welcome popup is driven by the snapshots it streams.
@@ -75,10 +74,7 @@ function RoomComponent() {
   // Kicked or room gone: toast once, then head back to the homepage
   const hasHandledRemovalRef = useRef(false);
   useEffect(() => {
-    if (
-      (phase === 'kicked' || phase === 'not-found') &&
-      !hasHandledRemovalRef.current
-    ) {
+    if ((phase === 'kicked' || phase === 'not-found') && !hasHandledRemovalRef.current) {
       hasHandledRemovalRef.current = true;
       if (phase === 'kicked') {
         errorToast({ text: 'You have been removed from this room.' });
@@ -118,11 +114,7 @@ function RoomComponent() {
 
   // 1. Handle Auth Loading State
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Loading session...
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Loading session...</div>;
   }
 
   // 2. Handle Welcome Popup State
@@ -149,11 +141,7 @@ function RoomComponent() {
   }
 
   if (room === undefined) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        Loading room...
-      </div>
-    );
+    return <div className="flex justify-center items-center h-screen">Loading room...</div>;
   }
 
   // --- Render Connected Room Content ---
