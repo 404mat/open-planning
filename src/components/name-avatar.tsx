@@ -16,11 +16,9 @@ export default function NameAvatar({
 }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="gap-3 rounded-full px-3 ps-2">
-          <Avatars value={userName ?? ''} style="shape" size={22} />
-          {userName}
-        </Button>
+      <DropdownMenuTrigger render={<Button className="gap-3 rounded-full px-3 ps-2" />}>
+        <Avatars value={userName ?? ''} style="shape" size={22} />
+        {userName}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
