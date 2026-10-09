@@ -52,37 +52,3 @@ pnpm deploy     # runs `cf deploy` (builds via Vite and uploads the Worker)
 Configure the Worker in `cloudflare.config.ts` (typed config — name, bindings,
 Durable Objects). `cf build --dry-run` / `cf deploy --dry-run` validate a build
 without uploading.
-
-### Automatic deployments with Workers Builds
-
-In the Cloudflare dashboard, open **Workers & Pages → open-planning → Settings
-→ Builds** and connect the `404mat/poker-planning` GitHub repository. Authorize
-the Cloudflare GitHub app if prompted. Use these settings:
-
-| Setting                       | Value                                           |
-| ----------------------------- | ----------------------------------------------- |
-| Production branch             | `main`                                          |
-| Root directory                | Repository root                                 |
-| Build command                 | Leave empty (the deploy commands build the app) |
-| Deploy command                | `pnpm exec cf deploy`                           |
-| Preview command               | `pnpm exec cf previews deploy`                  |
-| Preview Builds                | Enabled for non-production branches             |
-| Build variable `NODE_VERSION` | `24.21.0`                                       |
-| Build variable `PNPM_VERSION` | `11.3.0`                                        |
-
-Let Cloudflare generate the build API token. GitHub Actions secrets are not
-needed. Pushes to `main` deploy production; pushes to other branches update a
-Worker Preview. Cloudflare posts the preview URL on the associated pull request.
-Each preview has isolated Durable Object room storage.
-
-Use the native Preview command above: uploading a version alone does not provide
-isolated room storage. Preview URLs are public. The pinned Cloudflare Vite plugin
-supports the preview build flag used by `cf`.
-
-`cloudflare.config.ts` uses a raw Durable Object binding for previews to omit
-`script_name`: the current typed `cf` binding emits the production Worker name
-and would otherwise share production room storage. Production keeps its typed
-binding.
-
-See [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/)
-and [preview builds](https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/).
